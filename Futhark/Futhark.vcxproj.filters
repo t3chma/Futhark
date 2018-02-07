@@ -18,10 +18,10 @@
     <ClCompile Include="src\base\Engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\base\Scene.cpp">
+    <ClCompile Include="src\base\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\base\Window.cpp">
+    <ClCompile Include="src\base\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,13 +29,13 @@
     <ClInclude Include="src\base\Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\base\Scene.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\base\Error.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\base\Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

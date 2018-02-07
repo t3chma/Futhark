@@ -1,17 +1,19 @@
 #pragma once
 #include "Scene.h"
 #include <memory>
+#include <map>
 namespace fk {
 
 /* This is a virtual class intended to be inherited from when creating a game with Futhark.
-[t3chma] */
-class App {
+[T3chma] */
+class Engine {
 public:
 
-	App() = default;
-	virtual ~App();
-		
+	Engine();
+	virtual ~Engine();
+
 	/* Starts the app.
+	Make sure to add your screens before you call this.
 	[T3chma : 2018/01/31] */
 	virtual void run() final;
 
@@ -69,15 +71,6 @@ protected:
 	^ SDLWindow.h
 	[T3chma : 2018/01/31] */
 	Window p_window;
-
-	/* This is a pure virtual function where custom scenes are to be added to the scene list.
-	Window is NOT initialized before this, remember to do that here or in a scene somewhere.
-	| initializeWindow("Sample Name", Futhark::SDLWindow::BORDERED, -100, 0);
-	| addScene("Menu", new SceneMenu);
-	| addScene("Main", new SceneMain);
-	| setScene("Menu");
-	[T3chma : 2018/01/31] */
-	virtual void p_customRun() = 0;
 
 private:
 

@@ -4,15 +4,27 @@
 #include <iostream>
 #define LOG_LINE(message) std::cout << message << "\n " << __FILE__ << ":" << __LINE__ << "\n";
 #ifdef _DEBUG
-	#define TRY_GL(func) clearGLErrors(); func; if (!(logGLCall(#func, __FILE__, __LINE__))) { __debugbreak(); }
-	#define TRY_SDL(func) if (func) { logSDLCall(#func, __FILE__, __LINE__); __debugbreak(); }
-	#define TRY_GLEW(func) GLenum error = func; if (error != GLEW_OK) { logGLEWCall(#func, __FILE__, __LINE__, error); __debugbreak(); }
-	#define ASSERT_BREAK(condition, message) if (condition) { LOG_LINE(message); __debugbreak(); }
+	// Runs block and if it causes an OpenGL error it breaks after printing some information.
+	#define TRY_GL(block) block; if (checkGLError(#block, __FILE__, __LINE__)) {\
+		 __debugbreak(); clearGLErrors();\
+	}
+	// Runs block and if it causes an SDL error it breaks after printing some information.
+	#define TRY_SDL(block) block; if (checkSDLError(#block, __FILE__, __LINE__)) {\
+		__debugbreak(); clearSDLErrors();\
+	}
+	// Checks if the given GLEW function returns an error. Note that func must eval a GLEW func return value.
+	#define TRY_GLEW(func) if (checkGLEWError((func), #func, __FILE__, __LINE__)) {\
+		__debugbreak();\
+	}
+	// Breaks if the assertion fails.
+	#define ASSERT_BREAK(condition) if (!condition) {\
+		__debugbreak();\
+	}
 #else
-	#define TRY_GL(func) func;
-	#define TRY_SDL(func) func;
+	#define TRY_GL(block) block;
+	#define TRY_SDL(block) block;
 	#define TRY_GLEW(func) func;
-	#define ASSERT_BREAK(condition, message) if (condition) { LOG_LINE(message); }
+	#define ASSERT_BREAK(condition)
 #endif
 namespace fk {
 
@@ -20,20 +32,41 @@ static void clearGLErrors() {
 	while (glGetError() != GL_NO_ERROR);
 }
 
-static bool logGLCall(const char* function, const char* file, int line) {
+static bool checkGLError(const char* function, const char* file, int line) {
+	bool returnVal = false;
 	while (GLenum error = glGetError()) {
-		std::cout << "[OpenGL Error] (" << error << "): " << function << "\n " << file << ":" << line << "\n";
-		return false;
+		std::cout << "[OpenGL Error] (" << error << "):\n "
+			<< function << "\n at "
+			<< file << ":" << line << "\n";
+		returnVal = true;
 	}
-	return true;
+	return returnVal;
 }
 
-static void logSDLCall(const char* function, const char* file, int line) {
-	std::cout << "[SDL Error] (" << SDL_GetError() << "): " << function << "\n " << file << ":" << line << "\n";
+static void clearSDLErrors() {
+	while (SDL_GetError() != "") { SDL_ClearError(); }
 }
 
-static void logGLEWCall(const char* function, const char* file, int line, GLenum error) {
-	std::cout << "[GLEW Error] (" << error << "): " << function << "\n " << file << ":" << line << "\n";
+static bool checkSDLError(const char* function, const char* file, int line) {
+	bool returnVal = false;
+	while (const char * error = SDL_GetError()) {
+		std::cout << "[SDL Error] (" << error << "):\n "
+			<< function << "\n at "
+			<< file << ":" << line << "\n";
+		returnVal = true;
+	}
+	return returnVal;
+}
+
+static bool checkGLEWError(unsigned int errorCode, const char* function, const char* file, int line) {
+	bool returnVal = false;
+	if (errorCode != GLEW_OK) {
+		std::cout << "[GLEW Error] (" << glewGetErrorString(errorCode) << "):\n "
+			<< function << "\n at "
+			<< file << ":" << line << "\n";
+		returnVal = true;
+	}
+	return returnVal;
 }
 
 }

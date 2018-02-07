@@ -19,14 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\base\Error.h" />
-    <ClInclude Include="src\base\Window.h" />
-    <ClInclude Include="src\base\Scene.h" />
     <ClInclude Include="src\base\Engine.h" />
+    <ClInclude Include="src\base\Error.h" />
+    <ClInclude Include="src\base\Scene.h" />
+    <ClInclude Include="src\base\Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\base\Scene.cpp" />
     <ClCompile Include="src\base\Engine.cpp" />
+    <ClCompile Include="src\base\Scene.cpp" />
     <ClCompile Include="src\base\Window.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

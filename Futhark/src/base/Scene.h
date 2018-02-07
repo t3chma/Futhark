@@ -1,13 +1,13 @@
 #pragma once
 #include <vector>
 #include "Window.h"
-#include <map>
 #include <string>
 namespace fk {
 
 enum class GameState { PLAY, EXIT };
 
-// A scene class for deriving your own scenes.
+/* A scene class for deriving your own scenes.
+[T3chma] */
 class Scene {
 public:
 
