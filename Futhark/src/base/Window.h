@@ -1,23 +1,22 @@
 #pragma once
-#include <SDL/SDL.h>
 #include <string>
 #include <GLM/vec2.hpp>
+class SDL_Window;
+union SDL_Event;
 namespace fk {
 
 /* Window class using SDL
 [t3chma] */
 class Window {
 public:
-
-	enum Flags {
-		BORDERED = 1 << 0,
-		FULLSCREEN = 1 << 1,
-		BORDERLESS = 1 << 2,
-		HIGH_DPI = 1 << 3,
-		MINIMIZED = 1 << 4,
-		INVISIBLE = 1 << 5,
-		RESIZABLE = 1 << 6,
-	};
+	
+	static const int BORDERED = 1 << 0;
+	static const int FULLSCREEN = 1 << 1;
+	static const int BORDERLESS = 1 << 2;
+	static const int HIGH_DPI = 1 << 3;
+	static const int MINIMIZED = 1 << 4;
+	static const int INVISIBLE = 1 << 5;
+	static const int RESIZABLE = 1 << 6;
 
 	/* Launch the SDL window.
 	(WINDOW_NAME) The name of the window.
@@ -27,15 +26,15 @@ public:
 	[T3chma : 2018/01/31] */
 	void initialize(
 		const std::string& WINDOW_NAME = "Default Window Name",
-		const Flags& WINDOW_FLAGS = BORDERED,
+		const int& WINDOW_FLAGS = BORDERED,
 		const int& WINDOW_WIDTH = 1000,
 		const int& WINDOW_HEIGHT = 500
 	);
 
 	int getWidth() const;
 	int getHeight() const;
-	void setDimentions(const int& WINDOW_WIDTH, const int& WINDOW_HEIGHT);
-	void setMouseWindowCoordinates(const float& X, const float& Y);
+	///void setDimentions(const int& WINDOW_WIDTH, const int& WINDOW_HEIGHT);
+	///void setMouseWindowCoordinates(const float& X, const float& Y);
 	glm::vec2 getMouseWindowCoordinates() const;
 	void minimize();
 	void restore();
@@ -43,6 +42,9 @@ public:
 	/* Swap the second OpenGL screen buffer to the screen.
 	[T3chma : 2018/01/31] */
 	void swapGLBuffer();
+
+	// TODO: doc
+	void handleEvents(const SDL_Event& sdlEvent);
 
 private:
 

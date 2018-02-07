@@ -2,7 +2,6 @@
 #include "Engine.h"
 #include "Error.h"
 //#include "SpriteBatch.h"
-
 namespace fk {
 
 Engine::Engine() { m_initializeEngine(); }
@@ -22,7 +21,7 @@ void Engine::stop() {
 
 void Engine::initializeWindow(
 	const std::string& NAME,
-	Window::Flags flags,
+	const int flags,
 	int width, int height
 ) { p_window.initialize(NAME, flags, width, height); }
 
@@ -74,10 +73,6 @@ void Engine::m_initializeEngine() {
 	///ResourceCache::initialize();
 	///UIManager::initialize();
 	///Futhark::SpriteBatch::initialize();
-
-	// Specify the clear value for the depth buffer
-	//^ https://www.opengl.org/sdk/docs/man2/xhtml/glClearDepth.xml
-	TRY_GL(glClearDepth(1.0f));
 }
 
 void Engine::m_gameLoop() {
@@ -96,44 +91,44 @@ void Engine::m_gameLoop() {
 void Engine::m_getInput() {
 	///UIManager::update();
 
-	SDL_Event eventSDL;
+	SDL_Event sdlEvent;
 
 	// Loops until there are no more events to process
-	while (SDL_PollEvent(&eventSDL)) {
-		switch (eventSDL.type) {
+	while (SDL_PollEvent(&sdlEvent)) {
+		switch (sdlEvent.type) {
 		case SDL_QUIT:
 			p_gameState = GameState::EXIT;
-			break;
+		break;
 		case SDL_KEYDOWN:
 			///UIManager::setPressedKey(eventSDL.key.keysym.sym);
-			break;
+		break;
 		case SDL_KEYUP:
 			///UIManager::setUnpressedKey(eventSDL.key.keysym.sym);
-			break;
-		case SDL_MOUSEMOTION:
-			p_window.setMouseWindowCoordinates(
-				static_cast<float>(eventSDL.motion.x), static_cast<float>(eventSDL.motion.y)
-			);
-			///UIManager::mouseMotion();
-			break;
+		break;
 		case SDL_MOUSEBUTTONDOWN:
 			///UIManager::setPressedKey(eventSDL.button.button);
-			break;
+		break;
 		case SDL_MOUSEBUTTONUP:
 			///UIManager::setUnpressedKey(eventSDL.button.button);
-			break;
+		break;
 		case SDL_JOYAXISMOTION:
 			///UIManager::setJoystickAxis(eventSDL.jaxis.which, eventSDL.jaxis.axis, eventSDL.jaxis.value);
-			break;
+		break;
 		case SDL_JOYHATMOTION:
 			///UIManager::setHat(eventSDL.jaxis.which, eventSDL.jhat.value);
-			break;
+		break;
 		case SDL_JOYBUTTONDOWN:
 			///UIManager::setPressedButton(eventSDL.jaxis.which, eventSDL.jbutton.button);
-			break;
+		break;
 		case SDL_JOYBUTTONUP:
 			///UIManager::setUnpressedButton(eventSDL.jaxis.which, eventSDL.jbutton.button);
-			break;
+		break;
+		case SDL_MOUSEMOTION:
+			///UIManager::mouseMotion();
+		//FALL
+		default:
+			p_window.handleEvents(sdlEvent);
+		break;
 		}
 	}
 }

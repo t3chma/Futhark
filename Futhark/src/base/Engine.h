@@ -31,7 +31,7 @@ public:
 	[T3chma : 2018/01/31] */
 	virtual void initializeWindow(
 		const std::string& name = "Default Window Name",
-		Window::Flags flags = Window::Flags::BORDERED,
+		const int flags = Window::BORDERED,
 		int width = 1000,
 		int height = 500
 	) final;
