@@ -2,28 +2,14 @@
 #include "Error.h"
 namespace fk {
 
-void Window::initialize(
-	const std::string& WINDOW_NAME,
-	const int& WINDOW_FLAGS,
-	const int& WINDOW_WIDTH,
-	const int& WINDOW_HEIGHT
+Window::Window(
+	const std::string& NAME,
+	int width,
+	int height,
+	Flag flags
 ) {
-	m_width = WINDOW_WIDTH;
-	m_height = WINDOW_HEIGHT;
-
-	// OR all the flags.
-	Uint32 flags(SDL_WINDOW_OPENGL);
-	if (WINDOW_FLAGS & FULLSCREEN) {
-		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-		m_width = 0;
-		m_height = 0;
-	}
-	if (WINDOW_FLAGS & BORDERLESS) { flags |= SDL_WINDOW_BORDERLESS; }
-	if (WINDOW_FLAGS & HIGH_DPI) { flags |= SDL_WINDOW_ALLOW_HIGHDPI; }
-	if (WINDOW_FLAGS & MINIMIZED) { flags |= SDL_WINDOW_MINIMIZED; }
-	if (WINDOW_FLAGS & INVISIBLE) { flags |= SDL_WINDOW_HIDDEN; }
-	if (WINDOW_FLAGS & RESIZABLE) { flags |= SDL_WINDOW_RESIZABLE; }
-
+	m_width = width;
+	m_height = height;
 	// Account for window dimensions < 1.
 	if (m_height < 1 || m_width < 1) {
 		SDL_DisplayMode current;
@@ -34,16 +20,29 @@ void Window::initialize(
 		if (m_height < 1) { m_height = current.h + m_height; }
 	}
 
+	// OR all the flags.
+	Uint32 sdlFlags(SDL_WINDOW_OPENGL);
+	if ((int)flags & FULLSCREEN) {
+		sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+		m_width = 0;
+		m_height = 0;
+	}
+	if (flags & BORDERLESS) { sdlFlags |= SDL_WINDOW_BORDERLESS; }
+	if (flags & HIGH_DPI) { sdlFlags |= SDL_WINDOW_ALLOW_HIGHDPI; }
+	if (flags & MINIMIZED) { sdlFlags |= SDL_WINDOW_MINIMIZED; }
+	if (flags & INVISIBLE) { sdlFlags |= SDL_WINDOW_HIDDEN; }
+	if (flags & RESIZABLE) { sdlFlags |= SDL_WINDOW_RESIZABLE; }
+
 	// Create a window with the specified name, position, dimensions, and flags
 	// ^ https://wiki.libsdl.org/SDL_CreateWindow
 	TRY_SDL(
 		p_windowPtr = SDL_CreateWindow(
-			WINDOW_NAME.c_str(),
+			NAME.c_str(),
 			SDL_WINDOWPOS_CENTERED,
 			SDL_WINDOWPOS_CENTERED,
 			m_width,
 			m_height,
-			flags
+			sdlFlags
 		)
 	);
 
@@ -120,7 +119,7 @@ void Window::handleEvents(const SDL_Event& sdlEvent) {
 	case SDL_MOUSEMOTION:
 		m_mouseWindowCoordinates.x = static_cast<float>(sdlEvent.motion.x);
 		m_mouseWindowCoordinates.y = static_cast<float>(sdlEvent.motion.y);
-		break;
+	break;
 	case SDL_WINDOWEVENT:
 		switch (sdlEvent.window.event) {
 		case SDL_WINDOWEVENT_SHOWN:

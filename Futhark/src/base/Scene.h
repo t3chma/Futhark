@@ -2,9 +2,8 @@
 #include <vector>
 #include "Window.h"
 #include <string>
+#include "Utility.h"
 namespace fk {
-
-enum class GameState { PLAY, EXIT };
 
 /* A scene class for deriving your own scenes.
 [T3chma] */

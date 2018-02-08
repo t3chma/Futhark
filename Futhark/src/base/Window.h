@@ -10,26 +10,15 @@ namespace fk {
 class Window {
 public:
 	
-	static const int BORDERED = 1 << 0;
-	static const int FULLSCREEN = 1 << 1;
-	static const int BORDERLESS = 1 << 2;
-	static const int HIGH_DPI = 1 << 3;
-	static const int MINIMIZED = 1 << 4;
-	static const int INVISIBLE = 1 << 5;
-	static const int RESIZABLE = 1 << 6;
-
-	/* Launch the SDL window.
-	(WINDOW_NAME) The name of the window.
-	(WINDOW_FLAGS) ORable flags: INVISIBLE, FULLSCREEN, BORDERLESS.
-	(WINDOW_WIDTH) The width of the window.
-	(WINDOW_HEIGHT) The height of the window.
-	[T3chma : 2018/01/31] */
-	void initialize(
-		const std::string& WINDOW_NAME = "Default Window Name",
-		const int& WINDOW_FLAGS = BORDERED,
-		const int& WINDOW_WIDTH = 1000,
-		const int& WINDOW_HEIGHT = 500
-	);
+	using Flag = unsigned int;
+	static const Flag
+		BORDERED = 1 << 0,
+		FULLSCREEN = 1 << 1,
+		BORDERLESS = 1 << 2,
+		HIGH_DPI = 1 << 3,
+		MINIMIZED = 1 << 4,
+		INVISIBLE = 1 << 5,
+		RESIZABLE = 1 << 6;
 
 	int getWidth() const;
 	int getHeight() const;
@@ -38,6 +27,19 @@ public:
 	glm::vec2 getMouseWindowCoordinates() const;
 	void minimize();
 	void restore();
+
+	/* Launch the SDL window.
+	(WINDOW_NAME) The name of the window.
+	(WINDOW_WIDTH) The width of the window.
+	(WINDOW_HEIGHT) The height of the window.
+	(WINDOW_FLAGS) ORable flags: INVISIBLE, FULLSCREEN, BORDERLESS.
+	[T3chma : 2018/01/31] */
+	Window(
+		const std::string& NAME = "Default Window Name",
+		int width = 1000,
+		int height = 500,
+		Flag flags = RESIZABLE
+	);
 
 	/* Swap the second OpenGL screen buffer to the screen.
 	[T3chma : 2018/01/31] */

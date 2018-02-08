@@ -1,5 +1,6 @@
 #pragma once
 #include "Scene.h"
+#include "../in/UserInput.h"
 #include <memory>
 #include <map>
 namespace fk {
@@ -28,58 +29,59 @@ public:
 	(flags) These ORable flags specify the type of window.
 	(width) The width of the window in pixels, 0 = scene width, width < 0 = scene width + width.
 	(height) The height of the window in pixels, 0 = scene height, height < 0 = scene width + height.
+	< The index of the window.
 	[T3chma : 2018/01/31] */
-	virtual void initializeWindow(
+	virtual int makeWindow(
 		const std::string& name = "Default Window Name",
-		const int flags = Window::BORDERED,
 		int width = 1000,
-		int height = 500
+		int height = 500,
+		Window::Flag flags = Window::RESIZABLE
 	) final;
 
 	/* Adds a scene to the internally managed scene list.
 	(name) The name of the scene.
 	(scenePtr) A pointer to the scene.
 	[T3chma : 2018/01/31] */
-	virtual void addScene(const std::string& name, Scene* const scenePtr) final;
+	virtual void addWindowScene(int windowIndex, const std::string& name, Scene* const scenePtr) final;
 
 	/* Sets the current active scene, closing the old one.
 	(sceneName) The name of the scene to switch to.
 	[T3chma : 2018/01/31] */
-	virtual void setScene(const std::string& sceneName) final;
+	virtual void setWindowScene(int windowIndex, const std::string& sceneName) final;
 
 	/* Gets the pointer of the scene name given.
 	The current scene pointer is returned by default.
 	(sceneName) The name of the scene whos pointer will be returned.
 	< The pointer to scene with the given name, or nullptr otherwise.
 	[T3chma : 2018/01/31] */
-	virtual Scene* getScenePtr(const std::string& sceneName = "") const final;
+	virtual Scene* getWindowScenePtr(int windowIndex, const std::string& sceneName = "") const final;
 
 	/* Deletes all the scenes from the scene list.
 	[T3chma : 2018/01/31] */
 	virtual void clearScenes() final;
 
-protected:
+private:
 
 	/* Used to switch between app modes.
 	^ Utility.h: GameState
 	(PLAY) Normal operation mode.
 	(EXIT) Shuts down the app.
 	[T3chma : 2018/01/31] */
-	GameState p_gameState{ GameState::PLAY };
+	GameState m_gameState{ GameState::PLAY };
 
 	/* Window handle.
 	^ SDLWindow.h
 	[T3chma : 2018/01/31] */
-	Window p_window;
+	std::vector<Window> m_windows;
 
-private:
+	UserInput m_ui;
 
 	// Hash table for looking up scene pointers by name.
 	// ^ http://www.cplusplus.com/reference/map/map/
 	std::map<std::string, Scene*> m_scenePtrMap;
 
 	// A handle to the current scene
-	Scene* m_currentScenePtr{ nullptr };
+	std::vector<Scene*> m_currentScenePtrs;
 
 	// Initializes the engine. Called by the run().
 	void m_initializeEngine();

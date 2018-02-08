@@ -3,9 +3,9 @@
 
 int main(int argc, char** argv) {
 	fk::Engine game;
-	game.initializeWindow("Sample Name", fk::Window::BORDERED | fk::Window::RESIZABLE, -100, -100);
-	game.addScene("AITester", new AITester);
-	game.setScene("AITester");
+	game.makeWindow("Sample Name", -100, -100, fk::Window::RESIZABLE);
+	game.addWindowScene(0, "AITester", new AITester);
+	game.setWindowScene(0, "AITester");
 	game.run();
 	return 0;
 }

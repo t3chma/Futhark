@@ -4,61 +4,7 @@
 //#include "SpriteBatch.h"
 namespace fk {
 
-Engine::Engine() { m_initializeEngine(); }
-Engine::~Engine() { stop(); }
-
-void Engine::run() {
-	m_gameLoop();
-	stop();
-}
-
-void Engine::stop() {
-	clearScenes();
-	// Use this function to clean up all initialized subsystems.
-	// ^ https://wiki.libsdl.org/SDL_Quit
-	SDL_Quit();
-}
-
-void Engine::initializeWindow(
-	const std::string& NAME,
-	const int flags,
-	int width, int height
-) { p_window.initialize(NAME, flags, width, height); }
-
-void Engine::addScene(const std::string& NAME, Scene* const scenePTR) {
-	scenePTR->p_windowPtr = &p_window;
-	//TODO: set cams to window dims
-	m_scenePtrMap[NAME] = scenePTR;
-}
-
-void Engine::setScene(const std::string& SCREEN_NAME) {
-	auto mapSelection(m_scenePtrMap.find(SCREEN_NAME));
-	if (mapSelection == m_scenePtrMap.end()) {
-		LOG_LINE("Scene \"" + SCREEN_NAME + "\" doesn't exist");
-	} else {
-		if (m_currentScenePtr != nullptr) { m_currentScenePtr->close(); }
-		mapSelection->second->open();
-		m_currentScenePtr = mapSelection->second;
-	}
-}
-
-Scene* Engine::getScenePtr(const std::string& SCREEN_NAME) const {
-	if (SCREEN_NAME == "") {
-		return m_currentScenePtr;
-	} else {
-		auto mapSelection(m_scenePtrMap.find(SCREEN_NAME));
-		if (mapSelection == m_scenePtrMap.end()) {
-			return nullptr;
-		} else { return mapSelection->second; }
-	}
-}
-
-void Engine::clearScenes() {
-	for (const auto& e : m_scenePtrMap) { delete e.second; }
-	m_scenePtrMap.clear();
-}
-
-void Engine::m_initializeEngine() {
+Engine::Engine() {
 	///Errors::initialize(&p_window);
 
 	// Initialize SDL library. Must be called before using any other SDL function.
@@ -75,62 +21,68 @@ void Engine::m_initializeEngine() {
 	///Futhark::SpriteBatch::initialize();
 }
 
-void Engine::m_gameLoop() {
-	while (p_gameState != GameState::EXIT) {
-		m_getInput();
-		if (getScenePtr()->nextSceneName != "") {
-			std::string nextSceneName = getScenePtr()->nextSceneName;
-			getScenePtr()->nextSceneName = "";
-			setScene(nextSceneName);
+Engine::~Engine() { stop(); }
+
+void Engine::run() {
+	while (m_gameState != GameState::EXIT) {
+		m_gameState = m_ui.fetch();
+		//m_windows[0].swapGLBuffer();
+		for (int i = 0; i < m_currentScenePtrs.size(); ++i) {
+			if (m_currentScenePtrs[i]->nextSceneName != "") {
+				std::string nextSceneName = m_currentScenePtrs[i]->nextSceneName;
+				m_currentScenePtrs[i]->nextSceneName = "";
+				setWindowScene(i, nextSceneName);
+			}
+			m_currentScenePtrs[i]->update(m_gameState);
+			m_windows[i].swapGLBuffer();
 		}
-		getScenePtr()->update(p_gameState);
-		p_window.swapGLBuffer();
+	}
+	stop();
+}
+
+void Engine::stop() {
+	clearScenes();
+	// Use this function to clean up all initialized subsystems.
+	// ^ https://wiki.libsdl.org/SDL_Quit
+	SDL_Quit();
+}
+
+int Engine::makeWindow(const std::string& NAME, int width, int height, Window::Flag flags) {
+	m_windows.emplace_back(NAME, width, height, flags);
+	m_currentScenePtrs.emplace_back(nullptr);
+	return m_windows.size() - 1;
+}
+
+void Engine::addWindowScene(int windowIndex, const std::string& name, Scene* const scenePtr) {
+	scenePtr->p_windowPtr = &m_windows[windowIndex];
+	//TODO: set cams to window dims
+	m_scenePtrMap[name] = scenePtr;
+}
+
+void Engine::setWindowScene(int windowIndex, const std::string& sceneName) {
+	auto mapSelection(m_scenePtrMap.find(sceneName));
+	if (mapSelection == m_scenePtrMap.end()) {
+		LOG_LINE("Scene \"" + sceneName + "\" doesn't exist");
+	} else {
+		if (m_currentScenePtrs[windowIndex] != nullptr) { m_currentScenePtrs[windowIndex]->close(); }
+		mapSelection->second->open();
+		m_currentScenePtrs[windowIndex] = mapSelection->second;
 	}
 }
 
-void Engine::m_getInput() {
-	///UIManager::update();
-
-	SDL_Event sdlEvent;
-
-	// Loops until there are no more events to process
-	while (SDL_PollEvent(&sdlEvent)) {
-		switch (sdlEvent.type) {
-		case SDL_QUIT:
-			p_gameState = GameState::EXIT;
-		break;
-		case SDL_KEYDOWN:
-			///UIManager::setPressedKey(eventSDL.key.keysym.sym);
-		break;
-		case SDL_KEYUP:
-			///UIManager::setUnpressedKey(eventSDL.key.keysym.sym);
-		break;
-		case SDL_MOUSEBUTTONDOWN:
-			///UIManager::setPressedKey(eventSDL.button.button);
-		break;
-		case SDL_MOUSEBUTTONUP:
-			///UIManager::setUnpressedKey(eventSDL.button.button);
-		break;
-		case SDL_JOYAXISMOTION:
-			///UIManager::setJoystickAxis(eventSDL.jaxis.which, eventSDL.jaxis.axis, eventSDL.jaxis.value);
-		break;
-		case SDL_JOYHATMOTION:
-			///UIManager::setHat(eventSDL.jaxis.which, eventSDL.jhat.value);
-		break;
-		case SDL_JOYBUTTONDOWN:
-			///UIManager::setPressedButton(eventSDL.jaxis.which, eventSDL.jbutton.button);
-		break;
-		case SDL_JOYBUTTONUP:
-			///UIManager::setUnpressedButton(eventSDL.jaxis.which, eventSDL.jbutton.button);
-		break;
-		case SDL_MOUSEMOTION:
-			///UIManager::mouseMotion();
-		//FALL
-		default:
-			p_window.handleEvents(sdlEvent);
-		break;
-		}
+fk::Scene* Engine::getWindowScenePtr(int windowIndex, const std::string& sceneName) const {
+	if (sceneName == "") {
+		return m_currentScenePtrs[windowIndex];
+	} else {
+		auto mapSelection(m_scenePtrMap.find(sceneName));
+		if (mapSelection == m_scenePtrMap.end()) {
+			return nullptr;
+		} else { return mapSelection->second; }
 	}
 }
 
+void Engine::clearScenes() {
+	for (const auto& e : m_scenePtrMap) { delete e.second; }
+	m_scenePtrMap.clear();
+}
 }
