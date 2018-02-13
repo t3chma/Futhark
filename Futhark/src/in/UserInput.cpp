@@ -95,7 +95,6 @@ bool fk::UserInput::isModKey(int key) {
 fk::GameState fk::UserInput::m_poll() {
 	SDL_Event sdlEvent;
 	GameState gs = GameState::PLAY;
-	m_ModHistory.front()[0].down = true;
 
 	// Loops until there are no more events to process
 	while (SDL_PollEvent(&sdlEvent)) {
@@ -107,11 +106,13 @@ fk::GameState fk::UserInput::m_poll() {
 			if (isModKey(sdlEvent.key.keysym.sym)) {
 				m_ModHistory.front()[sdlEvent.key.keysym.sym].down = true;
 				m_ModHistory.front()[0].down = false;
+			} else {
+				m_downKeys.push_back(sdlEvent.key.keysym.sym);
 			}
-			m_downKeys.push_back(sdlEvent.key.keysym.sym);
 		break;
 		case SDL_KEYUP:
-			m_upKeys.push_back(sdlEvent.key.keysym.sym);
+			if (isModKey(sdlEvent.key.keysym.sym)) { m_ModHistory.front()[sdlEvent.key.keysym.sym].down = false; }
+			else { m_upKeys.push_back(sdlEvent.key.keysym.sym); }
 		break;
 		case SDL_MOUSEBUTTONDOWN:
 			m_downButts.push_back(sdlEvent.key.keysym.sym);
