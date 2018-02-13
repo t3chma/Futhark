@@ -20,11 +20,10 @@ public:
 		INVISIBLE = 1 << 5,
 		RESIZABLE = 1 << 6;
 
-	int getWidth() const;
-	int getHeight() const;
+	glm::ivec2 getDimentions() const;
 	///void setDimentions(const int& WINDOW_WIDTH, const int& WINDOW_HEIGHT);
 	///void setMouseWindowCoordinates(const float& X, const float& Y);
-	glm::vec2 getMouseWindowCoordinates() const;
+	int getID();
 	void minimize();
 	void restore();
 
@@ -50,20 +49,17 @@ public:
 
 private:
 
-	// Current width of the window.
-	int m_width{ 720 };
-
-	// Current height of the window.
-	int m_height{ 480 };
+	// Current dimensions of the window.
+	glm::ivec2 m_dimentions{ 720, 480 };
 
 	// A handle to the actual SDL window this class wraps.
 	SDL_Window* p_windowPtr{ nullptr };
-
-	// The current mouse window coordinates.
-	glm::vec2 m_mouseWindowCoordinates{ 0.0f };
 		
 	// A debug flag for checking if a window is initialized or not.
 	bool m_windowIsInitialized{ false };
+
+	// The SDL ID for this window.
+	int m_id{ 0 };
 };
 
 }

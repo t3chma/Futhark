@@ -8,24 +8,22 @@ Window::Window(
 	int height,
 	Flag flags
 ) {
-	m_width = width;
-	m_height = height;
 	// Account for window dimensions < 1.
-	if (m_height < 1 || m_width < 1) {
+	if (height < 1 || width < 1) {
 		SDL_DisplayMode current;
 		// Gets the resolution of the users monitor
 		// https://wiki.libsdl.org/SDL_GetCurrentDisplayMode
 		TRY_SDL(SDL_GetCurrentDisplayMode(0, &current));
-		if (m_width < 1) { m_width = current.w + m_width; }
-		if (m_height < 1) { m_height = current.h + m_height; }
+		if (width < 1) { width = current.w + width; }
+		if (height < 1) { height = current.h + height; }
 	}
 
 	// OR all the flags.
 	Uint32 sdlFlags(SDL_WINDOW_OPENGL);
 	if ((int)flags & FULLSCREEN) {
 		sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-		m_width = 0;
-		m_height = 0;
+		width = 0;
+		height = 0;
 	}
 	if (flags & BORDERLESS) { sdlFlags |= SDL_WINDOW_BORDERLESS; }
 	if (flags & HIGH_DPI) { sdlFlags |= SDL_WINDOW_ALLOW_HIGHDPI; }
@@ -40,11 +38,14 @@ Window::Window(
 			NAME.c_str(),
 			SDL_WINDOWPOS_CENTERED,
 			SDL_WINDOWPOS_CENTERED,
-			m_width,
-			m_height,
+			width,
+			height,
 			sdlFlags
 		)
 	);
+
+	m_dimentions.x = width;
+	m_dimentions.y = height;
 
 	// Create an OpenGL context for use with an OpenGL window, and make it current
 	// ^ https://wiki.libsdl.org/SDL_GL_CreateContext
@@ -77,27 +78,21 @@ Window::Window(
 	///Futhark::SpriteBatch::initialize();
 	///Futhark::WireBatch::initialize();
 
+	TRY_SDL(m_id = SDL_GetWindowID(p_windowPtr));
+
 	m_windowIsInitialized = true;
 }
 
-int Window::getWidth() const {
-	return m_width;
-}
-
-int Window::getHeight() const {
-	return m_height;
+glm::ivec2 Window::getDimentions() const {
+	return m_dimentions;
 }
 
 //void Window::setDimentions(const int& T_WINDOW_WIDTH, const int& T_WINDOW_HEIGHT) {
 //	m_width = T_WINDOW_WIDTH; m_height = T_WINDOW_HEIGHT;
 //}
-//
-//void Window::setMouseWindowCoordinates(const float& T_X, const float& T_Y) {
-//	m_mouseWindowCoordinates.x = T_X; m_mouseWindowCoordinates.y = T_Y;
-//}
 
-glm::vec2 Window::getMouseWindowCoordinates() const {
-	return m_mouseWindowCoordinates;
+int Window::getID() {
+	return m_id;
 }
 
 void Window::minimize() {
@@ -115,12 +110,7 @@ void Window::swapGLBuffer() {
 }
 
 void Window::handleEvents(const SDL_Event& sdlEvent) {
-	switch (sdlEvent.type) {
-	case SDL_MOUSEMOTION:
-		m_mouseWindowCoordinates.x = static_cast<float>(sdlEvent.motion.x);
-		m_mouseWindowCoordinates.y = static_cast<float>(sdlEvent.motion.y);
-	break;
-	case SDL_WINDOWEVENT:
+	if (sdlEvent.type == SDL_WINDOWEVENT) {
 		switch (sdlEvent.window.event) {
 		case SDL_WINDOWEVENT_SHOWN:
 			SDL_Log("Window %d shown", sdlEvent.window.windowID);
@@ -137,16 +127,16 @@ void Window::handleEvents(const SDL_Event& sdlEvent) {
 			);
 		break;
 		case SDL_WINDOWEVENT_RESIZED:
-			m_width = static_cast<float>(sdlEvent.window.data1);
-			m_height = static_cast<float>(sdlEvent.window.data2);
+			m_dimentions.x = static_cast<float>(sdlEvent.window.data1);
+			m_dimentions.y = static_cast<float>(sdlEvent.window.data2);
 			SDL_Log(
 				"Window %d resized to %dx%d",
 				sdlEvent.window.windowID, sdlEvent.window.data1, sdlEvent.window.data2
 			);
 		break;
 		case SDL_WINDOWEVENT_SIZE_CHANGED:
-			m_width = sdlEvent.window.data1;
-			m_height = sdlEvent.window.data2;
+			m_dimentions.x = sdlEvent.window.data1;
+			m_dimentions.y = sdlEvent.window.data2;
 			SDL_Log(
 				"Window %d size changed to %dx%d",
 				sdlEvent.window.windowID, sdlEvent.window.data1, sdlEvent.window.data2
@@ -179,9 +169,6 @@ void Window::handleEvents(const SDL_Event& sdlEvent) {
 		default:
 		break;
 		}
-	break;
-	default:
-	break;
 	}
 }
 

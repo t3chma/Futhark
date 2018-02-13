@@ -25,7 +25,7 @@ Engine::~Engine() { stop(); }
 
 void Engine::run() {
 	while (m_gameState != GameState::EXIT) {
-		m_gameState = m_ui.fetch();
+		m_gameState = m_ui.update();
 		//m_windows[0].swapGLBuffer();
 		for (int i = 0; i < m_currentScenePtrs.size(); ++i) {
 			if (m_currentScenePtrs[i]->nextSceneName != "") {
