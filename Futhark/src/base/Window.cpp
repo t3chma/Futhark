@@ -55,7 +55,7 @@ Window::Window(
 	TRY_GLEW(glewInit());
 
 	// Check OpenGL version
-	std::printf("\nOpenGL Version: %s", glGetString(GL_VERSION));
+	std::printf("\nOpenGL Version: %s\n", glGetString(GL_VERSION));
 
 	// Specify the clear value for the depth buffer
 	//^ https://www.opengl.org/sdk/docs/man2/xhtml/glClearDepth.xml

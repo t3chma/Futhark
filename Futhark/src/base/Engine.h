@@ -82,15 +82,6 @@ private:
 
 	// A handle to the current scene
 	std::vector<Scene*> m_currentScenePtrs;
-
-	// Initializes the engine. Called by the run().
-	void m_initializeEngine();
-
-	// The basic game loop. Called by the run().
-	void m_gameLoop();
-
-	// Called by the m_gameloop().
-	void m_getInput();
 };
 
 }

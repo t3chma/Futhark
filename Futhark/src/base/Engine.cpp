@@ -25,8 +25,8 @@ Engine::~Engine() { stop(); }
 
 void Engine::run() {
 	while (m_gameState != GameState::EXIT) {
-		m_gameState = m_ui.update();
-		//m_windows[0].swapGLBuffer();
+		m_gameState = m_ui.poll();
+		m_ui.dispatch();
 		for (int i = 0; i < m_currentScenePtrs.size(); ++i) {
 			if (m_currentScenePtrs[i]->nextSceneName != "") {
 				std::string nextSceneName = m_currentScenePtrs[i]->nextSceneName;
@@ -50,6 +50,7 @@ void Engine::stop() {
 int Engine::makeWindow(const std::string& NAME, int width, int height, Window::Flag flags) {
 	m_windows.emplace_back(NAME, width, height, flags);
 	m_currentScenePtrs.emplace_back(nullptr);
+	m_ui.windowPtrs.push_back(&m_windows.back());
 	return m_windows.size() - 1;
 }
 

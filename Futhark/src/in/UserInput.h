@@ -4,43 +4,29 @@
 #include "../base/Window.h"
 #include "../base/Utility.h"
 #include <unordered_map>
+#include <boost/preprocessor/debug/error.hpp>
 #include <boost/circular_buffer.hpp>
+#include <boost/functional/hash.hpp>
 #include <queue>
-#include <xfunctional>
 #include <GLM/vec2.hpp>
-#include <set>
 namespace fk {
 
 class Action {
 public:
-	int delay{ 0 };
-	virtual bool isUndoable() = 0;
+	Action* undo{ nullptr };
 	virtual void execute() = 0;
 };
 
-class Undoable : Action {
-public:
-	virtual bool isUndoable() override final { return true; };
-	virtual void undo() = 0;
-};
-
-class Permanent : Action {
-public:
-	virtual bool isUndoable() override final { return false; };
-};
+enum class Source { UI, AI };
 
 class QueuedAction {
 public:
-	QueuedAction(Action& action, bool undo);
-	bool undo{ false };
 	Action* actionPtr{ nullptr };
+	Source source{ Source::AI };
+	QueuedAction(Action* actionPtr, Source source);
 };
 
-enum class ModKey {
-	SHIFT_L = SDLK_LSHIFT, SHIFT_R = SDLK_RSHIFT,
-	ALT_L = SDLK_LALT, ALT_R = SDLK_RALT,
-	CTRL_L = SDLK_LCTRL, CTRL_R = SDLK_RCTRL
-};
+enum class Trigger { PRESS, UNPRESS, HOLD };
 
 enum class Key {
 	// Numbers
@@ -61,8 +47,20 @@ enum class Key {
 	SPACE = SDLK_SPACE, APOSTROPHE = SDLK_BACKQUOTE, COMMA = SDLK_COMMA, PERIOD = SDLK_PERIOD,
 	SEMICOLON = SDLK_SEMICOLON, QUOTE = SDLK_QUOTE, BRACKET_L = SDLK_LEFTBRACKET, BRACKET_R = SDLK_RIGHTBRACKET,
 	SLASH_F = SDLK_SLASH, SLASH_B = SDLK_BACKSLASH, MINUS = SDLK_MINUS, EQUAL = SDLK_EQUALS, ENTER = SDLK_RETURN,
-	RETURN = SDLK_RETURN, TAB = SDLK_TAB, BACK_SPC = SDLK_BACKSPACE
+	RETURN = SDLK_RETURN, TAB = SDLK_TAB, BACK_SPC = SDLK_BACKSPACE,
+	// Mod Keys
+	SHIFT_L = SDLK_LSHIFT, SHIFT_R = SDLK_RSHIFT,
+	ALT_L = SDLK_LALT, ALT_R = SDLK_RALT,
+	CTRL_L = SDLK_LCTRL, CTRL_R = SDLK_RCTRL
 }; // 80 * 4 < 512 keys.
+
+// Subset of Key.
+enum class ModKey {
+	NO_MOD = 0,
+	SHIFT_L = SDLK_LSHIFT, SHIFT_R = SDLK_RSHIFT,
+	ALT_L = SDLK_LALT, ALT_R = SDLK_RALT,
+	CTRL_L = SDLK_LCTRL, CTRL_R = SDLK_RCTRL
+};
 
 enum class Button {
 	LEFT = SDL_BUTTON_LEFT, MIDDLE = SDL_BUTTON_MIDDLE, RIGHT = SDL_BUTTON_RIGHT,
@@ -73,35 +71,21 @@ class UserInput {
 public:
 
 	struct KeyInfo {
-		// If this key is down.
-		bool down{ false };
-		// The mouse position when this was last down.
-		glm::ivec2 mousePos{ 0 };
-		// The action to perform when this key is pressed.
-		Action* downBinding{ nullptr };
-		bool downUndo;
-		// The action to perform when this key is unpressed.
-		Action* upBinding{ nullptr };
-		bool upUndo;
-		// The action to perform when this key is held.
-		Action* holdBinding{ nullptr };
-		bool holdUndo;
+		// How many frames this has been down for.
+		long downFrames{ 0 };
+		// The mouse position when this was last pressed.
+		glm::ivec2 pressPos{ 0 };
+		// The mouse position when this was last unpressed.
+		glm::ivec2 unpressPos{ 0 };
 	};
 
-	struct KeyInfo {
-		// If this key is down.
-		bool down{ false };
-		// The mouse position when this was last down.
-		glm::ivec2 mousePos{ 0 };
+	struct KeyBinding : public KeyInfo {
 		// The action to perform when this key is pressed.
-		Action* downBinding{ nullptr };
-		bool downUndo;
+		Action* pressBinding{ nullptr };
 		// The action to perform when this key is unpressed.
-		Action* upBinding{ nullptr };
-		bool upUndo;
+		Action* unpressBinding{ nullptr };
 		// The action to perform when this key is held.
 		Action* holdBinding{ nullptr };
-		bool holdUndo;
 	};
 
 	struct MouseInfo {
@@ -112,40 +96,51 @@ public:
 	// Window handles.
 	std::vector<Window*> windowPtrs;
 
+	// Queued actions
 	std::list<QueuedAction> queuedActions;
 
 	UserInput(int mouseHistory = 3600);
 
-	GameState update();
+	void bind(Trigger trigger, ModKey modKey, Key key, Action* actionPtr);
+	void bind(Trigger trigger, Key key, Action* actionPtr);
+	
+	GameState poll();
 
-	bool isModKey(int key);
+	MouseInfo getMouseInfo(unsigned int framesAgo);
+	KeyInfo getKeyInfo(Key key);
+	KeyInfo getButtInfo(Button butt);
+
+	void dispatch();
 
 private:
-	GameState m_poll();
 
-	// TODO: doc
-	boost::circular_buffer<std::unordered_map<std::pair<int,int>, KeyInfo>> m_keyHistory;
-
-	// TODO: doc
-	boost::circular_buffer<std::unordered_map<std::pair<int, int>, KeyInfo>> m_buttHistory;
-
-	// TODO: doc
-	boost::circular_buffer<std::unordered_map<int, KeyInfo>> m_ModHistory;
-
-	// TODO: doc
+	// History of mouse placement.
 	boost::circular_buffer<MouseInfo> m_mouseHistory;
 
-	// TODO: doc
-	std::vector<int> m_downKeys;
+	// Raw SDL key codes to key data (this includes mod keys).
+	std::unordered_map<int, KeyInfo> m_keyStats;
+	// Raw SDL button codes to key data.
+	std::unordered_map<int, KeyInfo> m_buttStats;
+	// Binding info for modkey and key pairs.
+	std::unordered_map<
+		std::pair<ModKey, KeyInfo*>,
+		KeyBinding, 
+		boost::hash<std::pair<ModKey, KeyInfo*>>
+	> m_boundStats;
 
-	// TODO: doc
-	std::vector<int> m_upKeys;
+	// The currently down mod keys.
+	std::vector<ModKey> m_downMods;
+	// The currently down keys (includes mod keys).
+	std::vector<KeyInfo*> m_downPtrs;
+	// The just unpressed keys (includes mod keys).
+	std::vector<KeyInfo*> m_unpressedPtrs;
 
-	// TODO: doc
-	std::vector<int> m_downButts;
+	// Polls SDL for key/button info.
+	GameState m_pollSDL();
 
-	// TODO: doc
-	std::vector<int> m_upButts;
+	void m_keyEvent(bool down, int keyID, bool notButt);
+
+	bool m_isModKey(int key);
 };
 
 }
