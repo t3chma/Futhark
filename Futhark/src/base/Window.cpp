@@ -113,58 +113,61 @@ void Window::handleEvents(const SDL_Event& sdlEvent) {
 	if (sdlEvent.type == SDL_WINDOWEVENT) {
 		switch (sdlEvent.window.event) {
 		case SDL_WINDOWEVENT_SHOWN:
-			SDL_Log("Window %d shown", sdlEvent.window.windowID);
+			///SDL_Log("Window %d shown", sdlEvent.window.windowID);
 		break;
 		case SDL_WINDOWEVENT_HIDDEN:
-			SDL_Log("Window %d hidden", sdlEvent.window.windowID);
+			///SDL_Log("Window %d hidden", sdlEvent.window.windowID);
 		break;
 		case SDL_WINDOWEVENT_EXPOSED:
-			SDL_Log("Window %d exposed", sdlEvent.window.windowID);
+			///SDL_Log("Window %d exposed", sdlEvent.window.windowID);
 		break;
 		case SDL_WINDOWEVENT_MOVED:
-			SDL_Log("Window %d moved to %d,%d",
-				sdlEvent.window.windowID, sdlEvent.window.data1, sdlEvent.window.data2
-			);
+			///SDL_Log(
+			///	"Window %d moved to %d,%d",
+			///	sdlEvent.window.windowID, sdlEvent.window.data1, sdlEvent.window.data2
+			///);
 		break;
 		case SDL_WINDOWEVENT_RESIZED:
-			m_dimentions.x = static_cast<float>(sdlEvent.window.data1);
-			m_dimentions.y = static_cast<float>(sdlEvent.window.data2);
-			SDL_Log(
-				"Window %d resized to %dx%d",
-				sdlEvent.window.windowID, sdlEvent.window.data1, sdlEvent.window.data2
-			);
+			m_dimentions.x = sdlEvent.window.data1;
+			m_dimentions.y = sdlEvent.window.data2;
+			///SDL_Log(
+			///	"Window %d resized to %dx%d",
+			///	sdlEvent.window.windowID, sdlEvent.window.data1, sdlEvent.window.data2
+			///);
 		break;
 		case SDL_WINDOWEVENT_SIZE_CHANGED:
 			m_dimentions.x = sdlEvent.window.data1;
 			m_dimentions.y = sdlEvent.window.data2;
-			SDL_Log(
-				"Window %d size changed to %dx%d",
-				sdlEvent.window.windowID, sdlEvent.window.data1, sdlEvent.window.data2
-			);
+			///SDL_Log(
+			///	"Window %d size changed to %dx%d",
+			///	sdlEvent.window.windowID, sdlEvent.window.data1, sdlEvent.window.data2
+			///);
 		break;
 		case SDL_WINDOWEVENT_MINIMIZED:
-			SDL_Log("Window %d minimized", sdlEvent.window.windowID);
+			///SDL_Log("Window %d minimized", sdlEvent.window.windowID);
 		break;
 		case SDL_WINDOWEVENT_MAXIMIZED:
-			SDL_Log("Window %d maximized", sdlEvent.window.windowID);
+			///SDL_Log("Window %d maximized", sdlEvent.window.windowID);
 		break;
 		case SDL_WINDOWEVENT_RESTORED:
-			SDL_Log("Window %d restored", sdlEvent.window.windowID);
+			///SDL_Log("Window %d restored", sdlEvent.window.windowID);
 		break;
 		case SDL_WINDOWEVENT_ENTER:
-			SDL_Log("Mouse entered window %d", sdlEvent.window.windowID);
+			// TODO: store mouse event
+			///SDL_Log("Mouse entered window %d", sdlEvent.window.windowID);
 		break;
 		case SDL_WINDOWEVENT_LEAVE:
-			SDL_Log("Mouse left window %d", sdlEvent.window.windowID);
+			// TODO: store mouse event
+			///SDL_Log("Mouse left window %d", sdlEvent.window.windowID);
 		break;
 		case SDL_WINDOWEVENT_FOCUS_GAINED:
-			SDL_Log("Window %d gained keyboard focus", sdlEvent.window.windowID);
+			///SDL_Log("Window %d gained keyboard focus", sdlEvent.window.windowID);
 		break;
 		case SDL_WINDOWEVENT_FOCUS_LOST:
-			SDL_Log("Window %d lost keyboard focus", sdlEvent.window.windowID);
+			///SDL_Log("Window %d lost keyboard focus", sdlEvent.window.windowID);
 		break;
 		case SDL_WINDOWEVENT_CLOSE:
-			SDL_Log("Window %d closed", sdlEvent.window.windowID);
+			///SDL_Log("Window %d closed", sdlEvent.window.windowID);
 		break;
 		default:
 		break;

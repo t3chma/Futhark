@@ -4,11 +4,11 @@
 #include "../base/Window.h"
 #include "../base/Utility.h"
 #include <unordered_map>
-#include <boost/preprocessor/debug/error.hpp>
 #include <boost/circular_buffer.hpp>
 #include <boost/functional/hash.hpp>
 #include <queue>
 #include <GLM/vec2.hpp>
+#include <unordered_set>
 namespace fk {
 
 class Action {
@@ -70,27 +70,30 @@ enum class Button {
 class UserInput {
 public:
 
-	struct KeyInfo {
+	struct KeyBinding {
 		// How many frames this has been down for.
 		long downFrames{ 0 };
-		// The mouse position when this was last pressed.
+		// How long it takes for the hold binding to trigger.
+		long triggerFrames{ 1 };
+		// Mouse position when this was last pressed.
 		glm::ivec2 pressPos{ 0 };
-		// The mouse position when this was last unpressed.
+		// Mouse position when this was last unpressed.
 		glm::ivec2 unpressPos{ 0 };
-	};
-
-	struct KeyBinding : public KeyInfo {
-		// The action to perform when this key is pressed.
+		// Action to perform when this key is pressed.
 		Action* pressBinding{ nullptr };
-		// The action to perform when this key is unpressed.
+		// Action to perform when this key is unpressed.
 		Action* unpressBinding{ nullptr };
-		// The action to perform when this key is held.
+		// Action to perform when this key is held.
 		Action* holdBinding{ nullptr };
 	};
 
 	struct MouseInfo {
+		// ID of the window the mouse is in.
 		int windowID{ 0 };
+		// Window position of the mouse.
 		glm::ivec2 position{ 0 };
+		// Direction of mouse wheel scroll. Pos for up and neg for down.
+		int wheel;
 	};
 
 	// Window handles.
@@ -99,41 +102,37 @@ public:
 	// Queued actions
 	std::list<QueuedAction> queuedActions;
 
-	UserInput(int mouseHistory = 3600);
+	UserInput(int history = 3600);
 
-	void bind(Trigger trigger, ModKey modKey, Key key, Action* actionPtr);
-	void bind(Trigger trigger, Key key, Action* actionPtr);
+	void bind(Trigger trigger, ModKey modKey, Key key, Action* actionPtr, long holdTime = 1);
+	void bind(Trigger trigger, Key key, Action* actionPtr, long holdTime = 1);
 	
 	GameState poll();
 
 	MouseInfo getMouseInfo(unsigned int framesAgo);
-	KeyInfo getKeyInfo(Key key);
-	KeyInfo getButtInfo(Button butt);
+	KeyBinding getBindingInfo(ModKey modKey, Key key);
 
 	void dispatch();
 
 private:
 
+	// History of QueuedActions.
+	boost::circular_buffer<std::list<QueuedAction>> m_actionHistory;
+
 	// History of mouse placement.
 	boost::circular_buffer<MouseInfo> m_mouseHistory;
 
-	// Raw SDL key codes to key data (this includes mod keys).
-	std::unordered_map<int, KeyInfo> m_keyStats;
-	// Raw SDL button codes to key data.
-	std::unordered_map<int, KeyInfo> m_buttStats;
 	// Binding info for modkey and key pairs.
-	std::unordered_map<
-		std::pair<ModKey, KeyInfo*>,
-		KeyBinding, 
-		boost::hash<std::pair<ModKey, KeyInfo*>>
-	> m_boundStats;
+	std::unordered_map<std::pair<ModKey, Key>, KeyBinding, boost::hash<std::pair<ModKey, Key>>> m_bindingStates;
 
 	// The currently down mod keys.
 	std::vector<ModKey> m_downMods;
+	// The just unpressed mod keys.
+	std::unordered_set<ModKey> m_unpressedMods;
 	// The currently down keys (includes mod keys).
-	std::vector<KeyInfo*> m_downPtrs;
+	std::unordered_set<Key> m_downKeys;
 	// The just unpressed keys (includes mod keys).
-	std::vector<KeyInfo*> m_unpressedPtrs;
+	std::unordered_set<Key> m_unpressedKeys;
 
 	// Polls SDL for key/button info.
 	GameState m_pollSDL();

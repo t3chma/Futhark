@@ -17,7 +17,6 @@ Engine::Engine() {
 	TRY_SDL(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1));
 
 	///ResourceCache::initialize();
-	///UIManager::initialize();
 	///Futhark::SpriteBatch::initialize();
 }
 
