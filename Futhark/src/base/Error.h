@@ -28,6 +28,7 @@
 #endif
 namespace fk {
 
+
 static void clearGLErrors() {
 	while (glGetError() != GL_NO_ERROR);
 }

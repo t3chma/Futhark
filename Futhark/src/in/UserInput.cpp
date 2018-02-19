@@ -172,8 +172,8 @@ void fk::UserInput::m_keyEvent(bool down, int keyID, bool notButt) {
 	}
 }
 
-bool fk::UserInput::m_isModKey(int key) {
-	switch (key) {
+bool fk::UserInput::m_isModKey(int keyID) {
+	switch (keyID) {
 		case (int)ModKey::SHIFT_L:
 		case (int)ModKey::SHIFT_R:
 		case (int)ModKey::ALT_L:

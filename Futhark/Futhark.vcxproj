@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -24,13 +24,22 @@
     <ClInclude Include="src\base\Scene.h" />
     <ClInclude Include="src\base\Utility.h" />
     <ClInclude Include="src\base\Window.h" />
+    <ClInclude Include="src\in\IOManager.h" />
+    <ClInclude Include="src\in\PicoPNG.h" />
+    <ClInclude Include="src\in\ResourceCache.h" />
     <ClInclude Include="src\in\UserInput.h" />
+    <ClInclude Include="src\out\Canvas.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\base\Engine.cpp" />
     <ClCompile Include="src\base\Scene.cpp" />
+    <ClCompile Include="src\base\Utility.cpp" />
     <ClCompile Include="src\base\Window.cpp" />
+    <ClCompile Include="src\in\IOManager.cpp" />
+    <ClCompile Include="src\in\PicoPNG.cpp" />
+    <ClCompile Include="src\in\ResourceCache.cpp" />
     <ClCompile Include="src\in\UserInput.cpp" />
+    <ClCompile Include="src\out\Canvas.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

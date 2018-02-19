@@ -1,6 +1,7 @@
 #pragma once
 #include "Scene.h"
 #include "../in/UserInput.h"
+#include "Utility.h"
 #include <memory>
 #include <map>
 namespace fk {

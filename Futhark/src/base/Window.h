@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <GLM/vec2.hpp>
-class SDL_Window;
+struct SDL_Window;
 union SDL_Event;
 namespace fk {
 
@@ -21,17 +21,17 @@ public:
 		RESIZABLE = 1 << 6;
 
 	glm::ivec2 getDimentions() const;
-	///void setDimentions(const int& WINDOW_WIDTH, const int& WINDOW_HEIGHT);
-	///void setMouseWindowCoordinates(const float& X, const float& Y);
+	//TODO: void setDimentions(const int& WINDOW_WIDTH, const int& WINDOW_HEIGHT);
+	//TODO: void setMouseWindowCoordinates(const float& X, const float& Y);
 	int getID();
 	void minimize();
 	void restore();
 
 	/* Launch the SDL window.
-	(WINDOW_NAME) The name of the window.
-	(WINDOW_WIDTH) The width of the window.
-	(WINDOW_HEIGHT) The height of the window.
-	(WINDOW_FLAGS) ORable flags: INVISIBLE, FULLSCREEN, BORDERLESS.
+	(NAME) The name of the window.
+	(width) The width of the window.
+	(height) The height of the window.
+	(flags) ORable flags: INVISIBLE, FULLSCREEN, BORDERLESS.
 	[T3chma : 2018/01/31] */
 	Window(
 		const std::string& NAME = "Default Window Name",
@@ -44,7 +44,9 @@ public:
 	[T3chma : 2018/01/31] */
 	void swapGLBuffer();
 
-	// TODO: doc
+	/* Handle any SDL window events not including mouse events.
+	(sdlEvents) The events to handle. (only window events will be handled)
+	[T3chma : 2018/02/19] */
 	void handleEvents(const SDL_Event& sdlEvent);
 
 private:

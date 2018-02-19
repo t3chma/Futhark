@@ -11,23 +11,35 @@
 #include <unordered_set>
 namespace fk {
 
+/* Represents a game action.
+[t3chma] */
 class Action {
 public:
+	// A pointer to the undo action if available.
 	Action* undo{ nullptr };
+	// The action this class represents.
 	virtual void execute() = 0;
 };
 
+// A list of action sources.
 enum class Source { UI, AI };
 
+/* Information about an action queued to happen.
+[t3chma] */
 class QueuedAction {
 public:
+	// The action queued.
 	Action* actionPtr{ nullptr };
+	// The source of the action.
 	Source source{ Source::AI };
+
 	QueuedAction(Action* actionPtr, Source source);
 };
 
+// Types of action triggers for keys
 enum class Trigger { PRESS, UNPRESS, HOLD };
 
+// Key enums
 enum class Key {
 	// Numbers
 	NUM0 = SDLK_0, NUM1 = SDLK_1, NUM2 = SDLK_2, NUM3 = SDLK_3, NUM4 = SDLK_4,
@@ -54,7 +66,7 @@ enum class Key {
 	CTRL_L = SDLK_LCTRL, CTRL_R = SDLK_RCTRL
 }; // 80 * 4 < 512 keys.
 
-// Subset of Key.
+// Mod keys. Subset of Key.
 enum class ModKey {
 	NO_MOD = 0,
 	SHIFT_L = SDLK_LSHIFT, SHIFT_R = SDLK_RSHIFT,
@@ -62,14 +74,19 @@ enum class ModKey {
 	CTRL_L = SDLK_LCTRL, CTRL_R = SDLK_RCTRL
 };
 
+// Button enums
 enum class Button {
 	LEFT = SDL_BUTTON_LEFT, MIDDLE = SDL_BUTTON_MIDDLE, RIGHT = SDL_BUTTON_RIGHT,
 	X1 = SDL_BUTTON_X1, X2 = SDL_BUTTON_X2
 };
 
+/* Used to handle user input through SDL.
+[t3chma] */
 class UserInput {
 public:
 
+	/* Keybinding info.
+	[t3chma] */
 	struct KeyBinding {
 		// How many frames this has been down for.
 		long downFrames{ 0 };
@@ -87,6 +104,8 @@ public:
 		Action* holdBinding{ nullptr };
 	};
 
+	/* Information about the mouse.
+	[t3chma] */
 	struct MouseInfo {
 		// ID of the window the mouse is in.
 		int windowID{ 0 };
@@ -99,19 +118,48 @@ public:
 	// Window handles.
 	std::vector<Window*> windowPtrs;
 
-	// Queued actions
+	// Queued actions.
 	std::list<QueuedAction> queuedActions;
 
+	/* Constructor
+	(history) How many frames of history to keep about actions and mouse information.
+	[t3chma] */
 	UserInput(int history = 3600);
 
+	/* Sets an action binding.
+	(trigger) What kind of trigger queues the action.
+	(modKey) What mod key is needed to trigger this action.
+	(key) What key triggers this action.
+	(actionPtr) A pointer to the action.
+	(holdTime) If the trigger type is HOLD then this is how long the keys must be held.
+	[t3chma] */
 	void bind(Trigger trigger, ModKey modKey, Key key, Action* actionPtr, long holdTime = 1);
+	
+	/* Sets an action binding.
+	(trigger) What kind of trigger queues the action.
+	(key) What key triggers this action.
+	(actionPtr) A pointer to the action.
+	(holdTime) If the trigger type is HOLD then this is how long the keys must be held.
+	[t3chma] */
 	void bind(Trigger trigger, Key key, Action* actionPtr, long holdTime = 1);
 	
+	/* Polls SDL for input and queues actions based on it.
+	[t3chma] */
 	GameState poll();
 
+	/* Get mouse info from frame ago.
+	(frameAgo) How many frames ago you want the info for.
+	[t3chma] */
 	MouseInfo getMouseInfo(unsigned int framesAgo);
+	
+	/* Get the binding info for a key COMBO.
+	(modKey) The mod key you want info for.
+	(key) The key you want info for.
+	[t3chma] */
 	KeyBinding getBindingInfo(ModKey modKey, Key key);
 
+	/* Dispatches all the queued actions.
+	[t3chma] */
 	void dispatch();
 
 private:
@@ -137,9 +185,17 @@ private:
 	// Polls SDL for key/button info.
 	GameState m_pollSDL();
 
+	/* Handles key event.
+	(down) If this is a down key event.
+	(keyID) The ID of the key this event is for.
+	(notButt) If this is not a button.
+	[t3chma] */
 	void m_keyEvent(bool down, int keyID, bool notButt);
 
-	bool m_isModKey(int key);
+	/* Checks if a key is a mod key.
+	(keyID) The ID of the key to check
+	[t3chma] */
+	bool m_isModKey(int keyID);
 };
 
 }
