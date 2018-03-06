@@ -4,8 +4,39 @@
 //#include "GLSLShaders.h"
 namespace fk {
 
-	
-/* Contains an ID and dimentions
+
+/* Loads and stores file data in memory.
+[t3chma] */
+template <class T>
+class FileCache {
+public:
+
+	Cache() = default;
+
+	/* Get data (T) from the given file path.
+	If the data (T) is not already in memory it loads it in.
+	(filepath) The file path to the data.
+	< The data (T) associated to the file path.
+	[t3chma] */
+	virtual T get(const std::string& filePath) final;
+
+protected:
+
+	/* How to load the data (T).
+	(filePath) The file path to the data.
+	< The actual data (T) at the file path.
+	[t3chma] */
+	virtual T load(const std::string& filePath) = 0;
+
+private:
+
+	// A map of the loaded files.
+	std::map<std::string, T> m_map;
+};
+
+
+
+/* Contains an ID and dimensions
 [t3chma] */
 struct Texture {
 
@@ -21,32 +52,27 @@ struct Texture {
 };
 
 
+
 /* Loads and stores PNG files as textures in memory.
 [t3chma] */
-class TextureCache {
+class TextureCache : public FileCache<Texture> {
 
-public:
-	~TextureCache() = default;
+protected:
 
-	/* Get a texture from the given PNG file path.
-	If the texture is not already in memory it loads it into it.
+	/* Load texture from the given PNG file path.
 	(filepath) The file path to the texture.
 	< The texture.
 	[t3chma] */
-	Texture get(const std::string& filePath);
-			
-private:
-			
-	// A map of all the loaded textures.
-	std::map<std::string, Texture> m_textureMap;
+	Texture load(const std::string& filePath) override;
 };
+
 
 		
 /* Loads and stores FRAG and VERT files as GLSLShaders in memory.
 IMPORTANT: This can only be used with shaders that use the default non-uniform variables:
 position, color, and uv. You need to load more specialized shaders in yourself.
 [t3chma] */
-class GLSLShadersCache {
+class GLShadersCache {
 
 public:
 

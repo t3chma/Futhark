@@ -7,6 +7,7 @@
 #include "../base/Utility.h"
 namespace fk {
 
+
 /* A UV coordinate container.
 ^ http://help.thefoundry.co.uk/nuke/8.0/content/user_guide/modelbuilder/uv_unwrapping.html
 [t3chma] */
@@ -26,6 +27,7 @@ public:
 	UV(float u, float v);
 
 };
+
 
 	
 /* A red, green, blue, alpha container.
@@ -148,6 +150,7 @@ namespace PresetColors {
 }
 
 
+
 /* Minimal vertex used for wireframes.
 Contains 2 floats for position
 and 4 bytes for RGBA color values.
@@ -176,6 +179,7 @@ public:
 };
 
 
+
 /* A container to pass into OpenGL for sprite rendering.
 Contains 2 floats for position
 4 bytes for RGBA color values
@@ -198,6 +202,7 @@ public:
 		const float U, const float V
 	);
 };
+
 
 
 /* A container for sending to OpenGL for sprite rendering.
