@@ -2,8 +2,7 @@
 
 
 
-UniformBuffer::UniformBuffer()
-{
+UniformBuffer::UniformBuffer() {
 }
 
 
