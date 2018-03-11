@@ -183,6 +183,14 @@
   <ItemGroup>
     <ClInclude Include="src\scenes\AITester.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="Textures\Test.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\Sprite.frag" />
+    <None Include="Shaders\Sprite.geom" />
+    <None Include="Shaders\Sprite.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -9,35 +9,30 @@
 #include <queue>
 #include <GLM/vec2.hpp>
 #include <unordered_set>
+#include "Action.h"
 namespace fk {
 
-/* Represents a game action.
-[t3chma] */
-class Action {
-public:
-	// A pointer to the undo action if available.
-	Action* undo{ nullptr };
-	// The action this class represents.
-	virtual void execute() = 0;
-};
 
 // A list of action sources.
 enum class Source { UI, AI };
 
+
 /* Information about an action queued to happen.
 [t3chma] */
 class QueuedAction {
-public:
+  public:
+	QueuedAction(Action* actionPtr, Source source);
+	friend class UserInput;
 	// The action queued.
 	Action* actionPtr{ nullptr };
 	// The source of the action.
 	Source source{ Source::AI };
-
-	QueuedAction(Action* actionPtr, Source source);
 };
+
 
 // Types of action triggers for keys
 enum class Trigger { PRESS, UNPRESS, HOLD };
+
 
 // Key enums
 enum class Key {
@@ -66,6 +61,7 @@ enum class Key {
 	CTRL_L = SDLK_LCTRL, CTRL_R = SDLK_RCTRL
 }; // 80 * 4 < 512 keys.
 
+
 // Mod keys. Subset of Key.
 enum class ModKey {
 	NO_MOD = 0,
@@ -74,17 +70,18 @@ enum class ModKey {
 	CTRL_L = SDLK_LCTRL, CTRL_R = SDLK_RCTRL
 };
 
+
 // Button enums
 enum class Button {
 	LEFT = SDL_BUTTON_LEFT, MIDDLE = SDL_BUTTON_MIDDLE, RIGHT = SDL_BUTTON_RIGHT,
 	X1 = SDL_BUTTON_X1, X2 = SDL_BUTTON_X2
 };
 
+
 /* Used to handle user input through SDL.
 [t3chma] */
 class UserInput {
-public:
-
+  public:
 	/* Keybinding info.
 	[t3chma] */
 	struct KeyBinding {
@@ -103,7 +100,6 @@ public:
 		// Action to perform when this key is held.
 		Action* holdBinding{ nullptr };
 	};
-
 	/* Information about the mouse.
 	[t3chma] */
 	struct MouseInfo {
@@ -114,18 +110,12 @@ public:
 		// Direction of mouse wheel scroll. Pos for up and neg for down.
 		int wheel;
 	};
-
 	// Window handles.
 	std::vector<Window*> windowPtrs;
-
-	// Queued actions.
-	std::list<QueuedAction> queuedActions;
-
 	/* Constructor
 	(history) How many frames of history to keep about actions and mouse information.
 	[t3chma] */
 	UserInput(int history = 3600);
-
 	/* Sets an action binding.
 	(trigger) What kind of trigger queues the action.
 	(modKey) What mod key is needed to trigger this action.
@@ -134,7 +124,6 @@ public:
 	(holdTime) If the trigger type is HOLD then this is how long the keys must be held.
 	[t3chma] */
 	void bind(Trigger trigger, ModKey modKey, Key key, Action* actionPtr, long holdTime = 1);
-	
 	/* Sets an action binding.
 	(trigger) What kind of trigger queues the action.
 	(key) What key triggers this action.
@@ -142,37 +131,32 @@ public:
 	(holdTime) If the trigger type is HOLD then this is how long the keys must be held.
 	[t3chma] */
 	void bind(Trigger trigger, Key key, Action* actionPtr, long holdTime = 1);
-	
 	/* Polls SDL for input and queues actions based on it.
 	[t3chma] */
 	GameState poll();
-
 	/* Get mouse info from frame ago.
 	(frameAgo) How many frames ago you want the info for.
 	[t3chma] */
-	MouseInfo getMouseInfo(unsigned int framesAgo);
-	
+	MouseInfo getMouseInfo(unsigned int framesAgo) const;
+	/* Set showing the mouse cursor or not.
+	(show) If the cursor should be show.
+	[t3chma] */
+	void setShowCursor(bool show);
 	/* Get the binding info for a key COMBO.
 	(modKey) The mod key you want info for.
 	(key) The key you want info for.
 	[t3chma] */
-	KeyBinding getBindingInfo(ModKey modKey, Key key);
-
+	KeyBinding getBindingInfo(Key key, ModKey modKey = ModKey::NO_MOD);
 	/* Dispatches all the queued actions.
 	[t3chma] */
 	void dispatch();
-
-private:
-
+  private:
 	// History of QueuedActions.
 	boost::circular_buffer<std::list<QueuedAction>> m_actionHistory;
-
 	// History of mouse placement.
 	boost::circular_buffer<MouseInfo> m_mouseHistory;
-
 	// Binding info for modkey and key pairs.
 	std::unordered_map<std::pair<ModKey, Key>, KeyBinding, boost::hash<std::pair<ModKey, Key>>> m_bindingStates;
-
 	// The currently down mod keys.
 	std::vector<ModKey> m_downMods;
 	// The just unpressed mod keys.
@@ -181,21 +165,18 @@ private:
 	std::unordered_set<Key> m_downKeys;
 	// The just unpressed keys (includes mod keys).
 	std::unordered_set<Key> m_unpressedKeys;
-
 	// Polls SDL for key/button info.
 	GameState m_pollSDL();
-
 	/* Handles key event.
 	(down) If this is a down key event.
 	(keyID) The ID of the key this event is for.
 	(notButt) If this is not a button.
 	[t3chma] */
 	void m_keyEvent(bool down, int keyID, bool notButt);
-
 	/* Checks if a key is a mod key.
 	(keyID) The ID of the key to check
 	[t3chma] */
-	bool m_isModKey(int keyID);
+	bool m_isModKey(int keyID) const;
 };
 
 }

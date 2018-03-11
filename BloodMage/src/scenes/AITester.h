@@ -1,14 +1,45 @@
 #pragma once
 #include "base/Scene.h"
+#include "out/SpriteRenderer.h"
+#include "out/SpriteBatch.h"
+#include "out/Camera.h"
+#include "in/Action.h"
 
 class AITester : public fk::Scene {
 public:
-	AITester();
-	~AITester();
+	fk::SpriteBatch sprites;
+	fk::SpriteRenderer spriteRenderer;
+	std::vector <fk::SpriteBatch::Sprite> localSprites;
+	fk::Camera cam;
+	friend class camUp;
+	friend class camDown;
+	friend class camLeft;
+	friend class camRight;
 
+	AITester() = default;
+	~AITester() = default;
 	// Inherited via fk::Scene
-	virtual void open() override;
-	virtual void close() override;
-	virtual void update(fk::GameState& gameState) override;
-};
+	virtual void create(fk::Tools& tools) override;
+	virtual void destroy(fk::Tools& tools) override;
+	virtual void open(fk::Tools& tools) override;
+	virtual void close(fk::Tools& tools) override;
+	virtual void update(fk::Tools& tools) override;
 
+	glm::vec2 camMovement{ 0 };
+	struct : public fk::Action {
+		glm::vec2* camMovementPtr;
+		void execute() override { camMovementPtr->y = 1; }
+	} camUp;
+	struct : public fk::Action {
+		glm::vec2* camMovementPtr;
+		void execute() override { camMovementPtr->y = -1; }
+	} camDown;
+	struct : public fk::Action {
+		glm::vec2* camMovementPtr;
+		void execute() override { camMovementPtr->x = -1; }
+	} camLeft;
+	struct : public fk::Action {
+		glm::vec2* camMovementPtr;
+		void execute() override { camMovementPtr->x = 1; }
+	} camRight;
+};

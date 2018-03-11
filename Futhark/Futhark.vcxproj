@@ -19,9 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\out\Renderer.h" />
-    <ClInclude Include="src\out\Shader.h" />
-    <ClInclude Include="src\out\OGLContext.h" />
+    <ClInclude Include="src\in\Action.h" />
+    <ClInclude Include="src\out\Camera.h" />
+    <ClInclude Include="src\base\Tools.h" />
+    <ClInclude Include="src\out\SpriteBatch.h" />
+    <ClInclude Include="src\out\SpriteRenderer.h" />
     <ClInclude Include="src\base\Engine.h" />
     <ClInclude Include="src\base\Error.h" />
     <ClInclude Include="src\base\Scene.h" />
@@ -31,14 +33,12 @@
     <ClInclude Include="src\in\PicoPNG.h" />
     <ClInclude Include="src\in\FileCache.h" />
     <ClInclude Include="src\in\UserInput.h" />
-    <ClInclude Include="src\out\Canvas.h" />
-    <ClInclude Include="src\out\UniformBuffer.h" />
-    <ClInclude Include="src\out\VertexArrayBuffer.h" />
+    <ClInclude Include="src\out\Utility.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\out\Renderer.cpp" />
-    <ClCompile Include="src\out\Shader.cpp" />
-    <ClCompile Include="src\out\OGLContext.cpp" />
+    <ClCompile Include="src\out\Camera.cpp" />
+    <ClCompile Include="src\out\SpriteBatch.cpp" />
+    <ClCompile Include="src\out\SpriteRenderer.cpp" />
     <ClCompile Include="src\base\Engine.cpp" />
     <ClCompile Include="src\base\Scene.cpp" />
     <ClCompile Include="src\base\Utility.cpp" />
@@ -47,9 +47,7 @@
     <ClCompile Include="src\in\PicoPNG.cpp" />
     <ClCompile Include="src\in\FileCache.cpp" />
     <ClCompile Include="src\in\UserInput.cpp" />
-    <ClCompile Include="src\out\Canvas.cpp" />
-    <ClCompile Include="src\out\UniformBuffer.cpp" />
-    <ClCompile Include="src\out\VertexArrayBuffer.cpp" />
+    <ClCompile Include="src\out\Utility.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

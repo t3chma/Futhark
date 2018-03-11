@@ -5,100 +5,113 @@
 namespace fk {
 
 
-template <class T>
-T FileCache<T>::get(const std::string& IMAGE_FILE_PATH) {
-	Texture texture{};
-
-	// Look for texture
-	auto mapSelection = m_map.find(IMAGE_FILE_PATH);
-	if (mapSelection != m_map.end()) {
-		// If texture is found return it
-		texture = mapSelection->second;
-	}
-	else {
-		// If texture is not found then load a new image
-
-		// Then put the texture into the cache
-		texture = load(IMAGE_FILE_PATH);
-		m_map[IMAGE_FILE_PATH] = texture;
-	}
-
-	return texture;
-}
-
-
-
-Texture::Texture(GLuint id) : id(id) {}
-
 Texture::operator GLuint() { return id; }
 
-Texture TextureCache::load(const std::string& IMAGE_FILE_PATH) {
-	Texture texture{};
+Texture TextureCache::p_load(const std::string& IMAGE_FILE_PATH) {
+	Texture texture;
+	std::string imageFilePath = "Textures/" + IMAGE_FILE_PATH;
 	std::vector<unsigned char> binaryPNG;
 	std::vector<unsigned char> decodedPNG;
 	unsigned long width, height;
-
 	// Load
 	IOManager io;
-	if (io.readBinaryFileToBuffer(IMAGE_FILE_PATH, binaryPNG) == false) {
-		LOG_LINE("IOManager failed to load PNG: " + IMAGE_FILE_PATH);
+	if (io.readBinaryFileToBuffer(imageFilePath, binaryPNG) == false) {
+		LOG_LINE("IOManager failed to load PNG: " + imageFilePath);
+		BREAK_IF(true);
 	}
-
 	// Decode
 	int errorPICO = decodePNG(decodedPNG, width, height, &(binaryPNG[0]), binaryPNG.size());
-	if (errorPICO != 0) { LOG_LINE("picoPNG failed to decode: " + IMAGE_FILE_PATH); }
-
+	if (errorPICO != 0) { LOG_LINE("picoPNG failed to decode: " + imageFilePath); BREAK_IF(true); }
 	// Make GLtexture
 	texture.width = width;
 	texture.height = height;
 	// Create a blank openGL texture
 	// https://www.opengl.org/sdk/docs/man/html/glGenTextures.xhtml
-	glGenTextures(1, &texture.id);
+	TRY_GL(glGenTextures(1, &texture.id));
 	// Open openGL texture
 	// https://www.opengl.org/sdk/docs/man/html/glBindTexture.xhtml
-	glBindTexture(GL_TEXTURE_2D, texture.id);
+	TRY_GL(glBindTexture(GL_TEXTURE_2D, texture.id));
 	// Specify a two-dimensional texture image
 	// https://www.opengl.org/sdk/docs/man/html/glTexImage2D.xhtml
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(decodedPNG[0]));
+	TRY_GL(
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(decodedPNG[0]))
+	);
 	// Set texture parameters
 	// https://www.opengl.org/sdk/docs/man/html/glTexParameter.xhtml
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	TRY_GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+	TRY_GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+	TRY_GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+	TRY_GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
 	// Generate mipmaps for a specified texture object
 	// https://www.opengl.org/sdk/docs/man/html/glGenerateMipmap.xhtml
-	glGenerateMipmap(GL_TEXTURE_2D);
+	TRY_GL(glGenerateMipmap(GL_TEXTURE_2D));
 	// Close openGL texture
-	glBindTexture(GL_TEXTURE_2D, 0);
-
+	TRY_GL(glBindTexture(GL_TEXTURE_2D, 0));
 	return texture;
 }
 
-
-
-// "<default>" is a preset
-//GLSLShaders GLSLShadersCache::get(const std::string& BASE_FILE_PATH) {
-//	// Try to find the shaders in the cache
-//	auto it = m_GLSLShadersCacheMap.find(BASE_FILE_PATH);
-
-//	GLSLShaders shaders;
-
-//	// If shaders are not found then load a new image
-//	if (it == m_GLSLShadersCacheMap.end()) {
-//		shaders.compile(BASE_FILE_PATH);
-//		shaders.addAttribute("vertexPosition");
-//		shaders.addAttribute("vertexColor");
-//		shaders.addAttribute("vertexUV");
-//		shaders.link();
-
-//		m_GLSLShadersCacheMap[BASE_FILE_PATH] = shaders;
-//	}
-//	else {
-//		shaders = it->second;
-//	}
-
-//	return shaders;
-//}
+Shader ShadersCache::p_load(const std::string& SHADER_FILE_PATH) {
+	Shader shader;
+	// Get type and make shader
+	int dot = SHADER_FILE_PATH.find(".");
+	char shell = SHADER_FILE_PATH[dot + 1];
+	switch (shell) {
+	  case 'v':
+		TRY_GL(shader.id = glCreateShader(GL_VERTEX_SHADER));
+		shader.type = Shader::VERT;
+	  break;
+	  case 'f':
+		TRY_GL(shader.id = glCreateShader(GL_FRAGMENT_SHADER));
+		shader.type = Shader::FRAG;
+	  break;
+	  case 'g':
+		TRY_GL(shader.id = glCreateShader(GL_GEOMETRY_SHADER));
+		shader.type = Shader::GEOM;
+	  break;
+	  case 't':
+		TRY_GL(shader.id = glCreateShader(GL_TESS_CONTROL_SHADER));
+		shader.type = Shader::TESC;
+	  break;
+	  case 'e':
+		TRY_GL(shader.id = glCreateShader(GL_TESS_EVALUATION_SHADER));
+		shader.type = Shader::TESE;
+	  break;
+	  case 'c':
+		TRY_GL(shader.id = glCreateShader(GL_COMPUTE_SHADER));
+		shader.type = Shader::COMP;
+	  break;
+	  default:
+		BREAK_IF(true);
+	  break;
+	}
+	if (shader.id == 0) { LOG_LINE("Failed to create shader"); }
+	// Read in text file
+	IOManager io;
+	std::string shaderStringSource = "";
+	std::string shaderFilePath = "Shaders/" + SHADER_FILE_PATH;
+	if (io.readTextFileToString(shaderFilePath, shaderStringSource) == false) {
+		LOG_LINE("Failed to read in " + shaderFilePath);
+		BREAK_IF(true);
+	}
+	const char* shaderSource = shaderStringSource.c_str();
+	TRY_GL(glShaderSource(shader.id, 1, &shaderSource, nullptr));
+	glCompileShader(shader.id);
+	// Error check
+	GLint success = 0;
+	glGetShaderiv(shader.id, GL_COMPILE_STATUS, &success);
+	if (success == GL_FALSE) {
+		GLint maxLength = 0;
+		glGetShaderiv(shader.id, GL_INFO_LOG_LENGTH, &maxLength);
+		// The maxLength includes the NULL character
+		std::vector<char> errorLog(maxLength);
+		glGetShaderInfoLog(shader.id, maxLength, &maxLength, &errorLog[0]);
+		glDeleteShader(shader.id);
+		shader.id = 0;
+		std::printf("Failed to compile shader: %s\n%s\n", shaderFilePath.c_str(), &(errorLog[0]));
+		LOG_LINE("");
+		BREAK_IF(true);
+	}
+	return shader;
+}
 
 }

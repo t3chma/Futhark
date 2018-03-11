@@ -33,28 +33,22 @@
     <ClCompile Include="src\in\IOManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\out\Canvas.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\in\PicoPNG.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\out\OGLContext.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\out\Renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\out\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\in\FileCache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\out\UniformBuffer.cpp">
+    <ClCompile Include="src\out\SpriteBatch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\out\VertexArrayBuffer.cpp">
+    <ClCompile Include="src\out\SpriteRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\out\Utility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\out\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,28 +74,28 @@
     <ClInclude Include="src\in\IOManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\out\Canvas.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\in\PicoPNG.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\out\OGLContext.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\out\Renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\out\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\in\FileCache.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\out\UniformBuffer.h">
+    <ClInclude Include="src\out\SpriteBatch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\out\VertexArrayBuffer.h">
+    <ClInclude Include="src\out\SpriteRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\out\Utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base\Tools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\out\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\in\Action.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

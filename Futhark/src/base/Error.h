@@ -32,7 +32,6 @@ namespace fk {
 static void clearGLErrors() {
 	while (glGetError() != GL_NO_ERROR);
 }
-
 static bool checkGLError(const char* function, const char* file, int line) {
 	bool returnVal = false;
 	while (GLenum error = glGetError()) {
@@ -44,11 +43,9 @@ static bool checkGLError(const char* function, const char* file, int line) {
 	}
 	return returnVal;
 }
-
 static void clearSDLErrors() {
 	while (SDL_GetError() != "") { SDL_ClearError(); }
 }
-
 static bool checkSDLError(const char* function, const char* file, int line) {
 	bool returnVal = false;
 	std::string error = SDL_GetError();
@@ -61,7 +58,6 @@ static bool checkSDLError(const char* function, const char* file, int line) {
 	}
 	return returnVal;
 }
-
 static bool checkGLEWError(unsigned int errorCode, const char* function, const char* file, int line) {
 	bool returnVal = false;
 	if (errorCode != GLEW_OK) {

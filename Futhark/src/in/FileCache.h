@@ -1,7 +1,6 @@
 #pragma once
 #include <map>
 #include <GLEW\glew.h>
-//#include "GLSLShaders.h"
 namespace fk {
 
 
@@ -9,88 +8,81 @@ namespace fk {
 [t3chma] */
 template <class T>
 class FileCache {
-public:
-
-	Cache() = default;
-
+  public:
+	FileCache() = default;
 	/* Get data (T) from the given file path.
 	If the data (T) is not already in memory it loads it in.
 	(filepath) The file path to the data.
 	< The data (T) associated to the file path.
 	[t3chma] */
-	virtual T get(const std::string& filePath) final;
-
-protected:
-
+	virtual T get(const std::string& filePath) final {
+		// Look for texture
+		auto mapSelection = m_map.find(filePath);
+		if (mapSelection != m_map.end()) {
+			// If texture is found return it
+			return mapSelection->second;
+		} else {
+			// If texture is not found then load a new image and put the texture into the cache
+			m_map[filePath] = p_load(filePath);
+			return m_map[filePath];
+		}
+	};
+  protected:
 	/* How to load the data (T).
 	(filePath) The file path to the data.
 	< The actual data (T) at the file path.
 	[t3chma] */
-	virtual T load(const std::string& filePath) = 0;
-
-private:
-
+	virtual T p_load(const std::string& filePath) = 0;
+  private:
 	// A map of the loaded files.
 	std::map<std::string, T> m_map;
 };
 
-
-
 /* Contains an ID and dimensions
 [t3chma] */
 struct Texture {
-
+	// GL texture ID.
 	GLuint id;
+	// Resolution of texture.
 	int width, height;
-
-	Texture() = default;
-
-	Texture(GLuint id);
-
 	operator GLuint();
-
 };
-
 
 
 /* Loads and stores PNG files as textures in memory.
 [t3chma] */
 class TextureCache : public FileCache<Texture> {
-
-protected:
-
+  protected:
 	/* Load texture from the given PNG file path.
 	(filepath) The file path to the texture.
 	< The texture.
 	[t3chma] */
-	Texture load(const std::string& filePath) override;
+	Texture p_load(const std::string& filePath) override;
 };
 
 
-		
-/* Loads and stores FRAG and VERT files as GLSLShaders in memory.
-IMPORTANT: This can only be used with shaders that use the default non-uniform variables:
-position, color, and uv. You need to load more specialized shaders in yourself.
+/* Handles the compilation, linking, and usage of a GLSL shader program.
+^ http://www.opengl.org/wiki/Shader_Compilation
 [t3chma] */
-class GLShadersCache {
+struct Shader {
+	// The type of shader.
+	enum Type { VERT, FRAG, GEOM, TESC, TESE, COMP };
+	// GL shader ID.
+	GLuint id{ 0 };
+	// The type of shader.
+	Type type;
+};
 
-public:
 
-	/* Get a GLSLShaders from the given FRAG and VERT base file paths.
-	Both shaders must have the same name and they must have the ".vert" and ".frag" extensions.
-	"<default>" is a preset and loads the default shaders which are hard coded.
-	If the shaders are not already in memory it loads them into it.
-	(filepath) The base file path to the shaders.
+/* Loads and stores GLSLShaders in memory.
+[t3chma] */
+class ShadersCache : public FileCache<Shader> {
+  protected:
+	/* Load texture from the given PNG file path.
+	(filepath) The file path to the texture.
 	< The texture.
-	| // Gets the GLSLShaders which uses the myShader.frag and myShader.vert shaders.
-	| ResourceCache::shaders.get("myShader");
 	[t3chma] */
-	//GLSLShaders get(const std::string& baseFilePath = "<default>");
-
-private:
-
-	// A map of all the loaded GLSLShaders.
-	//std::map<std::string, GLSLShaders> m_GLSLShadersCacheMap;
+	Shader p_load(const std::string& filePath) override;
 };
 
 }
