@@ -85,6 +85,11 @@ class SpriteBatch {
 		void setTextureDimensions(const float width, const float height);
 		void setFrame(const int frame);
 		Canvas& getCanvasRef();
+		/* Swaps the texture for this sprite.
+		(texture) The texture to associate to the sprite.
+		(frames) How many animation frames this sprite's texture has.
+		[t3chma] */
+		void setTexture(const Texture& texture, const int frames = 1);
 		const Canvas& getCanvasConstRef() const;
 		Texture getTextureCopy() const;
 		SpriteBatch* getBatchPtr() const;
@@ -95,6 +100,9 @@ class SpriteBatch {
 		/* Kills this sprite.
 		[t3chma] */
 		void kill();
+		/* This will resurrect a dead sprite.
+		[t3chma] */
+		void resurrect();
 		/* Transforms this sprite into a line.
 		The top of the texture will be at the A end and bottom of the texture at the B end.
 		(b) The position of the B end.
@@ -122,7 +130,7 @@ class SpriteBatch {
 	(frames) How many animation frames this sprite's texture has.
 	< The new sprite.
 	[t3chma] */
-	Sprite makeSprite(Texture& texture, int frames = 1);
+	Sprite makeSprite(const Texture& texture, const int frames = 1);
 	/* Removes a sprite from the sprite batch.
 	(sprite) The sprite to kill. DO NOT USE THIS AFTER PASSING IT IN!
 	[t3chma] */

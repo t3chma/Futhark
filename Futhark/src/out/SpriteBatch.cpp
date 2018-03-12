@@ -40,7 +40,7 @@ SpriteBatch::SpriteBatch() {
 	TRY_GL(glBindVertexArray(0));
 	TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
-SpriteBatch::Sprite SpriteBatch::makeSprite(Texture& texture, int frames) {
+SpriteBatch::Sprite SpriteBatch::makeSprite(const Texture& texture, const int frames) {
 	m_modified = true;
 	m_buffered = false;
 	auto&& buffer = m_bufferMap[texture];
@@ -53,9 +53,6 @@ void SpriteBatch::killSprite(Sprite& sprite) {
 	sprite.m_bufferPtr->at(sprite.m_bufferIndex) = sprite.m_bufferPtr->back();
 	sprite.m_bufferPtr->pop_back();
 	sprite.m_bufferPtr = nullptr;
-	sprite.m_texture.id = 0;
-	sprite.m_texture.height = 0;
-	sprite.m_texture.width = 0;
 	sprite.m_bufferIndex = -1;
 	sprite.m_batchPtr = nullptr;
 }
@@ -150,15 +147,13 @@ float SpriteBatch::Sprite::getDepth() const {
 	return getCanvasConstRef().position.z;
 }
 void SpriteBatch::Sprite::setDepth(const float depth) {
-	auto& canvas = getCanvasRef();
-	canvas.position.z = depth;
+	getCanvasRef().position.z = depth;
 }
 glm::vec2 SpriteBatch::Sprite::getDimensions() const {
 	return getCanvasConstRef().dimensions;
 }
 void SpriteBatch::Sprite::setDimensions(const glm::vec2& dimensions) {
-	auto& canvas = getCanvasRef();
-	canvas.dimensions = dimensions;
+	getCanvasRef().dimensions = dimensions;
 }
 void SpriteBatch::Sprite::setDimensions(const float width, const float height) {
 	auto& canvas = getCanvasRef();
@@ -169,15 +164,13 @@ float SpriteBatch::Sprite::getRotation() const {
 	return getCanvasConstRef().rotationAngle;
 }
 void SpriteBatch::Sprite::setRotation(const float angle) {
-	auto& canvas = getCanvasRef();
-	canvas.rotationAngle = angle;
+	getCanvasRef().rotationAngle = angle;
 }
 glm::vec2 SpriteBatch::Sprite::getRotationAxis() const {
 	return getCanvasConstRef().rotationAxis;
 }
 void SpriteBatch::Sprite::setRotationAxis(const glm::vec2& rotationAxis) {
-	auto& canvas = getCanvasRef();
-	canvas.rotationAxis = rotationAxis;
+	getCanvasRef().rotationAxis = rotationAxis;
 }
 void SpriteBatch::Sprite::setRotationAxis(const float x, const float y) {
 	auto& canvas = getCanvasRef();
@@ -188,8 +181,7 @@ Color SpriteBatch::Sprite::getColor() const {
 	return getCanvasConstRef().color;
 }
 void SpriteBatch::Sprite::setColor(const Color& color) {
-	auto& canvas = getCanvasRef();
-	canvas.color = color;
+	getCanvasRef().color = color;
 }
 void SpriteBatch::Sprite::setColor(const char r, const char g, const char b, const char a) {
 	auto& canvas = getCanvasRef();
@@ -202,8 +194,7 @@ glm::vec2 SpriteBatch::Sprite::getTexturePosition() const {
 	return getCanvasConstRef().texturePosition;
 }
 void SpriteBatch::Sprite::setTexturePosition(const glm::vec2& tPosition) {
-	auto& canvas = getCanvasRef();
-	canvas.texturePosition = tPosition;
+	getCanvasRef().texturePosition = tPosition;
 }
 void SpriteBatch::Sprite::setTexturePosition(const float x, const float y) {
 	auto& canvas = getCanvasRef();
@@ -214,8 +205,7 @@ glm::vec2 SpriteBatch::Sprite::getTextureDimensions() const {
 	return getCanvasConstRef().textureDimensions;
 }
 void SpriteBatch::Sprite::setTextureDimensions(const glm::vec2& tDimensions) {
-	auto& canvas = getCanvasRef();
-	canvas.textureDimensions = tDimensions;
+	getCanvasRef().textureDimensions = tDimensions;
 }
 void SpriteBatch::Sprite::setTextureDimensions(const float width, const float height) {
 	auto& canvas = getCanvasRef();
@@ -231,6 +221,13 @@ SpriteBatch::Canvas& SpriteBatch::Sprite::getCanvasRef() {
 	m_batchPtr->flagRebuffer();
 	return (*m_bufferPtr)[m_bufferIndex];
 }
+
+void SpriteBatch::Sprite::setTexture(const Texture& texture, const int frames) {
+	m_bufferPtr->at(m_bufferIndex) = m_bufferPtr->back();
+	m_bufferPtr->pop_back();
+	*this = m_batchPtr->makeSprite(texture, frames);
+}
+
 const SpriteBatch::Canvas& SpriteBatch::Sprite::getCanvasConstRef() const {
 	return (*m_bufferPtr)[m_bufferIndex];
 }
@@ -240,6 +237,10 @@ SpriteBatch* SpriteBatch::Sprite::getBatchPtr() const { return m_batchPtr; }
 bool SpriteBatch::Sprite::isAlive() const { return m_bufferPtr; }
 
 void SpriteBatch::Sprite::kill() { m_batchPtr->killSprite(*this); }
+
+void SpriteBatch::Sprite::resurrect() {
+	*this = m_batchPtr->makeSprite(m_texture, m_frames);
+}
 
 void SpriteBatch::Sprite::makeLine(glm::vec2& b, glm::vec2& a, float thickness) {
 	Canvas& canvas = getCanvasRef();
