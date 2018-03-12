@@ -2,6 +2,7 @@
 #include "../in/UserInput.h"
 #include "../in/FileCache.h"
 #include "Utility.h"
+#include "../in/ActionQueue.h"
 namespace fk {
 
 
@@ -22,6 +23,8 @@ struct Tools {
 	ShadersCache shaders;
 	// A handle to the game's cached textures.
 	TextureCache textures;
+	// Collects and executes actions
+	ActionQueue actionQueue;
 };
 
 }

@@ -5,7 +5,6 @@ namespace fk {
 
 UserInput::UserInput(int history) {
 	if (history < 2) { history = 2; }
-	m_actionHistory.resize(history);
 	m_mouseHistory.resize(history);
 	m_bindingStates.reserve(512);
 	m_downMods.reserve(6);
@@ -32,8 +31,8 @@ void UserInput::bind(Trigger trigger, Key key, Action* actionPtr, long holdTime)
 	if (m_isModKey(static_cast<int>(key))) { bind(trigger, static_cast<ModKey>(key), key, actionPtr, holdTime); }
 	else { bind(trigger, ModKey::NO_MOD, key, actionPtr); }
 }
-GameState UserInput::poll() {
-	std::list<QueuedAction> queuedActions;
+GameState UserInput::poll(ActionQueue& actions) {
+	std::list<Action*> queuedActions;
 	m_mouseHistory.push_front(m_mouseHistory.front());
 	GameState gs = m_pollSDL();
 	MouseInfo& mouseInfo = m_mouseHistory.front();
@@ -45,11 +44,11 @@ GameState UserInput::poll() {
 		KeyBinding& kb = m_bindingStates[std::make_pair(mk, key)];
 		if (++(kb.downFrames) == 1) {
 			kb.pressPos = m_mouseHistory.front().position;
-			if (kb.pressBinding) { queuedActions.emplace_back(kb.pressBinding, Source::UI); }
+			if (kb.pressBinding) { queuedActions.push_back(kb.pressBinding); }
 			///std::cout << "\npress:\t\t" << (char)mk << " " << (char)key;
 		} else {
 			if (kb.holdBinding && kb.downFrames > kb.triggerFrames) {
-				queuedActions.emplace_back(kb.holdBinding, Source::UI);
+				queuedActions.push_back(kb.holdBinding);
 			}
 			std::cout << "\nhold:\t\t" << (char)mk << " " << (char)key;
 		}
@@ -59,7 +58,7 @@ GameState UserInput::poll() {
 		KeyBinding& kb = m_bindingStates[std::make_pair(mk, key)];
 		kb.downFrames = 0;
 		kb.unpressPos = m_mouseHistory.front().position;
-		if (kb.unpressBinding) { queuedActions.emplace_back(kb.unpressBinding, Source::UI); }
+		if (kb.unpressBinding) { queuedActions.push_back(kb.unpressBinding); }
 		///std::cout << "\nunpress:\t" << (char)mk << " " << (char)key;
 	}
 	// Handle unpressed mods.
@@ -76,7 +75,7 @@ GameState UserInput::poll() {
 	m_unpressedKeys.clear();
 	m_unpressedMods.clear();
 	// Log the actions of this screen.
-	m_actionHistory.push_front(queuedActions);
+	actions.userActionHistory.push_front(queuedActions);
 	return gs;
 }
 UserInput::MouseInfo UserInput::getMouseInfo(unsigned int framesAgo) const {
@@ -89,11 +88,6 @@ void UserInput::setShowCursor(bool show) {
 }
 UserInput::KeyBinding UserInput::getBindingInfo(Key key, ModKey modKey) {
 	return m_bindingStates[std::make_pair(modKey, key)];
-}
-void UserInput::dispatch() {
-	for (auto&& queuedAction : m_actionHistory.front()) {
-		queuedAction.actionPtr->execute();
-	}
 }
 GameState UserInput::m_pollSDL() {
 	SDL_Event sdlEvent;
@@ -175,9 +169,6 @@ bool UserInput::m_isModKey(int keyID) const {
 		return false;
 	  break;
 	}
-}
-QueuedAction::QueuedAction(Action* actionPtr, Source source)
-	: actionPtr(actionPtr), source(source) {
 }
 
 }

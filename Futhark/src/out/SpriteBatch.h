@@ -56,8 +56,34 @@ class SpriteBatch {
 			SpriteBatch::TBuffer* const bufferPtr,
 			const int bufferIndex,
 			const Texture& texture,
+			const unsigned int frames,
 			SpriteBatch* const batchPtr
 		);
+		void move(const glm::vec2& translation);
+		void move(const float x, const float y);
+		glm::vec2 getPosition() const;
+		void setPosition(const glm::vec2& position);
+		void setPosition(const float x, const float y);
+		float getDepth() const;
+		void setDepth(const float depth);
+		glm::vec2 getDimensions() const;
+		void setDimensions(const glm::vec2& dimensions);
+		void setDimensions(const float width, const float height);
+		float getRotation() const;
+		void setRotation(const float angle);
+		glm::vec2 getRotationAxis() const;
+		void setRotationAxis(const glm::vec2& axis);
+		void setRotationAxis(const float x, const float y);
+		Color getColor() const;
+		void setColor(const Color& color);
+		void setColor(const char r, const char g, const char b, const char a);
+		glm::vec2 getTexturePosition() const;
+		void setTexturePosition(const glm::vec2& tPosition);
+		void setTexturePosition(const float x, const float y);
+		glm::vec2 getTextureDimensions() const;
+		void setTextureDimensions(const glm::vec2& tDimansions);
+		void setTextureDimensions(const float width, const float height);
+		void setFrame(const int frame);
 		Canvas& getCanvasRef();
 		const Canvas& getCanvasConstRef() const;
 		Texture getTextureCopy() const;
@@ -77,6 +103,8 @@ class SpriteBatch {
 		[t3chma] */
 		void makeLine(glm::vec2& b, glm::vec2& a, float thickness);
 	  private:
+		// The number of frames for this sprite.
+		int m_frames{ 1 };
 		// Pointer to the sprite buffer.
 		SpriteBatch::TBuffer* m_bufferPtr{ nullptr };
 		// Index into the buffer.
@@ -91,9 +119,10 @@ class SpriteBatch {
 	SpriteBatch();
 	/* Adds a sprite to the sprite batch.
 	(texture) The texture to associate to the sprite.
+	(frames) How many animation frames this sprite's texture has.
 	< The new sprite.
 	[t3chma] */
-	Sprite makeSprite(Texture& texture);
+	Sprite makeSprite(Texture& texture, int frames = 1);
 	/* Removes a sprite from the sprite batch.
 	(sprite) The sprite to kill. DO NOT USE THIS AFTER PASSING IT IN!
 	[t3chma] */

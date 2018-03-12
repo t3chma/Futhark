@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\in\Action.h" />
+    <ClInclude Include="src\in\ActionQueue.h" />
     <ClInclude Include="src\out\Camera.h" />
     <ClInclude Include="src\base\Tools.h" />
     <ClInclude Include="src\out\SpriteBatch.h" />
@@ -36,6 +36,7 @@
     <ClInclude Include="src\out\Utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\in\ActionQueue.cpp" />
     <ClCompile Include="src\out\Camera.cpp" />
     <ClCompile Include="src\out\SpriteBatch.cpp" />
     <ClCompile Include="src\out\SpriteRenderer.cpp" />

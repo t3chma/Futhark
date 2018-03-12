@@ -40,12 +40,12 @@ SpriteBatch::SpriteBatch() {
 	TRY_GL(glBindVertexArray(0));
 	TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
-SpriteBatch::Sprite SpriteBatch::makeSprite(Texture& texture) {
+SpriteBatch::Sprite SpriteBatch::makeSprite(Texture& texture, int frames) {
 	m_modified = true;
 	m_buffered = false;
 	auto&& buffer = m_bufferMap[texture];
 	buffer.emplace_back();
-	return Sprite(&buffer, buffer.size() - 1, texture, this);
+	return Sprite(&buffer, buffer.size() - 1, texture, frames, this);
 }
 void SpriteBatch::killSprite(Sprite& sprite) {
 	m_modified = true;
@@ -111,9 +111,120 @@ SpriteBatch::Sprite::Sprite(
 	SpriteBatch::TBuffer* const bufferPtr,
 	const int bufferIndex,
 	const Texture& texturePtr,
+	const unsigned int frames,
 	SpriteBatch* const batchPtr
 )
-	: m_bufferPtr(bufferPtr), m_bufferIndex(bufferIndex), m_texture(texturePtr), m_batchPtr(batchPtr) {
+	: m_bufferPtr(bufferPtr),
+	m_bufferIndex(bufferIndex),
+	m_texture(texturePtr),
+	m_frames(frames),
+	m_batchPtr(batchPtr) {
+	if (frames < 1) { m_frames = 1; }
+	(*m_bufferPtr)[m_bufferIndex].textureDimensions /= m_frames;
+}
+void SpriteBatch::Sprite::move(const glm::vec2& translation) {
+	auto& canvas = getCanvasRef();
+	canvas.position.x += translation.x;
+	canvas.position.y += translation.y;
+}
+void SpriteBatch::Sprite::move(const float x, const float y) {
+	auto& canvas = getCanvasRef();
+	canvas.position.x += x;
+	canvas.position.y += y;
+}
+glm::vec2 SpriteBatch::Sprite::getPosition() const {
+	auto& canvas = getCanvasConstRef();
+	return glm::vec2(canvas.position.x, canvas.position.y);
+}
+void SpriteBatch::Sprite::setPosition(const glm::vec2& position) {
+	auto& canvas = getCanvasRef();
+	canvas.position.x = position.x;
+	canvas.position.y = position.y;
+}
+void SpriteBatch::Sprite::setPosition(const float x, const float y) {
+	auto& canvas = getCanvasRef();
+	canvas.position.x = x;
+	canvas.position.x = x;
+}
+float SpriteBatch::Sprite::getDepth() const {
+	return getCanvasConstRef().position.z;
+}
+void SpriteBatch::Sprite::setDepth(const float depth) {
+	auto& canvas = getCanvasRef();
+	canvas.position.z = depth;
+}
+glm::vec2 SpriteBatch::Sprite::getDimensions() const {
+	return getCanvasConstRef().dimensions;
+}
+void SpriteBatch::Sprite::setDimensions(const glm::vec2& dimensions) {
+	auto& canvas = getCanvasRef();
+	canvas.dimensions = dimensions;
+}
+void SpriteBatch::Sprite::setDimensions(const float width, const float height) {
+	auto& canvas = getCanvasRef();
+	canvas.dimensions.x = width;
+	canvas.dimensions.y = height;
+}
+float SpriteBatch::Sprite::getRotation() const {
+	return getCanvasConstRef().rotationAngle;
+}
+void SpriteBatch::Sprite::setRotation(const float angle) {
+	auto& canvas = getCanvasRef();
+	canvas.rotationAngle = angle;
+}
+glm::vec2 SpriteBatch::Sprite::getRotationAxis() const {
+	return getCanvasConstRef().rotationAxis;
+}
+void SpriteBatch::Sprite::setRotationAxis(const glm::vec2& rotationAxis) {
+	auto& canvas = getCanvasRef();
+	canvas.rotationAxis = rotationAxis;
+}
+void SpriteBatch::Sprite::setRotationAxis(const float x, const float y) {
+	auto& canvas = getCanvasRef();
+	canvas.rotationAxis.x = x;
+	canvas.rotationAxis.y = y;
+}
+Color SpriteBatch::Sprite::getColor() const {
+	return getCanvasConstRef().color;
+}
+void SpriteBatch::Sprite::setColor(const Color& color) {
+	auto& canvas = getCanvasRef();
+	canvas.color = color;
+}
+void SpriteBatch::Sprite::setColor(const char r, const char g, const char b, const char a) {
+	auto& canvas = getCanvasRef();
+	canvas.color.r = r;
+	canvas.color.g = g;
+	canvas.color.b = b;
+	canvas.color.a = a;
+}
+glm::vec2 SpriteBatch::Sprite::getTexturePosition() const {
+	return getCanvasConstRef().texturePosition;
+}
+void SpriteBatch::Sprite::setTexturePosition(const glm::vec2& tPosition) {
+	auto& canvas = getCanvasRef();
+	canvas.texturePosition = tPosition;
+}
+void SpriteBatch::Sprite::setTexturePosition(const float x, const float y) {
+	auto& canvas = getCanvasRef();
+	canvas.texturePosition.x = x;
+	canvas.texturePosition.y = y;
+}
+glm::vec2 SpriteBatch::Sprite::getTextureDimensions() const {
+	return getCanvasConstRef().textureDimensions;
+}
+void SpriteBatch::Sprite::setTextureDimensions(const glm::vec2& tDimensions) {
+	auto& canvas = getCanvasRef();
+	canvas.textureDimensions = tDimensions;
+}
+void SpriteBatch::Sprite::setTextureDimensions(const float width, const float height) {
+	auto& canvas = getCanvasRef();
+	canvas.textureDimensions.x = width;
+	canvas.textureDimensions.y = height;
+}
+void SpriteBatch::Sprite::setFrame(const int frame) {
+	auto& canvas = getCanvasRef();
+	canvas.texturePosition.x = canvas.textureDimensions.x * frame;
 }
 SpriteBatch::Canvas& SpriteBatch::Sprite::getCanvasRef() {
 	m_bufferPtr->modified = true;

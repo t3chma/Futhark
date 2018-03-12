@@ -51,6 +51,9 @@
     <ClCompile Include="src\out\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\in\ActionQueue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\base\Engine.h">
@@ -95,7 +98,7 @@
     <ClInclude Include="src\out\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\in\Action.h">
+    <ClInclude Include="src\in\ActionQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

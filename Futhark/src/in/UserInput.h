@@ -9,25 +9,8 @@
 #include <queue>
 #include <GLM/vec2.hpp>
 #include <unordered_set>
-#include "Action.h"
+#include "ActionQueue.h"
 namespace fk {
-
-
-// A list of action sources.
-enum class Source { UI, AI };
-
-
-/* Information about an action queued to happen.
-[t3chma] */
-class QueuedAction {
-  public:
-	QueuedAction(Action* actionPtr, Source source);
-	friend class UserInput;
-	// The action queued.
-	Action* actionPtr{ nullptr };
-	// The source of the action.
-	Source source{ Source::AI };
-};
 
 
 // Types of action triggers for keys
@@ -113,9 +96,9 @@ class UserInput {
 	// Window handles.
 	std::vector<Window*> windowPtrs;
 	/* Constructor
-	(history) How many frames of history to keep about actions and mouse information.
+	(history) How many frames of history to keep about mouse information.
 	[t3chma] */
-	UserInput(int history = 3600);
+	UserInput(int history = 36000);
 	/* Sets an action binding.
 	(trigger) What kind of trigger queues the action.
 	(modKey) What mod key is needed to trigger this action.
@@ -132,8 +115,9 @@ class UserInput {
 	[t3chma] */
 	void bind(Trigger trigger, Key key, Action* actionPtr, long holdTime = 1);
 	/* Polls SDL for input and queues actions based on it.
+	(actions) Which actions list to queue to.
 	[t3chma] */
-	GameState poll();
+	GameState poll(ActionQueue& actions);
 	/* Get mouse info from frame ago.
 	(frameAgo) How many frames ago you want the info for.
 	[t3chma] */
@@ -147,12 +131,7 @@ class UserInput {
 	(key) The key you want info for.
 	[t3chma] */
 	KeyBinding getBindingInfo(Key key, ModKey modKey = ModKey::NO_MOD);
-	/* Dispatches all the queued actions.
-	[t3chma] */
-	void dispatch();
   private:
-	// History of QueuedActions.
-	boost::circular_buffer<std::list<QueuedAction>> m_actionHistory;
 	// History of mouse placement.
 	boost::circular_buffer<MouseInfo> m_mouseHistory;
 	// Binding info for modkey and key pairs.
