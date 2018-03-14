@@ -9,7 +9,6 @@
 #include <queue>
 #include <GLM/vec2.hpp>
 #include <unordered_set>
-#include "ActionQueue.h"
 namespace fk {
 
 
@@ -41,23 +40,10 @@ enum class Key {
 	// Mod Keys
 	SHIFT_L = SDLK_LSHIFT, SHIFT_R = SDLK_RSHIFT,
 	ALT_L = SDLK_LALT, ALT_R = SDLK_RALT,
-	CTRL_L = SDLK_LCTRL, CTRL_R = SDLK_RCTRL
-}; // 80 * 4 < 512 keys.
-
-
-// Mod keys. Subset of Key.
-enum class ModKey {
-	NO_MOD = 0,
-	SHIFT_L = SDLK_LSHIFT, SHIFT_R = SDLK_RSHIFT,
-	ALT_L = SDLK_LALT, ALT_R = SDLK_RALT,
-	CTRL_L = SDLK_LCTRL, CTRL_R = SDLK_RCTRL
-};
-
-
-// Button enums
-enum class Button {
-	LEFT = SDL_BUTTON_LEFT, MIDDLE = SDL_BUTTON_MIDDLE, RIGHT = SDL_BUTTON_RIGHT,
-	X1 = SDL_BUTTON_X1, X2 = SDL_BUTTON_X2
+	CTRL_L = SDLK_LCTRL, CTRL_R = SDLK_RCTRL,
+	// Mouse Buttons
+	MOUSE_LEFT = SDL_BUTTON_LEFT, MOUSE_MIDDLE = SDL_BUTTON_MIDDLE, MOUSE_RIGHT = SDL_BUTTON_RIGHT,
+	MOUSE_X1 = SDL_BUTTON_X1, MOUSE_X2 = SDL_BUTTON_X2
 };
 
 
@@ -67,21 +53,13 @@ class UserInput {
   public:
 	/* Keybinding info.
 	[t3chma] */
-	struct KeyBinding {
+	struct KeyInfo {
 		// How many frames this has been down for.
 		long downFrames{ 0 };
-		// How long it takes for the hold binding to trigger.
-		long triggerFrames{ 1 };
 		// Mouse position when this was last pressed.
 		glm::ivec2 pressPos{ 0 };
 		// Mouse position when this was last unpressed.
 		glm::ivec2 unpressPos{ 0 };
-		// Action to perform when this key is pressed.
-		Action* pressBinding{ nullptr };
-		// Action to perform when this key is unpressed.
-		Action* unpressBinding{ nullptr };
-		// Action to perform when this key is held.
-		Action* holdBinding{ nullptr };
 	};
 	/* Information about the mouse.
 	[t3chma] */
@@ -99,25 +77,10 @@ class UserInput {
 	(history) How many frames of history to keep about mouse information.
 	[t3chma] */
 	UserInput(int history = 36000);
-	/* Sets an action binding.
-	(trigger) What kind of trigger queues the action.
-	(modKey) What mod key is needed to trigger this action.
-	(key) What key triggers this action.
-	(actionPtr) A pointer to the action.
-	(holdTime) If the trigger type is HOLD then this is how long the keys must be held.
-	[t3chma] */
-	void bind(Trigger trigger, ModKey modKey, Key key, Action* actionPtr, long holdTime = 1);
-	/* Sets an action binding.
-	(trigger) What kind of trigger queues the action.
-	(key) What key triggers this action.
-	(actionPtr) A pointer to the action.
-	(holdTime) If the trigger type is HOLD then this is how long the keys must be held.
-	[t3chma] */
-	void bind(Trigger trigger, Key key, Action* actionPtr, long holdTime = 1);
 	/* Polls SDL for input and queues actions based on it.
 	(actions) Which actions list to queue to.
 	[t3chma] */
-	GameState poll(ActionQueue& actions);
+	GameState poll();
 	/* Get mouse info from frame ago.
 	(frameAgo) How many frames ago you want the info for.
 	[t3chma] */
@@ -126,23 +89,18 @@ class UserInput {
 	(show) If the cursor should be show.
 	[t3chma] */
 	void setShowCursor(bool show);
-	/* Get the binding info for a key COMBO.
-	(modKey) The mod key you want info for.
+	/* Get the key info for a key.
 	(key) The key you want info for.
 	[t3chma] */
-	KeyBinding getBindingInfo(Key key, ModKey modKey = ModKey::NO_MOD);
+	KeyInfo getKeyInfo(Key key);
   private:
 	// History of mouse placement.
 	boost::circular_buffer<MouseInfo> m_mouseHistory;
-	// Binding info for modkey and key pairs.
-	std::unordered_map<std::pair<ModKey, Key>, KeyBinding, boost::hash<std::pair<ModKey, Key>>> m_bindingStates;
-	// The currently down mod keys.
-	std::vector<ModKey> m_downMods;
-	// The just unpressed mod keys.
-	std::unordered_set<ModKey> m_unpressedMods;
-	// The currently down keys (includes mod keys).
+	// Key info for keys.
+	std::unordered_map<Key, KeyInfo> m_keyStates;
+	// The currently down keys.
 	std::unordered_set<Key> m_downKeys;
-	// The just unpressed keys (includes mod keys).
+	// The just unpressed keys.
 	std::unordered_set<Key> m_unpressedKeys;
 	// Polls SDL for key/button info.
 	GameState m_pollSDL();
@@ -152,10 +110,6 @@ class UserInput {
 	(notButt) If this is not a button.
 	[t3chma] */
 	void m_keyEvent(bool down, int keyID, bool notButt);
-	/* Checks if a key is a mod key.
-	(keyID) The ID of the key to check
-	[t3chma] */
-	bool m_isModKey(int keyID) const;
 };
 
 }

@@ -45,21 +45,18 @@
     <ClCompile Include="src\out\SpriteRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\out\Utility.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\out\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\in\ActionQueue.cpp">
+    <ClCompile Include="src\up\Body.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\out\OutUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\base\Engine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\base\Error.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\base\Window.h">
@@ -89,16 +86,19 @@
     <ClInclude Include="src\out\SpriteRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\out\Utility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\base\Tools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\out\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\in\ActionQueue.h">
+    <ClInclude Include="src\out\Error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\up\Body.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\out\OutUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

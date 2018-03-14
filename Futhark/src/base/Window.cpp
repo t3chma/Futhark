@@ -1,5 +1,5 @@
 #include "Window.h"
-#include "Error.h"
+#include "../out/Error.h"
 namespace fk {
 
 

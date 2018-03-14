@@ -19,13 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\in\ActionQueue.h" />
+    <ClInclude Include="src\up\Body.h" />
     <ClInclude Include="src\out\Camera.h" />
     <ClInclude Include="src\base\Tools.h" />
     <ClInclude Include="src\out\SpriteBatch.h" />
     <ClInclude Include="src\out\SpriteRenderer.h" />
     <ClInclude Include="src\base\Engine.h" />
-    <ClInclude Include="src\base\Error.h" />
+    <ClInclude Include="src\out\Error.h" />
     <ClInclude Include="src\base\Scene.h" />
     <ClInclude Include="src\base\Utility.h" />
     <ClInclude Include="src\base\Window.h" />
@@ -33,10 +33,10 @@
     <ClInclude Include="src\in\PicoPNG.h" />
     <ClInclude Include="src\in\FileCache.h" />
     <ClInclude Include="src\in\UserInput.h" />
-    <ClInclude Include="src\out\Utility.h" />
+    <ClInclude Include="src\out\OutUtility.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\in\ActionQueue.cpp" />
+    <ClCompile Include="src\up\Body.cpp" />
     <ClCompile Include="src\out\Camera.cpp" />
     <ClCompile Include="src\out\SpriteBatch.cpp" />
     <ClCompile Include="src\out\SpriteRenderer.cpp" />
@@ -48,7 +48,7 @@
     <ClCompile Include="src\in\PicoPNG.cpp" />
     <ClCompile Include="src\in\FileCache.cpp" />
     <ClCompile Include="src\in\UserInput.cpp" />
-    <ClCompile Include="src\out\Utility.cpp" />
+    <ClCompile Include="src\out\OutUtility.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -128,7 +128,7 @@
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)Deps\lib\$(Platform);</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;Box2D.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -142,7 +142,7 @@
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)Deps\lib\$(Platform);</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;Box2D.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -164,7 +164,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)Deps\lib\$(Platform);</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;Box2D.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -186,7 +186,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)Deps\lib\$(Platform);</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;Box2D.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

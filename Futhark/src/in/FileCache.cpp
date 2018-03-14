@@ -1,12 +1,17 @@
 #include "FileCache.h"
 #include "IOManager.h"
-#include "../base/Error.h"
+#include "../out/Error.h"
 #include "PicoPNG.h"
 namespace fk {
 
 
 Texture::operator GLuint() { return id; }
-
+Texture TextureCache::get(const std::string& IMAGE_FILE_PATH, int frames) {
+	Texture texture = FileCache<Texture>::get(IMAGE_FILE_PATH);
+	if (frames < 1) { frames = 1; }
+	texture.frames = frames;
+	return texture;
+}
 Texture TextureCache::p_load(const std::string& IMAGE_FILE_PATH) {
 	Texture texture;
 	std::string imageFilePath = "Textures/" + IMAGE_FILE_PATH;

@@ -6,76 +6,34 @@ namespace fk {
 UserInput::UserInput(int history) {
 	if (history < 2) { history = 2; }
 	m_mouseHistory.resize(history);
-	m_bindingStates.reserve(512);
-	m_downMods.reserve(6);
-	m_unpressedMods.reserve(6);
+	m_keyStates.reserve(512);
 	m_downKeys.reserve(16);
 	m_unpressedKeys.reserve(16);
 }
-void UserInput::bind(Trigger trigger, ModKey modKey, Key key, Action* actionPtr, long holdTime) {
-	auto& bind = m_bindingStates[std::make_pair(modKey, key)];
-	bind.triggerFrames = holdTime;
-	switch (trigger) {
-	  case Trigger::PRESS:
-		bind.pressBinding = actionPtr;
-	  break;
-	  case Trigger::UNPRESS:
-		bind.unpressBinding = actionPtr;
-	  break;
-	  case Trigger::HOLD:
-		bind.holdBinding = actionPtr;
-	  break;
-	}
-}
-void UserInput::bind(Trigger trigger, Key key, Action* actionPtr, long holdTime) {
-	if (m_isModKey(static_cast<int>(key))) { bind(trigger, static_cast<ModKey>(key), key, actionPtr, holdTime); }
-	else { bind(trigger, ModKey::NO_MOD, key, actionPtr); }
-}
-GameState UserInput::poll(ActionQueue& actions) {
-	std::list<Action*> queuedActions;
+GameState UserInput::poll() {
 	m_mouseHistory.push_front(m_mouseHistory.front());
 	GameState gs = m_pollSDL();
 	MouseInfo& mouseInfo = m_mouseHistory.front();
 	// Get last Mod key.
-	ModKey mk = ModKey::NO_MOD;
-	if (!m_downMods.empty()) { mk = m_downMods.back(); }
 	// Handle down keys/butts.
 	for (auto&& key : m_downKeys) {
-		KeyBinding& kb = m_bindingStates[std::make_pair(mk, key)];
-		if (++(kb.downFrames) == 1) {
-			kb.pressPos = m_mouseHistory.front().position;
-			if (kb.pressBinding) { queuedActions.push_back(kb.pressBinding); }
-			///std::cout << "\npress:\t\t" << (char)mk << " " << (char)key;
+		KeyInfo& ki = m_keyStates[key];
+		if (++ki.downFrames == 1) {
+			ki.pressPos = m_mouseHistory.front().position;
+			std::cout << "\npress:\t\t" << (char)key;
 		} else {
-			if (kb.holdBinding && kb.downFrames > kb.triggerFrames) {
-				queuedActions.push_back(kb.holdBinding);
-			}
-			std::cout << "\nhold:\t\t" << (char)mk << " " << (char)key;
+			std::cout << "\nhold:\t\t"<< (char)key;
 		}
 	}
 	// Handle unpressed key/butts.
 	for (auto&& key : m_unpressedKeys) {
-		KeyBinding& kb = m_bindingStates[std::make_pair(mk, key)];
-		kb.downFrames = 0;
-		kb.unpressPos = m_mouseHistory.front().position;
-		if (kb.unpressBinding) { queuedActions.push_back(kb.unpressBinding); }
-		///std::cout << "\nunpress:\t" << (char)mk << " " << (char)key;
-	}
-	// Handle unpressed mods.
-	for (auto&& unpressedMod : m_unpressedMods) {
-		for (auto&& downMod : m_downMods) {
-			if (downMod == unpressedMod) {
-				downMod = m_downMods.back();
-				break;
-			}
-		}
-		m_downMods.pop_back();
+		KeyInfo& ki = m_keyStates[key];
+		ki.downFrames = 0;
+		ki.unpressPos = m_mouseHistory.front().position;
+		std::cout << "\nunpress:\t" << (char)key;
 	}
 	// Clear unpressed lists.
 	m_unpressedKeys.clear();
-	m_unpressedMods.clear();
-	// Log the actions of this screen.
-	actions.userActionHistory.push_front(queuedActions);
 	return gs;
 }
 UserInput::MouseInfo UserInput::getMouseInfo(unsigned int framesAgo) const {
@@ -86,8 +44,8 @@ void UserInput::setShowCursor(bool show) {
 	if (show) { SDL_ShowCursor(SDL_ENABLE); }
 	else { SDL_ShowCursor(SDL_DISABLE); }
 }
-UserInput::KeyBinding UserInput::getBindingInfo(Key key, ModKey modKey) {
-	return m_bindingStates[std::make_pair(modKey, key)];
+UserInput::KeyInfo UserInput::getKeyInfo(Key key) {
+	return m_keyStates[key];
 }
 GameState UserInput::m_pollSDL() {
 	SDL_Event sdlEvent;
@@ -132,42 +90,13 @@ void UserInput::m_keyEvent(bool down, int keyID, bool notButt) {
 	if (down) {
 		// Add key/butt to down list.
 		m_downKeys.insert(kiPtr);
-		// Add key to down modkey list if modkey.
-		if (
-			notButt
-			&& m_isModKey(keyID)
-			&& std::find(
-				m_downMods.begin(),
-				m_downMods.end(),
-				static_cast<ModKey>(keyID)
-			) == m_downMods.end()
-		) {
-			m_downMods.push_back(static_cast<ModKey>(keyID));
-		}
 		// Note: m_unpressedKeyPtrs get cleared every frame so we don't have to remove from that.
 	}
 	else {
 		// Find and remove key/butt from down list.
 		m_downKeys.erase(kiPtr);
-		// Add key to unpressed modkey list if its a modkey.
-		if (notButt && m_isModKey(keyID)) { m_unpressedMods.insert(static_cast<ModKey>(keyID)); }
 		// Add to the unpressed list. 
 		m_unpressedKeys.insert(kiPtr);
-	}
-}
-bool UserInput::m_isModKey(int keyID) const {
-	switch (keyID) {
-	  case (int)ModKey::SHIFT_L:
-	  case (int)ModKey::SHIFT_R:
-	  case (int)ModKey::ALT_L:
-	  case (int)ModKey::ALT_R:
-	  case (int)ModKey::CTRL_L:
-	  case (int)ModKey::CTRL_R:
-		return true;
-	  break;
-	  default:
-		return false;
-	  break;
 	}
 }
 

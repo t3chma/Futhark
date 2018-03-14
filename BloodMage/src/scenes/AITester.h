@@ -3,19 +3,16 @@
 #include "out/SpriteRenderer.h"
 #include "out/SpriteBatch.h"
 #include "out/Camera.h"
-#include "in/ActionQueue.h"
+#include "Box2D/Box2D.h"
 
 class AITester : public fk::Scene {
-public:
+  public:
 	fk::SpriteBatch sprites;
 	fk::SpriteRenderer spriteRenderer;
-	std::vector <fk::SpriteBatch::Sprite> localSprites;
+	std::vector<int> spriteIDs;
 	fk::Camera cam;
-	friend class camUp;
-	friend class camDown;
-	friend class camLeft;
-	friend class camRight;
-
+	glm::vec2 camMovement{ 0 };
+	//b2World world;
 	AITester() = default;
 	~AITester() = default;
 	// Inherited via fk::Scene
@@ -24,26 +21,4 @@ public:
 	virtual void open(fk::Tools& tools) override;
 	virtual void close(fk::Tools& tools) override;
 	virtual void update(fk::Tools& tools) override;
-
-	glm::vec2 camMovement{ 0 };
-	struct : public fk::Action {
-		glm::vec2* camMovementPtr;
-		void execute() override { camMovementPtr->y = 1; }
-		void undo() override { camMovementPtr->y = -1; }
-	} camUp;
-	struct : public fk::Action {
-		glm::vec2* camMovementPtr;
-		void execute() override { camMovementPtr->y = -1; }
-		void undo() override { camMovementPtr->y = 1; }
-	} camDown;
-	struct : public fk::Action {
-		glm::vec2* camMovementPtr;
-		void execute() override { camMovementPtr->x = -1; }
-		void undo() override { camMovementPtr->x = 1; }
-	} camLeft;
-	struct : public fk::Action {
-		glm::vec2* camMovementPtr;
-		void execute() override { camMovementPtr->x = 1; }
-		void undo() override { camMovementPtr->x = -1; }
-	} camRight;
 };

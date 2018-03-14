@@ -1,6 +1,6 @@
 #pragma once
 #include "Engine.h"
-#include "Error.h"
+#include "../out/Error.h"
 namespace fk {
 
 
@@ -17,8 +17,7 @@ Engine::~Engine() { stop(); }
 void Engine::run() {
 	// Gameloop
 	while (m_tools.gameState != GameState::EXIT) {
-		m_tools.gameState = m_tools.ui.poll(m_tools.actionQueue);
-		m_tools.actionQueue.dispatch();
+		m_tools.gameState = m_tools.ui.poll();
 		for (int i = 0; i < m_currentScenePtrs.size(); ++i) {
 			if (m_tools.nextSceneName != "") {
 				std::string nextSceneName = m_tools.nextSceneName;

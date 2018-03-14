@@ -30,7 +30,7 @@ void Camera::update() {
 void Camera::setPosition(const glm::vec2& position) { m_position = position; m_pendingUpdate = true; }
 void Camera::move(const glm::vec2& position) {
 	m_position.y += position.y;
-	m_position.x -= position.x;
+	m_position.x += position.x;
 	m_pendingUpdate = true;
 }
 void Camera::setZoom(float zoom) {

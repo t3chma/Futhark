@@ -16,13 +16,13 @@ class FileCache {
 	< The data (T) associated to the file path.
 	[t3chma] */
 	virtual T get(const std::string& filePath) final {
-		// Look for texture
+		// Look for data
 		auto mapSelection = m_map.find(filePath);
 		if (mapSelection != m_map.end()) {
-			// If texture is found return it
+			// If data is found return it
 			return mapSelection->second;
 		} else {
-			// If texture is not found then load a new image and put the texture into the cache
+			// If data is not found then load a new data and put the data into the cache
 			m_map[filePath] = p_load(filePath);
 			return m_map[filePath];
 		}
@@ -42,9 +42,11 @@ class FileCache {
 [t3chma] */
 struct Texture {
 	// GL texture ID.
-	GLuint id;
+	GLuint id{ 0 };
 	// Resolution of texture.
-	int width, height;
+	int width{ 0 }, height{ 0 };
+	// Number of animation frames.
+	int frames{ 1 };
 	operator GLuint();
 };
 
@@ -52,6 +54,14 @@ struct Texture {
 /* Loads and stores PNG files as textures in memory.
 [t3chma] */
 class TextureCache : public FileCache<Texture> {
+  public:
+	/* Get a texture from the given file path and assign its frame count.
+	If the texture is not already in memory it loads it in.
+	(filepath) The file path to the texture.
+	(frames) The number of animation frames for this texture.
+	< The texture associated to the file path.
+	[t3chma] */
+	Texture get(const std::string& filePath, int frames);
   protected:
 	/* Load texture from the given PNG file path.
 	(filepath) The file path to the texture.
