@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\up\Body.h" />
+    <ClInclude Include="src\up\Actor.h" />
     <ClInclude Include="src\out\Camera.h" />
     <ClInclude Include="src\base\Tools.h" />
     <ClInclude Include="src\out\SpriteBatch.h" />
@@ -36,13 +36,12 @@
     <ClInclude Include="src\out\OutUtility.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\up\Body.cpp" />
+    <ClCompile Include="src\up\Actor.cpp" />
     <ClCompile Include="src\out\Camera.cpp" />
     <ClCompile Include="src\out\SpriteBatch.cpp" />
     <ClCompile Include="src\out\SpriteRenderer.cpp" />
     <ClCompile Include="src\base\Engine.cpp" />
     <ClCompile Include="src\base\Scene.cpp" />
-    <ClCompile Include="src\base\Utility.cpp" />
     <ClCompile Include="src\base\Window.cpp" />
     <ClCompile Include="src\in\IOManager.cpp" />
     <ClCompile Include="src\in\PicoPNG.cpp" />
@@ -127,7 +126,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)Deps\lib\$(Platform);</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Deps\lib\$(Platform);$(SolutionDir)Deps\lib\$(Platform)\debug;</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;Box2D.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
@@ -141,7 +140,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)Deps\lib\$(Platform);</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Deps\lib\$(Platform);$(SolutionDir)Deps\lib\$(Platform)\debug;</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;Box2D.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
@@ -163,7 +162,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)Deps\lib\$(Platform);</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Deps\lib\$(Platform);$(SolutionDir)Deps\lib\$(Platform)\release;</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;Box2D.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
@@ -185,7 +184,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)Deps\lib\$(Platform);</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Deps\lib\$(Platform);$(SolutionDir)Deps\lib\$(Platform)\release;</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;Box2D.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>

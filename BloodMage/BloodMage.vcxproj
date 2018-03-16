@@ -172,6 +172,8 @@
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\actors\Player.cpp" />
+    <ClCompile Include="src\actors\Grunt.cpp" />
     <ClCompile Include="src\scenes\AITester.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
@@ -181,6 +183,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\actors\Player.h" />
+    <ClInclude Include="src\actors\Grunt.h" />
     <ClInclude Include="src\scenes\AITester.h" />
   </ItemGroup>
   <ItemGroup>

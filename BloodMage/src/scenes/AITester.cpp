@@ -10,9 +10,18 @@ void AITester::create(fk::Tools& tools) {
 	};
 	spriteRenderer.setShaders(shaders);
 	cam.setDimensions(tools.windowPtr->getDimensions());
+	cam.setZoom(64);
 	tools.ui.setShowCursor(false);
-	spriteIDs.emplace_back(sprites.makeSprite(tools.textures.get("Test.png", 1)));
-	sprites[spriteIDs.back()].canvas.dimensions = glm::vec2(100);
+
+	spriteIDs.push_back(sprites.makeSprite(tools.textures.get("Test.png", 1)));
+	sprites[spriteIDs.back()].setDepth(-1);
+	fk::ActorDef ad;
+	ad.textures.push_back(tools.textures.get("Circle.png", 1));
+	actorPtrs.push_back(new Grunt(&sprites, &world, ad));
+	ad.textures.push_back(tools.textures.get("Test.png", 1));
+	ad.textures.push_back(tools.textures.get("Slash.png", 1));
+	ad.textures.push_back(tools.textures.get("Slash.png", 1));
+	actorPtrs.push_back(new Player(&sprites, &world, &tools.ui, ad));
 }
 void AITester::destroy(fk::Tools& tools) {
 
@@ -25,27 +34,22 @@ void AITester::close(fk::Tools& tools) {
 }
 void AITester::update(fk::Tools& tools) {
 	cam.update();
-	if (tools.ui.getKeyInfo(fk::Key::W).downFrames > 1) {
-		camMovement.y += 1;
-	}
-	if (tools.ui.getKeyInfo(fk::Key::S).downFrames > 1) {
-		camMovement.y -= 1;
-	}
-	if (tools.ui.getKeyInfo(fk::Key::D).downFrames > 1) {
-		camMovement.x += 1;
-	}
-	if (tools.ui.getKeyInfo(fk::Key::A).downFrames > 1) {
-		camMovement.x -= 1;
-	}
-	if (camMovement.x || camMovement.y) cam.move(glm::vec2(10) * glm::normalize(camMovement));
+	if (tools.ui.getKeyInfo(fk::Key::Q).downFrames > 1) { cam.zoomOut(); }
+	if (tools.ui.getKeyInfo(fk::Key::E).downFrames > 1) { cam.zoomIn(); }
+	//cam.setPosition(glm::vec2(0));
+	cam.setPosition(actorPtrs.back()->getPosition());
 	camMovement.x = 0;
 	camMovement.y = 0;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	spriteRenderer.Render(sprites, cam.getTransScaledMatrix());
+
+	for (auto&& actorPtr : actorPtrs) { actorPtr->think(actorPtrs, &cam); }
+	for (auto&& actorPtr : actorPtrs) { actorPtr->updateBody(); }
+	world.Step(1.0f/60.0f, 8, 3);
+	for (auto&& actorPtr : actorPtrs) { actorPtr->updateSprite(); }
 	auto& mpos = cam.getWorldCoordinates(tools.ui.getMouseInfo(0).position);
-	if (!spriteIDs.empty()) {
-		sprites[spriteIDs.back()].canvas.rotationAngle -= 0.1;
-		sprites[spriteIDs.back()].setPosition(mpos);
-		sprites[spriteIDs.back()].canvas.rotationAxis = mpos;
-	}
+
+	//sprites[spriteIDs[0]].setPosition(bodyPtrs[0]->GetPosition().x, bodyPtrs[0]->GetPosition().y);
+	//sprites[spriteIDs[0]].setRotationAxis(bodyPtrs[0]->GetPosition().x, bodyPtrs[0]->GetPosition().y);
+	//sprites[spriteIDs[0]].canvas.rotationAngle = bodyPtrs[0]->GetAngle();
 }

@@ -27,9 +27,6 @@
     <ClCompile Include="src\in\UserInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\base\Utility.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\in\IOManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -48,10 +45,10 @@
     <ClCompile Include="src\out\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\up\Body.cpp">
+    <ClCompile Include="src\out\OutUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\out\OutUtility.cpp">
+    <ClCompile Include="src\up\Actor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -95,10 +92,10 @@
     <ClInclude Include="src\out\Error.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\up\Body.h">
+    <ClInclude Include="src\out\OutUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\out\OutUtility.h">
+    <ClInclude Include="src\up\Actor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

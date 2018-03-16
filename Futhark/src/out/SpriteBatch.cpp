@@ -70,7 +70,9 @@ void SpriteBatch::m_makeSpriteTrays() {
 	std::sort(
 		m_spritePtrs.begin(),
 		m_spritePtrs.end(),
-		[](Sprite* aPtr, Sprite* bPtr) { return (aPtr->texture.id < bPtr->texture.id); }
+		[](Sprite* aPtr, Sprite* bPtr) {
+		return (aPtr->texture.id < bPtr->texture.id);
+	}
 	);
 	// Make sure there are sprites to render
 	if (m_spritePtrs.empty()) { return; }
@@ -136,7 +138,7 @@ void SpriteBatch::Sprite::setPosition(const glm::vec2& position) {
 }
 void SpriteBatch::Sprite::setPosition(const float x, const float y) {
 	canvas.position.x = x;
-	canvas.position.x = x;
+	canvas.position.y = y;
 }
 float SpriteBatch::Sprite::getDepth() const { return canvas.position.z; }
 void SpriteBatch::Sprite::setDepth(const float depth) { canvas.position.z = depth; }

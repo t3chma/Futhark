@@ -21,24 +21,28 @@ enum class GameState {
 
 /* Random number generator.
 [t3chma] */
-class Random {
-  public:
-	/* Get a random int.
-	(min) Minimum int to get back.
-	(max) Maximum int to get back.
-	< Random int in the given range.
-	[t3chma] */
-	static int getInt(int min, int max);
-	/* Get a random float.
-	(min) Minimum float to get back.
-	(max) Maximum float to get back.
-	< Random float in the given range.
-	[t3chma] */
-	static double getFloat(double min, double max);
-  private:
-	// The random number generator.
-	static std::mt19937 m_generator;
-};
+//class Random {
+//  public:
+//	/* Get a random int.
+//	(min) Minimum int to get back.
+//	(max) Maximum int to get back.
+//	< Random int in the given range.
+//	[t3chma] */
+//	static int getInt(int min, int max) {
+//		return std::uniform_int_distribution<int>(min, max)(m_generator);
+//	}
+//	/* Get a random float.
+//	(min) Minimum float to get back.
+//	(max) Maximum float to get back.
+//	< Random float in the given range.
+//	[t3chma] */
+//	static double getFloat(double min, double max) {
+//		return std::uniform_real_distribution<double>(min, max)(m_generator);
+//	}
+//  private:
+//	// The random number generator.
+//	static const std::mt19937* m_generator{ (unsigned int)time(nullptr) };
+//};
 
 
 // 2 PI, 1 Turn.
@@ -47,11 +51,25 @@ const double TAU = 3.14159265359 * 2;
 (DIRECTION) The vector to get the angle of.
 < The angle in radians.
 [t3chma] */
-extern float makeAngle(const glm::vec2& DIRECTION);
+inline float makeAngle(const glm::vec2& DIRECTION) {
+	if (DIRECTION == glm::vec2(0, 0)) {
+		return 0.0f;
+	}
+	else {
+		float angle(acos(glm::dot(glm::vec2(1.0f, 0.0f), DIRECTION)));
+		if (DIRECTION.y < 0.0f) angle = -angle;
+		return angle;
+	}
+}
 /* Rotates a point around the origin.
 (POINT) The point to rotate.
 (ANGLE) How much to rotate the point in radians.
 [t3chma] */
-extern glm::vec2 rotatePoint(const glm::vec2& POINT, const float ANGLE);
+inline glm::vec2 rotatePoint(const glm::vec2& POINT, const float ANGLE) {
+	return glm::vec2(
+		POINT.x * cos(ANGLE) - POINT.y * sin(ANGLE),
+		POINT.x * sin(ANGLE) + POINT.y * cos(ANGLE)
+	);
+}
 
 }
