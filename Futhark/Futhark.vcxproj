@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\up\Body.h" />
     <ClInclude Include="src\up\Actor.h" />
     <ClInclude Include="src\out\Camera.h" />
     <ClInclude Include="src\base\Tools.h" />
@@ -34,8 +35,10 @@
     <ClInclude Include="src\in\FileCache.h" />
     <ClInclude Include="src\in\UserInput.h" />
     <ClInclude Include="src\out\OutUtility.h" />
+    <ClInclude Include="src\up\World.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\up\Body.cpp" />
     <ClCompile Include="src\up\Actor.cpp" />
     <ClCompile Include="src\out\Camera.cpp" />
     <ClCompile Include="src\out\SpriteBatch.cpp" />
@@ -48,6 +51,7 @@
     <ClCompile Include="src\in\FileCache.cpp" />
     <ClCompile Include="src\in\UserInput.cpp" />
     <ClCompile Include="src\out\OutUtility.cpp" />
+    <ClCompile Include="src\up\World.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

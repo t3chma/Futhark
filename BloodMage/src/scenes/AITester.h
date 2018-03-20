@@ -4,6 +4,7 @@
 #include "out/SpriteBatch.h"
 #include "out/Camera.h"
 #include "Box2D/Box2D.h"
+#include "../actors/Spear.h"
 #include "../actors/Grunt.h"
 #include "../actors/Player.h"
 
@@ -14,7 +15,7 @@ class AITester : public fk::Scene {
 	std::vector<int> spriteIDs;
 	fk::Camera cam;
 	glm::vec2 camMovement{ 0 };
-	b2World world{ b2Vec2(0.0, 0.0) };
+	fk::World world;
 	std::vector<fk::Actor*> actorPtrs;
 	std::vector<b2Body*> bodyPtrs;
 	AITester() = default;

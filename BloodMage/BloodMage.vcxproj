@@ -174,6 +174,7 @@
   <ItemGroup>
     <ClCompile Include="src\actors\Player.cpp" />
     <ClCompile Include="src\actors\Grunt.cpp" />
+    <ClCompile Include="src\actors\Spear.cpp" />
     <ClCompile Include="src\scenes\AITester.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
@@ -185,9 +186,17 @@
   <ItemGroup>
     <ClInclude Include="src\actors\Player.h" />
     <ClInclude Include="src\actors\Grunt.h" />
+    <ClInclude Include="src\actors\Spear.h" />
     <ClInclude Include="src\scenes\AITester.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Textures\Circle.png" />
+    <Image Include="Textures\CursorBlood.png" />
+    <Image Include="Textures\flare1.png" />
+    <Image Include="Textures\flare2.png" />
+    <Image Include="Textures\Slash.png" />
+    <Image Include="Textures\Square.png" />
+    <Image Include="Textures\Swipe.png" />
     <Image Include="Textures\Test.png" />
   </ItemGroup>
   <ItemGroup>

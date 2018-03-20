@@ -27,6 +27,9 @@
     <ClCompile Include="src\actors\Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\actors\Spear.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scenes\AITester.h">
@@ -38,9 +41,33 @@
     <ClInclude Include="src\actors\Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\actors\Spear.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\Test.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Circle.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\CursorBlood.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\flare1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\flare2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Slash.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Square.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Swipe.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
