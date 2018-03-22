@@ -20,7 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\up\Body.h" />
-    <ClInclude Include="src\up\Actor.h" />
     <ClInclude Include="src\out\Camera.h" />
     <ClInclude Include="src\base\Tools.h" />
     <ClInclude Include="src\out\SpriteBatch.h" />
@@ -39,7 +38,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\up\Body.cpp" />
-    <ClCompile Include="src\up\Actor.cpp" />
     <ClCompile Include="src\out\Camera.cpp" />
     <ClCompile Include="src\out\SpriteBatch.cpp" />
     <ClCompile Include="src\out\SpriteRenderer.cpp" />

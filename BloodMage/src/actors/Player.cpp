@@ -5,15 +5,16 @@ Player::Player(
 	fk::SpriteBatch* sbPtr,
 	fk::World& world,
 	fk::UserInput* uiPtr,
-	fk::ActorDef& ad
+	ActorDef& ad
 ) : Actor(sbPtr, world, ad), m_uiPtr(uiPtr) {
 	(*p_sbPtr)[p_spriteIDs[3]].setDimensions(0.2, 0.2);
-	(*p_sbPtr)[p_spriteIDs[1]].setDimensions(ad.size*3, ad.size*4);
+	(*p_sbPtr)[p_spriteIDs[1]].setDimensions(ad.size*2, ad.size*3);
 	(*p_sbPtr)[p_spriteIDs[1]].setColor(255, 255, 255, 0);
-	(*p_sbPtr)[p_spriteIDs[2]].setDimensions(ad.size*3, ad.size*4);
+	(*p_sbPtr)[p_spriteIDs[2]].setDimensions(ad.size*2, ad.size*3);
 	(*p_sbPtr)[p_spriteIDs[2]].setColor(255, 255, 255, 0);
 	(*p_sbPtr)[p_spriteIDs[2]].setTextureDimensions(-1, 1);
 	(*p_sbPtr)[p_spriteIDs[2]].setTexturePosition(1, 0);
+	(*p_sbPtr)[p_spriteIDs[2]].canvas.position.z = 10;
 	b2FixtureDef fixtureDef;
 	b2CircleShape circle;
 	fixtureDef.shape = &circle;
@@ -26,15 +27,15 @@ Player::Player(
 	b2PolygonShape box;
 	fixtureDef.shape = &box;
 	b2Vec2 points1[]{
-		b2Vec2(-ad.size*0.5, 0), b2Vec2(-ad.size*0.5, -ad.size*2),
-		b2Vec2(ad.size*1.5, -ad.size*2), b2Vec2(ad.size*1.5, 0)
+		b2Vec2(0, 0), b2Vec2(0, ad.size*1),
+		b2Vec2(ad.size*1, ad.size*1.5), b2Vec2(ad.size*1.5, 0)
 	};
 	box.Set(points1, 4);
 	fixtureDef.userData = (void*)'l';
 	b2BodyPtr->CreateFixture(&fixtureDef);
 	b2Vec2 points2[]{
-		b2Vec2(-ad.size*1.5, 0), b2Vec2(-ad.size*1.5, -ad.size*2),
-		b2Vec2(ad.size*0.5, -ad.size*2), b2Vec2(ad.size*0.5, 0)
+		b2Vec2(-ad.size*1, 0), b2Vec2(-ad.size*1, ad.size*1.5),
+		b2Vec2(0, ad.size*1.5), b2Vec2(0, 0)
 	};
 	box.Set(points2, 4);
 	fixtureDef.userData = (void*)'r';
@@ -45,15 +46,19 @@ Player::Player(
 Player::~Player() {
 
 }
-void Player::think(std::vector<fk::Actor*>& actorPtrs, fk::Camera* camPtr) {
-	p_speed = 0.5;
+void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
+	p_speed = 0.35;
 	p_moveDirection.x = 0;
 	p_moveDirection.y = 0;
-	if (m_uiPtr->getKeyInfo(fk::Key::W).downFrames > 1) { p_moveDirection.y += 1; }
-	if (m_uiPtr->getKeyInfo(fk::Key::S).downFrames > 1) { p_moveDirection.y -= 1; }
-	if (m_uiPtr->getKeyInfo(fk::Key::D).downFrames > 1) { p_moveDirection.x += 1; }
-	if (m_uiPtr->getKeyInfo(fk::Key::A).downFrames > 1) { p_moveDirection.x -= 1; }
-	if (m_uiPtr->getKeyInfo(fk::Key::SHIFT_L).downFrames > 1) { p_speed = 1; }
+	if (m_uiPtr->getKeyInfo(fk::Key::SPACE).downFrames > 1) {
+		
+	} else {
+		if (m_uiPtr->getKeyInfo(fk::Key::W).downFrames > 1) { p_moveDirection.y += 1; }
+		if (m_uiPtr->getKeyInfo(fk::Key::S).downFrames > 1) { p_moveDirection.y -= 1; }
+		if (m_uiPtr->getKeyInfo(fk::Key::D).downFrames > 1) { p_moveDirection.x += 1; }
+		if (m_uiPtr->getKeyInfo(fk::Key::A).downFrames > 1) { p_moveDirection.x -= 1; }
+		if (m_uiPtr->getKeyInfo(fk::Key::SHIFT_L).downFrames > 1) { p_speed = 0.7; }
+	}
 	if (
 		m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames == 1
 		&& m_uiPtr->getKeyInfo(fk::Key::SHIFT_L).downFrames == 0
@@ -65,12 +70,9 @@ void Player::think(std::vector<fk::Actor*>& actorPtrs, fk::Camera* camPtr) {
 	) { m_rightSwipe = true; }
 	else { m_rightSwipe = false; }
 	m_mousePos = camPtr->getWorldCoordinates(m_uiPtr->getMouseInfo(0).position);
-	glm::vec2 lookVec = glm::normalize(m_mousePos - glm::vec2(
-		b2BodyPtr->GetPosition().x,
-		b2BodyPtr->GetPosition().y
-	));
-	if (lookVec.x || lookVec.y) { p_faceDirection = glm::normalize(lookVec); }
-	p_faceAngle = fk::makeAngle(p_faceDirection) + fk::TAU/4;
+	glm::vec2 position = glm::vec2(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
+	if (m_mousePos != position) { p_faceDirection = glm::normalize(position - m_mousePos); }
+	p_faceAngle = fk::makeAngle(p_faceDirection) + fk::TAU / 4;
 	if (p_moveDirection.x || p_moveDirection.y) { p_moveDirection = p_speed * glm::normalize(p_moveDirection); }
 	if (p_hit) { p_health -= p_hit; p_hit = 0; }
 }
@@ -84,7 +86,9 @@ void Player::p_beginCollision(
 		if (myFixturePtr->GetUserData() != nullptr) {
 			switch ((char)myFixturePtr->GetUserData()) {
 			  case 's':
-				m_swipeRange = true;
+				m_swipeRangePtrs.push_back(
+					static_cast<fk::Body*>(collisionFixturePtr->GetBody()->GetUserData())
+				);
 			  break;
 			  case 'l':
 				m_leftHitPtrs.push_back(static_cast<fk::Body*>(collisionFixturePtr->GetBody()->GetUserData()));
@@ -108,13 +112,13 @@ void Player::p_endCollision(
 		if (myFixturePtr->GetUserData() != nullptr) {
 			switch ((char)myFixturePtr->GetUserData()) {
 			  case 's':
-				m_swipeRange = false;
+				m_swipeRangePtrs.remove(static_cast<fk::Body*>(collisionFixturePtr->GetBody()->GetUserData()));
 			  break;
 			  case 'l':
-				m_leftHitPtrs.clear();
+				m_leftHitPtrs.remove(static_cast<fk::Body*>(collisionFixturePtr->GetBody()->GetUserData()));
 			  break;
 			  case 'r':
-				m_rightHitPtrs.clear();
+				m_rightHitPtrs.remove(static_cast<fk::Body*>(collisionFixturePtr->GetBody()->GetUserData()));
 			  break;
 			  default:
 			  break;
@@ -130,11 +134,11 @@ void Player::updateBody() {
 			true
 		);
 		b2BodyPtr->SetTransform(b2BodyPtr->GetWorldCenter(), p_faceAngle);
-		if (m_swipeRange) {
+		if (!m_swipeRangePtrs.empty()) {
 			if (m_leftSwipe) {
 				for (auto&& hitBodyPtr : m_leftHitPtrs) {
 					hitBodyPtr->b2BodyPtr->ApplyLinearImpulse(
-						b2Vec2(p_faceDirection.x * 2.5, p_faceDirection.y * 2.5),
+						b2Vec2(p_faceDirection.x * -2.5, p_faceDirection.y * -2.5),
 						hitBodyPtr->b2BodyPtr->GetPosition(),
 						true
 					);
@@ -144,7 +148,7 @@ void Player::updateBody() {
 			if (m_rightSwipe) {
 				for (auto&& hitBodyPtr : m_rightHitPtrs) {
 					hitBodyPtr->b2BodyPtr->ApplyLinearImpulse(
-						b2Vec2(p_faceDirection.x * 2.5, p_faceDirection.y * 2.5),
+						b2Vec2(p_faceDirection.x * -2.5, p_faceDirection.y * -2.5),
 						hitBodyPtr->b2BodyPtr->GetPosition(),
 						true
 					);

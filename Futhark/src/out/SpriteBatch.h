@@ -39,8 +39,6 @@ class SpriteBatch {
 		glm::vec2 getPosition() const;
 		void setPosition(const glm::vec2& position);
 		void setPosition(const float x, const float y);
-		float getDepth() const;
-		void setDepth(const float depth);
 		void setDimensions(const float width, const float height);
 		void setRotationAxis(const float x, const float y);
 		void setColor(const char r, const char g, const char b, const char a);
@@ -52,7 +50,6 @@ class SpriteBatch {
 		(frames) How many animation frames this sprite's texture has.
 		[t3chma] */
 		void setTexture(const Texture& texture);
-		Texture getTexture() const;
 		/* Transforms this sprite into a line.
 		The top of the texture will be at the A end and bottom of the texture at the B end.
 		(b) The position of the B end.
@@ -70,11 +67,13 @@ class SpriteBatch {
 		int size{ 1 };
 		// The texture ID for this tray.
 		GLuint textureID{ 0 };
-		SpriteTray(GLuint textureID, int offset = 0);
+		// The depth of this sprite batch.
+		float depth{ 0 };
+		SpriteTray(GLuint textureID, float depth = 0, int offset = 0);
 	};
 	/* Creates vertex array object.
 	[t3chma] */
-	SpriteBatch();
+	SpriteBatch(bool dynamic);
 	/* Adds a sprite to the sprite batch.
 	(texture) The texture to associate to the sprite.
 	< The new sprite's ID.
@@ -87,25 +86,31 @@ class SpriteBatch {
 	[t3chma] */
 	void destroySprite(int spriteID);
   private:
+	/* Sort sprites and store the info in m_spriteTrays.
+	[t3chma] */
 	void m_makeSpriteTrays();
 	/* Start the render pipeline.
 	You probably should not even be calling this unless you are the renderer class.
 	[t3chma] */
 	void m_render();
+	// If what is being drawn is static or dynamic.
+	bool m_dynamic{ true };
 	// Vertex buffer ID.
-	GLuint m_vertexBufferObjectID;
+	GLuint m_vertexBufferObjectID{ 0 };
 	// Array buffer ID.
-	GLuint m_vertexArrayObjectID;
+	GLuint m_vertexArrayObjectID{ 0 };
 	// Stores all sprites contiguously.
 	std::vector<Sprite> m_spriteBuffer;
 	// Any dead indices in the buffer.
 	std::vector<int> m_deadBufferIndices;
 	// Stores sprite pointers
 	std::vector<Sprite*> m_spritePtrs;
-	// Stores sorting info for m_processedSpritePtrs.
+	// Stores sorting info for m_spritePtrs.
 	std::vector<SpriteTray> m_spriteTrays;
 	// The local vertex buffer to be sent to the GPU.
 	std::vector<Canvas> m_vertexBuffer;
+	// If the local static buffer needs to be sent to the GPU.
+	bool m_bufferStatic{ false };
 };
 
 }

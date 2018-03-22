@@ -44,7 +44,8 @@ void main() {
             gl_in[i].gl_Position.z,
             1.0
         );
-        uv = inData[i].texturePosition;
+        uv.x = inData[i].texturePosition.x;
+        uv.y = inData[i].texturePosition.y + inData[i].textureDimensions.y;
         EmitVertex();
         
         color = inData[i].color;
@@ -55,8 +56,7 @@ void main() {
             gl_in[i].gl_Position.z,
             1.0
         );
-        uv.x = inData[i].texturePosition.x;
-        uv.y = inData[i].texturePosition.y + inData[i].textureDimensions.y;
+        uv = inData[i].texturePosition;
         EmitVertex();
         
         color = inData[i].color;
@@ -68,7 +68,7 @@ void main() {
             1.0
         );
         uv.x = inData[i].texturePosition.x + inData[i].textureDimensions.x;
-        uv.y = inData[i].texturePosition.y;
+        uv.y = inData[i].texturePosition.y + inData[i].textureDimensions.y;
         EmitVertex();
 
         color = inData[i].color;
@@ -80,7 +80,7 @@ void main() {
             1.0
         );
         uv.x = inData[i].texturePosition.x + inData[i].textureDimensions.x;
-        uv.y = inData[i].texturePosition.y + inData[i].textureDimensions.y;
+        uv.y = inData[i].texturePosition.y;
         EmitVertex();
     }
 }

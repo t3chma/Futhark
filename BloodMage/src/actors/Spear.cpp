@@ -1,41 +1,39 @@
 #include "Spear.h"
 
 
-Spear::Spear(fk::SpriteBatch* sbPtr, fk::World& world, fk::ActorDef& ad) : Actor(sbPtr, world, ad) {
-	(*p_sbPtr)[p_spriteIDs[0]].setColor(0, 255, 0, 255);
-	(*p_sbPtr)[p_spriteIDs[1]].setDimensions(ad.size*0.5, ad.size*10);
-	(*p_sbPtr)[p_spriteIDs[1]].setColor(0, 255, 0, 255);
+Spear::Spear(fk::SpriteBatch* sbPtr, fk::World& world, ActorDef& ad) : Actor(sbPtr, world, ad) {
+	(*p_sbPtr)[p_spriteIDs[0]].setColor(255, 0, 255, 255);
+	(*p_sbPtr)[p_spriteIDs[1]].setDimensions(ad.size*0.5, ad.size*6);
+	(*p_sbPtr)[p_spriteIDs[1]].setColor(255, 0, 255, 255);
 	b2FixtureDef fixtureDef;
 	b2PolygonShape box;
 	fixtureDef.shape = &box;
 	fixtureDef.isSensor = true;
 	b2Vec2 points1[]{
-		b2Vec2(-ad.size / 2, 0), b2Vec2(-ad.size / 2, -ad.size * 5),
-		b2Vec2(ad.size / 2, -ad.size * 5), b2Vec2(ad.size / 2, 0)
+		b2Vec2(-ad.size / 4, 0), b2Vec2(-ad.size / 4, ad.size * 3),
+		b2Vec2(ad.size / 4, ad.size * 3), b2Vec2(ad.size / 4, 0)
 	};
 	box.Set(points1, 4);
 	fixtureDef.userData = (void*)'s';
 	b2BodyPtr->CreateFixture(&fixtureDef);
 	b2Vec2 points2[]{
-		b2Vec2(-ad.size / 2, 0), b2Vec2(-ad.size / 2, -ad.size * 2),
-		b2Vec2(ad.size / 2, -ad.size * 2), b2Vec2(ad.size / 2, 0)
+		b2Vec2(-ad.size / 4, 0), b2Vec2(-ad.size / 4, ad.size * 1.5),
+		b2Vec2(ad.size / 4, ad.size * 1.5), b2Vec2(ad.size / 4, 0)
 	};
 	box.Set(points2, 4);
 	fixtureDef.userData = (void*)'r';
 	b2BodyPtr->CreateFixture(&fixtureDef);
 	category = "Spear";
-	p_health = 6;
-	p_speed = 1;
+	p_health = 10;
+	p_speed = 0.7;
 }
 Spear::~Spear() {
 	
 }
-void Spear::think(std::vector<fk::Actor*>& actorPtrs, fk::Camera* camPtr) {
+void Spear::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	if (p_health < 1) { m_state = DEAD; }
-	glm::vec2 targetVec = actorPtrs[0]->getPosition() - glm::vec2(
-		b2BodyPtr->GetPosition().x,
-		b2BodyPtr->GetPosition().y
-	);
+	glm::vec2 targetVec = glm::vec2(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y)
+		- actorPtrs[0]->getPosition();
 	int mod = 0;
 	switch (m_state) {
 	  case RESTING:
@@ -58,53 +56,56 @@ void Spear::think(std::vector<fk::Actor*>& actorPtrs, fk::Camera* camPtr) {
 	  case CIRCLING:
 		if (targetVec.x || targetVec.y) { p_faceDirection = glm::normalize(targetVec); }
 		p_faceAngle = fk::makeAngle(p_faceDirection) + fk::TAU / 4;
-		if (p_faceDirection.x || p_faceDirection.y) { p_moveDirection = p_speed * 1.5f * p_faceDirection; }
+		if (p_faceDirection.x || p_faceDirection.y) { p_moveDirection = p_speed * 1.5f * -p_faceDirection; }
 		if (glm::length(targetVec) < m_range) {
 			glm::vec2 oldMove = p_moveDirection;
 			if (m_direction) { p_moveDirection = fk::rotatePoint(p_moveDirection, fk::TAU / 4); }
 			else { p_moveDirection = fk::rotatePoint(p_moveDirection, -fk::TAU / 4); }
-			if (!m_rangen.getInt(0, 400)) {
+			if (m_counter++ > 40 && !m_rangen.getInt(0, 80)) {
 				m_state = CHARGING;
+				m_counter = 0;
 			}
 		} else {
 			m_direction = m_rangen.getInt(0, 1);
-			m_range = m_rangen.getInt(6, 10);
+			m_range = m_rangen.getFloat(3, 5);
 		}
 	  break;
 	  case CHARGING:
 		if (targetVec.x || targetVec.y) { p_faceDirection = glm::normalize(targetVec); }
 		p_faceAngle = fk::makeAngle(p_faceDirection) + fk::TAU / 4;
-		if (m_counter++ > 10) { p_moveDirection = p_speed * 1.0f * p_faceDirection; }
+		if (m_counter++ > 10) { p_moveDirection = p_speed * 1.0f * -p_faceDirection; }
 		else { p_moveDirection = glm::vec2(0); }
-		if (m_stabbing || m_counter > 120) {
+		if (m_counter > 300) {
+			m_state = CIRCLING;
+			m_counter = 0;
+		} else if (m_stabbing) {
 			m_state = STABBING;
 			m_counter = 0;
 		}
 	  break;
 	  case STABBING:
 		p_moveDirection = glm::vec2(0);
-		if (++m_counter <= 120 && m_counter >= 20) {
-			mod = m_counter % 20;
+		if (m_counter <= 75) {
+			mod = m_counter % 25;
 			switch (mod) {
-			  case 19:
+			  case 24:
 				p_faceAngle = m_targetAngle;
 				m_attacking = true;
 			  break;
-			  case 9:
+			  case 0:
 				if (targetVec.x || targetVec.y) { p_faceDirection = glm::normalize(targetVec); }
 				m_targetAngle = fk::makeAngle(p_faceDirection) + fk::TAU / 4;
-			  break;
-			  case 0:
 				m_attacking = false;
 			  break;
 			  default:
 			  break;
 			}
-		} else if (m_counter > 150) {
+		} else if (m_counter > 140) {
 			m_state = CIRCLING;
 			m_counter = 0;
 			m_stabbing = false;
 		}
+		++m_counter;
 	  break;
 	  case RETREATING:
 
@@ -148,10 +149,10 @@ void Spear::p_endCollision(
 		if (myFixturePtr->GetUserData() != nullptr) {
 			switch ((char)myFixturePtr->GetUserData()) {
 			  case 's':
-				m_hitPtrs.clear();
+				m_hitPtrs.remove(static_cast<fk::Body*>(collisionFixturePtr->GetBody()->GetUserData()));
 			  break;
 			  case 'r':
-				m_rangePtrs.clear();
+				m_rangePtrs.remove(static_cast<fk::Body*>(collisionFixturePtr->GetBody()->GetUserData()));
 				m_stabbing = false;
 			  break;
 			  default:
@@ -171,11 +172,11 @@ void Spear::updateBody() {
 		if (m_attacking) {
 			for (auto&& hitBodyPtr : m_hitPtrs) {
 				hitBodyPtr->b2BodyPtr->ApplyLinearImpulse(
-					b2Vec2(p_faceDirection.x * 4, p_faceDirection.y * 4),
+					b2Vec2(p_faceDirection.x * -4, p_faceDirection.y * -4),
 					hitBodyPtr->b2BodyPtr->GetPosition(),
 					true
 				);
-				hitBodyPtr->p_hit += 2;
+				hitBodyPtr->p_hit += 1;
 			}
 		}
 	}
@@ -186,17 +187,22 @@ void Spear::updateSprite() {
 	(*p_sbPtr)[p_spriteIDs[0]].setRotationAxis(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
 	(*p_sbPtr)[p_spriteIDs[0]].canvas.rotationAngle = b2BodyPtr->GetAngle();
 	if (m_state != DEAD) {
+		if (m_state == CHARGING || m_state == STABBING) {
+			(*p_sbPtr)[p_spriteIDs[0]].setColor(255, 0, 100, 255);
+		} else {
+			(*p_sbPtr)[p_spriteIDs[0]].setColor(255, 0, 255, 255);
+		}
 		if (m_attacking) {
-			(*p_sbPtr)[p_spriteIDs[1]].setColor(0, 255, 0, 255);
+			(*p_sbPtr)[p_spriteIDs[1]].setColor(255, 0, 255, 255);
 			(*p_sbPtr)[p_spriteIDs[1]].setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
 			(*p_sbPtr)[p_spriteIDs[1]].setRotationAxis(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
 		} else {
 			int alpha = (*p_sbPtr)[p_spriteIDs[1]].canvas.color.a - 100;
 			if (alpha < 0) { alpha = 0; }
-			(*p_sbPtr)[p_spriteIDs[1]].setColor(0, 255, 0, alpha);
+			(*p_sbPtr)[p_spriteIDs[1]].setColor(255, 0, 255, alpha);
 		}
 	} else {
-		(*p_sbPtr)[p_spriteIDs[0]].setColor(0, 255, 0, 100);
-		(*p_sbPtr)[p_spriteIDs[1]].setColor(0, 255, 0, 0);
+		(*p_sbPtr)[p_spriteIDs[0]].setColor(255, 0, 255, 100);
+		(*p_sbPtr)[p_spriteIDs[1]].setColor(255, 0, 255, 0);
 	}
 }

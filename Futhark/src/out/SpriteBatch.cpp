@@ -4,7 +4,7 @@
 namespace fk {
 
 
-SpriteBatch::SpriteBatch() {
+SpriteBatch::SpriteBatch(bool dynamic) : m_dynamic(dynamic) {
 	TRY_GL(glGenVertexArrays(1, &m_vertexArrayObjectID));
 	TRY_GL(glBindVertexArray(m_vertexArrayObjectID));
 	TRY_GL(glGenBuffers(1, &m_vertexBufferObjectID));
@@ -41,6 +41,7 @@ SpriteBatch::SpriteBatch() {
 	TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
 int SpriteBatch::makeSprite(const Texture& texture) {
+	if (!m_dynamic) { m_bufferStatic = true; }
 	if (m_deadBufferIndices.size()) {
 		auto& sprite = m_spriteBuffer[m_deadBufferIndices.back()];
 		sprite.texture = texture;
@@ -54,8 +55,14 @@ int SpriteBatch::makeSprite(const Texture& texture) {
 		return m_spriteBuffer.size();
 	}
 }
-SpriteBatch::Sprite& SpriteBatch::operator [] (int spriteID) { return m_spriteBuffer[spriteID - 1]; }
+SpriteBatch::Sprite& SpriteBatch::operator [] (int spriteID) {
+	if (!m_dynamic) {
+		m_bufferStatic = true;
+	}
+	return m_spriteBuffer[spriteID - 1];
+}
 void SpriteBatch::destroySprite(int spriteID) {
+	if (!m_dynamic) { m_bufferStatic = true; }
 	int spriteIndex = spriteID - 1;
 	m_deadBufferIndices.push_back(spriteIndex);
 	m_spriteBuffer[spriteIndex].canvas.color.a = 0;
@@ -70,14 +77,16 @@ void SpriteBatch::m_makeSpriteTrays() {
 	std::sort(
 		m_spritePtrs.begin(),
 		m_spritePtrs.end(),
-		[](Sprite* aPtr, Sprite* bPtr) {
-		return (aPtr->texture.id < bPtr->texture.id);
-	}
+		[](Sprite* aPtr, Sprite* bPtr) { return (
+			aPtr->canvas.position.z == bPtr->canvas.position.z
+			? aPtr->texture.id < bPtr->texture.id
+			: aPtr->canvas.position.z > bPtr->canvas.position.z
+		); }
 	);
 	// Make sure there are sprites to render
 	if (m_spritePtrs.empty()) { return; }
 	// Make new tray (emplace lets you call the constructor for the class in its parameters)
-	m_spriteTrays.emplace_back(m_spritePtrs[0]->texture.id);
+	m_spriteTrays.emplace_back(m_spritePtrs[0]->texture.id, m_spritePtrs[0]->canvas.position.z);
 	int offset = 0;
 	m_vertexBuffer.clear();
 	// Pass in vertices of the first sprite
@@ -86,9 +95,17 @@ void SpriteBatch::m_makeSpriteTrays() {
 	// Process the rest of the sprites
 	for (unsigned int currentSprite = 1; currentSprite < m_spritePtrs.size(); currentSprite++) {
 		// Check if this sprite has the same texture as the last sprite
-		if (m_spritePtrs[currentSprite]->texture.id != m_spritePtrs[currentSprite - 1]->texture.id) {
+		if (
+			m_spritePtrs[currentSprite]->texture.id != m_spritePtrs[currentSprite - 1]->texture.id
+			|| m_spritePtrs[currentSprite]->canvas.position.z
+			!= m_spritePtrs[currentSprite - 1]->canvas.position.z
+		) {
 			// Make new a tray and place the new texture in there
-			m_spriteTrays.emplace_back(m_spritePtrs[currentSprite]->texture.id, offset);
+			m_spriteTrays.emplace_back(
+				m_spritePtrs[currentSprite]->texture.id,
+				m_spritePtrs[currentSprite]->canvas.position.z,
+				offset
+			);
 		} else {
 			// Increase number of vertices For the current tray
 			++m_spriteTrays.back().size;
@@ -99,19 +116,29 @@ void SpriteBatch::m_makeSpriteTrays() {
 	}
 }
 void SpriteBatch::m_render() {
-	m_makeSpriteTrays();
 	TRY_GL(glBindVertexArray(m_vertexArrayObjectID));
-	// Buffer data in GPU.
-	TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObjectID));
-	TRY_GL(
-		glBufferData(
-			GL_ARRAY_BUFFER,
-			sizeof(Canvas) * m_vertexBuffer.size(),
-			m_vertexBuffer.data(),
-			GL_DYNAMIC_DRAW
-		)
-	);
-	TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	if (m_dynamic) {
+		m_makeSpriteTrays();
+		// Buffer data in GPU.
+		TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObjectID));
+		TRY_GL(
+			glBufferData(
+				GL_ARRAY_BUFFER, sizeof(Canvas) * m_vertexBuffer.size(), m_vertexBuffer.data(), GL_DYNAMIC_DRAW
+			)
+		);
+		TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	} else if (m_bufferStatic) {
+		m_makeSpriteTrays();
+		// Buffer data in GPU.
+		TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObjectID));
+		TRY_GL(
+			glBufferData(
+				GL_ARRAY_BUFFER, sizeof(Canvas) * m_vertexBuffer.size(), m_vertexBuffer.data(), GL_STATIC_DRAW
+			)
+		);
+		TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+		m_bufferStatic = false;
+	}
 	// Draw data.
 	for (auto&& tray : m_spriteTrays) {
 		TRY_GL(glBindTexture(GL_TEXTURE_2D, tray.textureID));
@@ -140,8 +167,6 @@ void SpriteBatch::Sprite::setPosition(const float x, const float y) {
 	canvas.position.x = x;
 	canvas.position.y = y;
 }
-float SpriteBatch::Sprite::getDepth() const { return canvas.position.z; }
-void SpriteBatch::Sprite::setDepth(const float depth) { canvas.position.z = depth; }
 void SpriteBatch::Sprite::setDimensions(const float width, const float height) {
 	canvas.dimensions.x = width;
 	canvas.dimensions.y = height;
@@ -199,6 +224,7 @@ void SpriteBatch::Sprite::resetCanvas() {
 	canvas.color.a = 255;
 };
 
-SpriteBatch::SpriteTray::SpriteTray(GLuint textureID, int offset) : textureID(textureID), offset(offset) {}
+SpriteBatch::SpriteTray::SpriteTray(GLuint textureID, float depth, int offset)
+	: textureID(textureID), depth(depth), offset(offset) {}
 
 }

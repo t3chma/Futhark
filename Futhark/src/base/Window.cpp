@@ -56,18 +56,18 @@ Window::Window(
 	//^ https://www.opengl.org/sdk/docs/man2/xhtml/glClearDepth.xml
 	TRY_GL(glClearDepth(1.0f));
 	// Set the background color
-	TRY_GL(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+	TRY_GL(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
 	// Vsync
 	// ^ https://wiki.libsdl.org/SDL_GL_SetSwapInterval
 	TRY_SDL(SDL_GL_SetSwapInterval(1));
-	// Enable alpha blending
-	// ^ https://www.opengl.org/sdk/docs/man2/xhtml/glEnable.xml
 	TRY_GL(glEnable(GL_BLEND));
-	// Tell how to blend
-	// ^ https://www.opengl.org/sdk/docs/man2/xhtml/glBlendFunc.xml
 	TRY_GL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-	///Futhark::SpriteBatch::initialize();
-	///Futhark::WireBatch::initialize();
+	TRY_GL(glEnable(GL_CULL_FACE));
+	TRY_GL(glCullFace(GL_FRONT));
+	//TRY_GL(glEnable(GL_ALPHA_TEST));
+	//TRY_GL(glAlphaFunc(GL_GREATER, 0));
+	TRY_GL(glEnable(GL_SCISSOR_TEST));
+	//TRY_GL(glEnable(GL_DEPTH_TEST));
 	TRY_SDL(m_id = SDL_GetWindowID(m_windowPtr));
 	m_windowIsInitialized = true;
 }

@@ -24,8 +24,6 @@ namespace fk {
 		) {
 			Body* bodyPtr1 = static_cast<Body*>(contactPtr->GetFixtureA()->GetBody()->GetUserData());
 			Body* bodyPtr2 = static_cast<Body*>(contactPtr->GetFixtureB()->GetBody()->GetUserData());
-			bodyPtr1->collisionBodies.push_back(bodyPtr2);
-			bodyPtr2->collisionBodies.push_back(bodyPtr1);
 			bodyPtr1->p_beginCollision(contactPtr->GetFixtureB(), contactPtr->GetFixtureA(), contactPtr);
 			bodyPtr2->p_beginCollision(contactPtr->GetFixtureA(), contactPtr->GetFixtureB(), contactPtr);
 		};
@@ -82,8 +80,6 @@ namespace fk {
 		) {
 			Body* bodyPtr1 = static_cast<Body*>(contactPtr->GetFixtureA()->GetBody()->GetUserData());
 			Body* bodyPtr2 = static_cast<Body*>(contactPtr->GetFixtureB()->GetBody()->GetUserData());
-			bodyPtr1->collisionBodies.remove(bodyPtr2);
-			bodyPtr2->collisionBodies.remove(bodyPtr1);
 			bodyPtr1->p_endCollision(contactPtr->GetFixtureB(), contactPtr->GetFixtureA(), contactPtr);
 			bodyPtr2->p_endCollision(contactPtr->GetFixtureA(), contactPtr->GetFixtureB(), contactPtr);
 		};

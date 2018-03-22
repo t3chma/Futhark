@@ -1,6 +1,7 @@
 #include "base/Engine.h"
 #include "scenes/AITester.h"
 
+
 int main(int argc, char** argv) {
 	fk::Engine BloodMage;
 	BloodMage.makeWindow("BloodMage", 0, 0, fk::Window::RESIZABLE);
