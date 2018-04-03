@@ -10,7 +10,7 @@ class Object : public fk::Body {
 public:
 	Object() = delete;
 	Object(
-		fk::SpriteBatch* sbPtr,
+		fk::SpriteBatch& spriteBatch,
 		fk::World& world,
 		b2BodyType type,
 		float xPosition = 0.0f,
@@ -21,9 +21,11 @@ public:
 	);
 	glm::vec2 getPosition();
 	virtual void updateBody() {};
-	virtual void updateSprite() {};
-protected:
-	fk::SpriteBatch* p_sbPtr{ nullptr };
-	std::vector<int> p_spriteIDs;
-	int p_health{ 100 };
+	virtual void updateSprite();
+	fk::SpriteBatch& spriteBatch;
+	std::vector<int> spriteIDs;
+	int health{ 100 };
+	bool hit{ false };
+	bool despawn{ false };
+	std::string type{ "" };
 };

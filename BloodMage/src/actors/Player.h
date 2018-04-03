@@ -5,7 +5,7 @@
 
 class Player : public Actor {
   public:
-	Player(fk::SpriteBatch* sbPtr, fk::World& world, fk::UserInput* uiPtr, ActorDef& ad);
+	Player(Map& map, fk::UserInput* uiPtr, ActorDef& ad);
 	~Player();
 	void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr) override;
 	void p_beginCollision(

@@ -35,7 +35,7 @@ void SpriteRenderer::setShaders(std::vector<Shader>& shaders) {
 	TRY_GL(m_textureLocation = glGetUniformLocation(m_id, "baseTexture"));
 	TRY_GL(m_camLocation = glGetUniformLocation(m_id, "perspective"));
 }
-void SpriteRenderer::Render(SpriteBatch& batch, glm::mat4& perspective){
+void SpriteRenderer::render(SpriteBatch& batch, glm::mat4& perspective){
 	TRY_GL(glUseProgram(m_id));
 	TRY_GL(glUniform1i(m_textureLocation, 0));
 	TRY_GL(glUniformMatrix4fv(m_camLocation, 1, GL_FALSE, &perspective[0][0]));

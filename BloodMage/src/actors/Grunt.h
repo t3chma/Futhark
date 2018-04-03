@@ -1,10 +1,11 @@
 #pragma once
 #include "Actor.h"
 
+
 class Grunt : public Actor {
 public:
 	enum State { RESTING, CASTING, CIRCLING, CHARGING, RETREATING, DEAD };
-	Grunt(fk::SpriteBatch* sbPtr, fk::World& world, ActorDef& ad);
+	Grunt(Map& map, ActorDef& ad);
 	~Grunt();
 	void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr) override;
 	void p_beginCollision(
@@ -21,10 +22,10 @@ public:
 	void updateSprite() override;
 protected:
 	bool m_direction{ true };
-	float m_range{ 10 };
-	std::list<fk::Body*> m_leftHitPtrs;
-	std::list<fk::Body*> m_rightHitPtrs;
-	std::list<fk::Body*> m_swipeRangePtrs;
+	int m_range{ 2 };
+	std::list<Object*> m_leftHitPtrs;
+	std::list<Object*> m_rightHitPtrs;
+	std::list<Object*> m_swipeRangePtrs;
 	fk::Random m_rangen;
 	int m_counter{ 0 };
 	bool m_canAttack{ false };

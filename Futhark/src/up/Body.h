@@ -16,8 +16,6 @@ See Box2D documentation for more information.
 class Body {
   public:
 	friend World;
-	// 
-	int p_hit{ false };
 	// The bodies currently being collided with.
 	std::list<Body*> collisionBodies;
 	// The Box2D object this class is built around.

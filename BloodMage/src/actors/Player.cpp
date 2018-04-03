@@ -2,19 +2,17 @@
 #include "base/Utility.h"
 
 Player::Player(
-	fk::SpriteBatch* sbPtr,
-	fk::World& world,
+	Map& map,
 	fk::UserInput* uiPtr,
 	ActorDef& ad
-) : Actor(sbPtr, world, ad), m_uiPtr(uiPtr) {
-	(*p_sbPtr)[p_spriteIDs[3]].setDimensions(0.2, 0.2);
-	(*p_sbPtr)[p_spriteIDs[1]].setDimensions(ad.size*2, ad.size*3);
-	(*p_sbPtr)[p_spriteIDs[1]].setColor(255, 255, 255, 0);
-	(*p_sbPtr)[p_spriteIDs[2]].setDimensions(ad.size*2, ad.size*3);
-	(*p_sbPtr)[p_spriteIDs[2]].setColor(255, 255, 255, 0);
-	(*p_sbPtr)[p_spriteIDs[2]].setTextureDimensions(-1, 1);
-	(*p_sbPtr)[p_spriteIDs[2]].setTexturePosition(1, 0);
-	(*p_sbPtr)[p_spriteIDs[2]].canvas.position.z = 10;
+) : Actor(map, ad), m_uiPtr(uiPtr) {
+	spriteBatch[spriteIDs[1]].setDimensions(ad.size*2, ad.size*3);
+	spriteBatch[spriteIDs[1]].setColor(255, 255, 255, 0);
+	spriteBatch[spriteIDs[2]].setDimensions(ad.size*2, ad.size*3);
+	spriteBatch[spriteIDs[2]].setColor(255, 255, 255, 0);
+	spriteBatch[spriteIDs[2]].setTextureDimensions(-1, 1);
+	spriteBatch[spriteIDs[2]].setTexturePosition(1, 0);
+	spriteBatch[spriteIDs[2]].canvas.position.z = 10;
 	b2FixtureDef fixtureDef;
 	b2CircleShape circle;
 	fixtureDef.shape = &circle;
@@ -40,14 +38,14 @@ Player::Player(
 	box.Set(points2, 4);
 	fixtureDef.userData = (void*)'r';
 	b2BodyPtr->CreateFixture(&fixtureDef);
-	category = "Player";
-	p_health = 50;
+	type = "player";
+	health = 50;
 }
 Player::~Player() {
 
 }
 void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
-	p_speed = 0.35;
+	p_speed = 0.4;
 	p_moveDirection.x = 0;
 	p_moveDirection.y = 0;
 	if (m_uiPtr->getKeyInfo(fk::Key::SPACE).downFrames > 1) {
@@ -74,7 +72,7 @@ void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	if (m_mousePos != position) { p_faceDirection = glm::normalize(position - m_mousePos); }
 	p_faceAngle = fk::makeAngle(p_faceDirection) + fk::TAU / 4;
 	if (p_moveDirection.x || p_moveDirection.y) { p_moveDirection = p_speed * glm::normalize(p_moveDirection); }
-	if (p_hit) { p_health -= p_hit; p_hit = 0; }
+	hit = false;
 }
 void Player::p_beginCollision(
 	b2Fixture* collisionFixturePtr,
@@ -127,7 +125,7 @@ void Player::p_endCollision(
 	}
 }
 void Player::updateBody() {
-	if (p_health > 0) {
+	if (health > 0) {
 		b2BodyPtr->ApplyLinearImpulse(
 			b2Vec2(p_moveDirection.x, p_moveDirection.y),
 			b2BodyPtr->GetWorldCenter(),
@@ -142,7 +140,8 @@ void Player::updateBody() {
 						hitBodyPtr->b2BodyPtr->GetPosition(),
 						true
 					);
-					++hitBodyPtr->p_hit;
+					static_cast<Object*>(hitBodyPtr)->health -= 1;
+					static_cast<Object*>(hitBodyPtr)->hit = true;
 				}
 			}
 			if (m_rightSwipe) {
@@ -152,40 +151,43 @@ void Player::updateBody() {
 						hitBodyPtr->b2BodyPtr->GetPosition(),
 						true
 					);
-					++hitBodyPtr->p_hit;
+					static_cast<Object*>(hitBodyPtr)->health -= 1;
+					static_cast<Object*>(hitBodyPtr)->hit = true;
 				}
 			}
 		}
 	}
 }
 void Player::updateSprite() {
-	for (auto&& spriteID : p_spriteIDs) { (*p_sbPtr)[spriteID].canvas.rotationAngle = b2BodyPtr->GetAngle(); }
-	(*p_sbPtr)[p_spriteIDs[0]].setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
-	(*p_sbPtr)[p_spriteIDs[0]].setRotationAxis(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
-	(*p_sbPtr)[p_spriteIDs[3]].setPosition(m_mousePos.x, m_mousePos.y);
-	(*p_sbPtr)[p_spriteIDs[3]].setRotationAxis(m_mousePos.x, m_mousePos.y);
-	if (p_health > 0) {
+	for (auto&& spriteID : spriteIDs) { spriteBatch[spriteID].canvas.rotationAngle = b2BodyPtr->GetAngle(); }
+	spriteBatch[spriteIDs[0]].setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
+	spriteBatch[spriteIDs[0]].setRotationAxis(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
+	if (health > 0) {
 		if (m_rightSwipe) {
-			(*p_sbPtr)[p_spriteIDs[1]].setColor(255, 255, 255, 255);
-			(*p_sbPtr)[p_spriteIDs[1]].setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
-			(*p_sbPtr)[p_spriteIDs[1]].setRotationAxis(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
+			spriteBatch[spriteIDs[1]].setColor(255, 255, 255, 255);
+			spriteBatch[spriteIDs[1]].setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
+			spriteBatch[spriteIDs[1]].setRotationAxis(
+				b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y
+			);
 		} else {
-			int alpha = (*p_sbPtr)[p_spriteIDs[1]].canvas.color.a - 100;
+			int alpha = spriteBatch[spriteIDs[1]].canvas.color.a - 100;
 			if (alpha < 0) { alpha = 0; }
-			(*p_sbPtr)[p_spriteIDs[1]].setColor(255, 255, 255, alpha);
+			spriteBatch[spriteIDs[1]].setColor(255, 255, 255, alpha);
 		}
 		if (m_leftSwipe) {
-			(*p_sbPtr)[p_spriteIDs[2]].setColor(255, 255, 255, 255);
-			(*p_sbPtr)[p_spriteIDs[2]].setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
-			(*p_sbPtr)[p_spriteIDs[2]].setRotationAxis(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
+			spriteBatch[spriteIDs[2]].setColor(255, 255, 255, 255);
+			spriteBatch[spriteIDs[2]].setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
+			spriteBatch[spriteIDs[2]].setRotationAxis(
+				b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y
+			);
 		} else {
-			int alpha = (*p_sbPtr)[p_spriteIDs[2]].canvas.color.a - 100;
+			int alpha = spriteBatch[spriteIDs[2]].canvas.color.a - 100;
 			if (alpha < 0) { alpha = 0; }
-			(*p_sbPtr)[p_spriteIDs[2]].setColor(255, 255, 255, alpha);
+			spriteBatch[spriteIDs[2]].setColor(255, 255, 255, alpha);
 		}
 	} else {
-		(*p_sbPtr)[p_spriteIDs[0]].setColor(255, 255, 255, 100);
-		(*p_sbPtr)[p_spriteIDs[1]].setColor(255, 255, 255, 0);
-		(*p_sbPtr)[p_spriteIDs[2]].setColor(255, 255, 255, 0);
+		spriteBatch[spriteIDs[0]].setColor(255, 255, 255, 100);
+		spriteBatch[spriteIDs[1]].setColor(255, 255, 255, 0);
+		spriteBatch[spriteIDs[2]].setColor(255, 255, 255, 0);
 	}
 }

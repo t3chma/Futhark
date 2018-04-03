@@ -42,10 +42,10 @@ SpriteBatch::SpriteBatch(bool dynamic) : m_dynamic(dynamic) {
 }
 int SpriteBatch::makeSprite(const Texture& texture) {
 	if (!m_dynamic) { m_bufferStatic = true; }
-	if (m_deadBufferIndices.size()) {
+	if (!m_deadBufferIndices.empty()) {
 		auto& sprite = m_spriteBuffer[m_deadBufferIndices.back()];
+		sprite = Sprite();
 		sprite.texture = texture;
-		sprite.resetCanvas();
 		int spriteID = m_deadBufferIndices.back() + 1;
 		m_deadBufferIndices.pop_back();
 		return spriteID;
@@ -72,7 +72,9 @@ void SpriteBatch::m_makeSpriteTrays() {
 	// Filter out dead sprites
 	m_spritePtrs.clear();
 	for (auto&& sprite : m_spriteBuffer) {
-		if (sprite.canvas.color.a != 0) { m_spritePtrs.push_back(&sprite); }
+		if (sprite.canvas.color.a != 0) {
+			m_spritePtrs.push_back(&sprite);
+		}
 	}
 	std::sort(
 		m_spritePtrs.begin(),
@@ -205,24 +207,6 @@ void SpriteBatch::Sprite::makeLine(glm::vec2& b, glm::vec2& a, float thickness) 
 	canvas.rotationAxis.y = canvas.position.y;
 	canvas.rotationAngle = glm::orientedAngle(glm::vec2(0, 1), glm::normalize(difVec));
 }
-void SpriteBatch::Sprite::resetCanvas() {
-	canvas.position.x = 0;
-	canvas.position.y = 0;
-	canvas.position.z = 0;
-	canvas.dimensions.x = 1;
-	canvas.dimensions.y = 1;
-	canvas.texturePosition.x = 0;
-	canvas.texturePosition.y = 0;
-	canvas.textureDimensions.y = 1;
-	canvas.textureDimensions.x /= texture.frames;
-	canvas.rotationAxis.x = 0;
-	canvas.rotationAxis.y = 0;
-	canvas.rotationAngle = 0.0;
-	canvas.color.r = 255;
-	canvas.color.g = 255;
-	canvas.color.b = 255;
-	canvas.color.a = 255;
-};
 
 SpriteBatch::SpriteTray::SpriteTray(GLuint textureID, float depth, int offset)
 	: textureID(textureID), depth(depth), offset(offset) {}

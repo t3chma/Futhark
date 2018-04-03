@@ -1,10 +1,17 @@
 #include "Prop.h"
 
-Prop::Prop(fk::SpriteBatch* sbPtr, fk::World& world, PropDef& pd)
-	: Object(sbPtr, world, pd.bodyType, pd.position.x, pd.position.y) {
-	p_spriteIDs.push_back(sbPtr->makeSprite(pd.texture));
-	(*sbPtr)[p_spriteIDs.back()].setDimensions(pd.size + 0.01, pd.size + 0.01);
-	(*sbPtr)[p_spriteIDs.back()].setPosition(pd.position);
+Prop::Prop(Map& map, PropDef& pd)
+	: Object(
+		map.dynamicObjectSprites,
+		map.world,
+		pd.physics ? b2_dynamicBody : b2_kinematicBody,
+		pd.position.x,
+		pd.position.y
+) {
+	map.propPtrs.push_back(this);
+	spriteIDs.push_back(spriteBatch.makeSprite(pd.texture));
+	spriteBatch[spriteIDs.back()].setDimensions(pd.size + 0.01, pd.size + 0.01);
+	spriteBatch[spriteIDs.back()].setPosition(pd.position);
 	b2BodyPtr->SetLinearDamping(10);
 	b2BodyPtr->SetAngularDamping(5);
 	b2FixtureDef fixtureDef1;
@@ -15,6 +22,7 @@ Prop::Prop(fk::SpriteBatch* sbPtr, fk::World& world, PropDef& pd)
 	fixtureDef1.density = 1.0f;
 	fixtureDef1.friction = 0.3f;
 	b2BodyPtr->CreateFixture(&fixtureDef1);
+	category = "prop";
 }
 Prop::~Prop() {
 

@@ -19,7 +19,7 @@ class SpriteRenderer {
 	(batch) The sprite batch to render.
 	(cam) The perspective to use.
 	[t3chma] */
-	void Render(SpriteBatch& batch, glm::mat4& perspective);
+	void render(SpriteBatch& batch, glm::mat4& perspective);
   private:
 	GLuint m_id{ 0 };
 	GLuint m_textureLocation{ 0 };

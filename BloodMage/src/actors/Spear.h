@@ -6,7 +6,7 @@
 class Spear : public Actor {
 public:
 	enum State { RESTING, CASTING, CIRCLING, CHARGING, RETREATING, DEAD, STABBING };
-	Spear(fk::SpriteBatch* sbPtr, fk::World& world, ActorDef& ad);
+	Spear(Map& map, ActorDef& ad);
 	~Spear();
 	void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr) override;
 	void p_beginCollision(
@@ -24,9 +24,9 @@ public:
 protected:
 	bool m_swipeRange{ false };
 	bool m_direction{ true };
-	float m_range{ 10 };
-	std::list<fk::Body*> m_hitPtrs;
-	std::list<fk::Body*> m_rangePtrs;
+	int m_range{ 2 };
+	std::list<Object*> m_hitPtrs;
+	std::list<Object*> m_rangePtrs;
 	fk::Random m_rangen;
 	int m_counter{ 0 };
 	bool m_canAttack{ false };

@@ -1,6 +1,5 @@
 #pragma once
 #include "base/Scene.h"
-#include "out/SpriteRenderer.h"
 #include "out/SpriteBatch.h"
 #include "out/Camera.h"
 #include "Box2D/Box2D.h"
@@ -8,20 +7,33 @@
 #include "../actors/Grunt.h"
 #include "../actors/Player.h"
 #include "../props/Prop.h"
+#include "../Map.h"
+#include "../Mouse.h"
+#include <functional>
 
 class AITester : public fk::Scene {
   public:
-	std::vector<fk::SpriteBatch> sprites;
-	fk::SpriteRenderer spriteRenderer;
-	std::vector<int> spriteIDs;
+	enum Placer {
+		NONE,
+		FLOOR_NONE, FLOOR_DEV, FLOOR_GRASS, FLOOR_DIRT, FLOOR_WATER, FLOOR_OIL, FLOOR_TOXIN,
+		FLUID_NONE, FLUID_WATER, FLUID_OIL, FLUID_TOXIN,
+		VAPOR_NONE, VAPOR_FIRE, VAPOR_POISON, VAPOR_STEAM,
+		OBJECT_NONE, OBJECT_WALL, OBJECT_DOOR, OBJECT_TREE,
+		PROP_NONE, PROP_BOX,
+		ACTOR_NONE, ACTOR_GRUNT, ACTOR_SPEAR,
+		BEHAVIOR
+	};
+	int rightBind{ 0 };
+	int rightInfo{ 0 };
+	int leftBind{ 0 };
+	int leftInfo{ 0 };
+	Mouse* mousePtr{ nullptr };
+	Map map;
 	fk::Camera cam;
-	glm::vec2 camMovement{ 0 };
-	fk::World world;
-	std::vector<Actor*> actorPtrs;
-	std::vector<Prop*> propPtrs;
-	std::vector<b2Body*> bodyPtrs;
 	AITester() = default;
 	~AITester() = default;
+	void getCommandLine(fk::Tools& tools);
+	void edit(fk::Tools& tools, int downFrames, int bind, int info);
 	// Inherited via fk::Scene
 	virtual void create(fk::Tools& tools) override;
 	virtual void destroy(fk::Tools& tools) override;

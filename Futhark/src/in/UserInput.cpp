@@ -1,5 +1,4 @@
 #include "UserInput.h"
-#include <iostream>
 namespace fk {
 
 
@@ -20,9 +19,6 @@ GameState UserInput::poll() {
 		KeyInfo& ki = m_keyStates[key];
 		if (++ki.downFrames == 1) {
 			ki.pressPos = m_mouseHistory.front().position;
-			std::cout << "\npress:\t\t" << (char)key;
-		} else {
-			std::cout << "\nhold:\t\t"<< (char)key;
 		}
 	}
 	// Handle unpressed key/butts.
@@ -30,7 +26,6 @@ GameState UserInput::poll() {
 		KeyInfo& ki = m_keyStates[key];
 		ki.downFrames = 0;
 		ki.unpressPos = m_mouseHistory.front().position;
-		std::cout << "\nunpress:\t" << (char)key;
 	}
 	// Clear unpressed lists.
 	m_unpressedKeys.clear();
