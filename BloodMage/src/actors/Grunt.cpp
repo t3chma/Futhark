@@ -29,7 +29,7 @@ Grunt::Grunt(Map& map, ActorDef& ad) : Actor(map, ad) {
 	b2BodyPtr->CreateFixture(&fixtureDef);
 	type = "grunt";
 	health = 10;
-	p_speed = 1.0;
+	p_speed = 2;
 }
 Grunt::~Grunt() {
 	
@@ -89,7 +89,7 @@ void Grunt::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 			if (moveVec.x == 0 && moveVec.y == 0 || glm::length(moveVec) > 2) {
 				moveVec = actorPtrs[0]->getPosition() - pos;
 			}
-			p_moveDirection = p_speed * 1.1f * glm::normalize(moveVec);
+			p_moveDirection = p_speed * 1.0f * glm::normalize(moveVec);
 			if (p_pathFindingData.upToDate) { startAStar(actorPtrs[0]->getPosition()); }
 			else { advanceAStar(); }
 		} else {

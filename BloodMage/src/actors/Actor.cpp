@@ -19,7 +19,7 @@ Actor::Actor(Map& map, ActorDef& ad)
 	fixtureDef1.shape = &shape1;
 	shape1.m_radius = ad.size / 2;
 	fixtureDef1.userData = nullptr;
-	fixtureDef1.density = 5.0f;
+	fixtureDef1.density = 10.0f;
 	fixtureDef1.friction = 0.3f;
 	b2BodyPtr->CreateFixture(&fixtureDef1);
 	category = "actor";

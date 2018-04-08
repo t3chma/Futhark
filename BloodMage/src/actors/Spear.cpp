@@ -25,7 +25,7 @@ Spear::Spear(Map& map, ActorDef& ad) : Actor(map, ad) {
 	b2BodyPtr->CreateFixture(&fixtureDef);
 	type = "spear";
 	health = 10;
-	p_speed = 0.8;
+	p_speed = 1.5;
 }
 Spear::~Spear() {
 	
@@ -56,7 +56,7 @@ void Spear::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	  case CIRCLING:
 		if (targetVec.x || targetVec.y) { p_faceDirection = glm::normalize(targetVec); }
 		p_faceAngle = fk::makeAngle(p_faceDirection) + fk::TAU / 4;
-		if (p_faceDirection.x || p_faceDirection.y) { p_moveDirection = p_speed * 1.5f * -p_faceDirection; }
+		if (p_faceDirection.x || p_faceDirection.y) { p_moveDirection = p_speed * 1.0f * -p_faceDirection; }
 		if (glm::length(targetVec) < m_range) {
 			glm::vec2 oldMove = p_moveDirection;
 			if (m_direction) { p_moveDirection = fk::rotatePoint(p_moveDirection, fk::TAU / 4); }

@@ -45,7 +45,7 @@ Player::~Player() {
 
 }
 void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
-	p_speed = 0.4;
+	p_speed = 1;
 	p_moveDirection.x = 0;
 	p_moveDirection.y = 0;
 	if (m_uiPtr->getKeyInfo(fk::Key::SPACE).downFrames > 1) {
@@ -55,7 +55,7 @@ void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 		if (m_uiPtr->getKeyInfo(fk::Key::S).downFrames > 1) { p_moveDirection.y -= 1; }
 		if (m_uiPtr->getKeyInfo(fk::Key::D).downFrames > 1) { p_moveDirection.x += 1; }
 		if (m_uiPtr->getKeyInfo(fk::Key::A).downFrames > 1) { p_moveDirection.x -= 1; }
-		if (m_uiPtr->getKeyInfo(fk::Key::SHIFT_L).downFrames > 1) { p_speed = 0.7; }
+		if (m_uiPtr->getKeyInfo(fk::Key::SHIFT_L).downFrames > 1) { p_speed = 1.75; }
 	}
 	if (
 		m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames == 1
