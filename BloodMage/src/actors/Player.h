@@ -2,8 +2,9 @@
 #include "Actor.h"
 #include "in/UserInput.h"
 #include "out/Camera.h"
+#include "../Mouse.h"
 
-class Player : public Actor {
+class Player : public Actor, b2RayCastCallback {
   public:
 	Player(Map& map, fk::UserInput* uiPtr, ActorDef& ad);
 	~Player();
@@ -20,12 +21,22 @@ class Player : public Actor {
 	) override;
 	void updateBody() override;
 	void updateSprite() override;
+	float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float32 fraction);
+	glm::vec2 getPosition() override;
   private:
 	fk::UserInput* m_uiPtr{ nullptr };
-	glm::vec2 m_mousePos{ 0 };
-	bool m_leftSwipe{ false };
-	bool m_rightSwipe{ false };
-	std::list<fk::Body*> m_leftHitPtrs;
-	std::list<fk::Body*> m_rightHitPtrs;
-	std::list<fk::Body*> m_swipeRangePtrs;
+	glm::vec2 m_mousePos;
+	int m_leftSwipe{ 0 };
+	int m_rightSwipe{ 0 };
+	bool m_getTarget{ false };
+	Actor* m_targetPtr{ nullptr };
+	struct {
+		int w{ 0 };
+		int a{ 0 };
+		int s{ 0 };
+		int d{ 0 };
+	} m_moveKeys;
+	int m_dodge{ false };
+	int m_dodgeTimer{ 0 };
+	glm::vec2 m_dodgePos{ 0 };
 };

@@ -11,9 +11,9 @@ void AITester::create(fk::Tools& tools) {
 	};
 	map.spriteRenderer.setShaders(shaders);
 	cam.setDimensions(tools.windowPtr->getDimensions());
-	cam.setZoom(64);
+	cam.setZoom(70);
 
-	map.resize(250, 250, tools.textures.get("DevGray128.png", 1));
+	map.resize(500, 500, tools.textures.get("RockyPath7.png", 1));
 	map.setFloorTexture(Terrain::Floor::GRASS, tools.textures.get("Grass128.png", 1));
 	map.setFloorTexture(Terrain::Floor::DIRT, tools.textures.get("Dirt128.png", 1));
 	map.setFloorTexture(Terrain::Floor::TOXIN, tools.textures.get("Toxin128.png", 1));
@@ -34,10 +34,12 @@ void AITester::create(fk::Tools& tools) {
 
 	ActorDef ad;
 	ad.textures.push_back(tools.textures.get("Circle.png", 1));
-	ad.textures.push_back(tools.textures.get("Swipe.png", 1));
-	ad.textures.push_back(tools.textures.get("Swipe.png", 1));
-	ad.position.x = 200;
-	ad.position.y = 200;
+	ad.textures.push_back(tools.textures.get("BigSpurt.png", 1));
+	ad.textures.push_back(tools.textures.get("BigSpurt.png", 1));
+	ad.textures.push_back(tools.textures.get("BigSlash.png", 1));
+	ad.textures.push_back(tools.textures.get("BigSlash.png", 1));
+	ad.position.x = 250;
+	ad.position.y = 250;
 	new Player(map, &tools.ui, ad);
 
 	std::vector<fk::Texture> textures;
@@ -55,9 +57,8 @@ void AITester::close(fk::Tools& tools) {
 }
 void AITester::update(fk::Tools& tools) {
 	cam.update();
-	if (tools.ui.getKeyInfo(fk::Key::Q).downFrames > 1) { cam.setZoom(64); }
-	if (tools.ui.getKeyInfo(fk::Key::E).downFrames > 1) { cam.setZoom(100); }
-	cam.setPosition(map.actorPtrs[0]->getPosition());
+	b2Vec2 playerPos = map.actorPtrs[0]->b2BodyPtr->GetPosition();
+	cam.setPosition(glm::vec2(playerPos.x, playerPos.y));
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	map.render(cam);
 	map.update(cam);

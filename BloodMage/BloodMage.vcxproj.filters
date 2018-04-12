@@ -106,6 +106,75 @@
     <Image Include="Textures\Swipe.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Textures\Stab.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Steam128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Toxin128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Wall128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Water128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Tree128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\roguelikeSheet_transparent.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Selector.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Poison128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Grass128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Oil128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Fire128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\DevFluid128.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\DevFluid128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\DevGray128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\DevGrayCircleCross128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\DevGrayCross128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\DevGraySlant128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\DevOrange128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Dirt128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Door128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Arrow.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Box128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Sprite.frag" />

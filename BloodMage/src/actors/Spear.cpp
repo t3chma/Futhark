@@ -24,7 +24,7 @@ Spear::Spear(Map& map, ActorDef& ad) : Actor(map, ad) {
 	fixtureDef.userData = (void*)'r';
 	b2BodyPtr->CreateFixture(&fixtureDef);
 	type = "spear";
-	health = 10;
+	health = 20;
 	p_speed = 1.5;
 }
 Spear::~Spear() {

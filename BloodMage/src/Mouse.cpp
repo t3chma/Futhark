@@ -3,8 +3,9 @@
 
 
 Mouse::Mouse(Map& map, std::vector<fk::Texture>& textures)
-	: Object(map.logicSprites, map.world, b2_dynamicBody)
+	: Object(map.logicSprites, map.world, b2_kinematicBody)
 {
+	b2BodyPtr->SetSleepingAllowed(false);
 	spriteIDs.reserve(textures.size());
 	for (auto&& texture : textures) {
 		spriteIDs.push_back(spriteBatch.makeSprite(texture));

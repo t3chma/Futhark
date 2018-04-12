@@ -68,6 +68,7 @@ void Map::resize(int width, int height, fk::Texture& texture) {
 		for (int y = 0; y < height; y++) {
 			int devID = floorSprites.makeSprite(texture);
 			floorSprites[devID].setPosition(x, y);
+			floorSprites[devID].setDimensions(1.008, 1.008);
 			m_tiles[x][y].floorSpriteID = devID;
 			m_terrain[x][y].floor = Terrain::Floor::DEV;
 		}

@@ -4,6 +4,7 @@
 Actor::Actor(Map& map, ActorDef& ad)
 	: Object(map.dynamicObjectSprites, map.world, b2_dynamicBody, ad.position.x, ad.position.y),
 	p_map(map) {
+	//b2BodyPtr->SetSleepingAllowed(false);
 	ad.size *= 0.6;
 	map.actorPtrs.push_back(this);
 	spriteIDs.reserve(ad.textures.size());
@@ -30,15 +31,15 @@ Actor::~Actor() {
 float Actor::getFloorCost(Terrain::Floor floor) {
 	switch (floor) {
 	  case Terrain::Floor::DEV:
-	  return m_floorWeights.dev;
+	  return p_floorWeights.dev;
 	  case Terrain::Floor::WATER:
-	  return m_floorWeights.water;
+	  return p_floorWeights.water;
 	  case Terrain::Floor::OIL:
-	  return m_floorWeights.oil;
+	  return p_floorWeights.oil;
 	  case Terrain::Floor::TOXIN:
-	  return m_floorWeights.toxin;
+	  return p_floorWeights.toxin;
 	  case Terrain::Floor::GRASS:
-	  return m_floorWeights.grass;
+	  return p_floorWeights.grass;
 	  default:
 	  return 10;
 	}
@@ -46,11 +47,11 @@ float Actor::getFloorCost(Terrain::Floor floor) {
 float Actor::getFluidCost(Terrain::Fluid fluid) {
 	switch (fluid) {
 	  case Terrain::Fluid::WATER:
-	  return m_fluidWeights.water;
+	  return p_fluidWeights.water;
 	  case Terrain::Fluid::OIL:
-	  return m_fluidWeights.oil;
+	  return p_fluidWeights.oil;
 	  case Terrain::Fluid::TOXIN:
-	  return m_fluidWeights.toxin;
+	  return p_fluidWeights.toxin;
 	  default:
 	  return 0;
 	}
@@ -58,11 +59,11 @@ float Actor::getFluidCost(Terrain::Fluid fluid) {
 float Actor::getVaporCost(Terrain::Vapor floor) {
 	switch (floor) {
 	  case Terrain::Vapor::FIRE:
-	  return m_vaporWeights.fire;
+	  return p_vaporWeights.fire;
 	  case Terrain::Vapor::POISON:
-	  return m_vaporWeights.poison;
+	  return p_vaporWeights.poison;
 	  case Terrain::Vapor::STEAM:
-	  return m_vaporWeights.steam;
+	  return p_vaporWeights.steam;
 	  default:
 	  return 0;
 	}
@@ -155,4 +156,8 @@ void Actor::showNodes() {
 
 void Actor::hideNodes() {
 	for (auto&& node : p_orders) { node->hide(); }
+}
+
+void Actor::pause(int frames) {
+	p_pause = frames;
 }

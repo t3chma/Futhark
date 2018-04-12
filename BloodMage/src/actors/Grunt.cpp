@@ -28,24 +28,25 @@ Grunt::Grunt(Map& map, ActorDef& ad) : Actor(map, ad) {
 	fixtureDef.userData = (void*)'r';
 	b2BodyPtr->CreateFixture(&fixtureDef);
 	type = "grunt";
-	health = 10;
+	health = 5;
 	p_speed = 2;
 }
 Grunt::~Grunt() {
 	
 }
 void Grunt::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
+	if (hit) { p_pause = 30; }
 	if (health < 1) { m_state = DEAD; }
 	glm::vec2 position = getPosition();
 	glm::vec2 targetVec = glm::vec2(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y)
 		- actorPtrs[0]->getPosition();
 	switch (m_state) {
-	  case RESTING:
+	case RESTING:
 		p_moveDirection.x = 0;
 		p_moveDirection.y = 0;
 		if (glm::length(targetVec) < 15) { m_state = CASTING; }
-	  break;
-	  case CASTING:
+		break;
+	case CASTING:
 		p_moveDirection.x = 0;
 		p_moveDirection.y = 0;
 		if (targetVec.x || targetVec.y) { p_faceDirection = glm::normalize(targetVec); }
@@ -55,15 +56,15 @@ void Grunt::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 			m_state = CIRCLING;
 			m_counter = 0;
 		}
-	  break;
-	  case CIRCLING:
+		break;
+	case CIRCLING:
 		if (targetVec.x || targetVec.y) { p_faceDirection = glm::normalize(targetVec); }
 		p_faceAngle = fk::makeAngle(p_faceDirection) + fk::TAU / 4;
 		if (p_faceDirection.x || p_faceDirection.y) { p_moveDirection = p_speed * -p_faceDirection; }
 		if (glm::length(targetVec) < m_range) {
 			if (m_direction) { p_moveDirection = fk::rotatePoint(p_moveDirection, fk::TAU / 4); }
 			else { p_moveDirection = fk::rotatePoint(p_moveDirection, -fk::TAU / 4); }
-			if (m_counter++ > 40 && !m_rangen.getInt(0, 80)) {
+			if (m_counter++ > 50 && !m_rangen.getInt(0, 200)) {
 				m_state = CHARGING;
 				p_pathFindingData.staleData = true;
 				m_canAttack = true;
@@ -71,13 +72,13 @@ void Grunt::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 			}
 		} else {
 			m_direction = m_rangen.getInt(0, 1);
-			m_range = m_rangen.getInt(1, 4);
+			m_range = m_rangen.getInt(1, 3);
 		}
-	  break;
-	  case CHARGING:
+		break;
+	case CHARGING:
 		if (targetVec.x || targetVec.y) { p_faceDirection = glm::normalize(targetVec); }
 		p_faceAngle = fk::makeAngle(p_faceDirection) + fk::TAU / 4;
-		if (m_counter > 10 && !p_pathFindingData.staleData) {
+		if (m_counter > 30 && !p_pathFindingData.staleData) {
 			glm::vec2 pos(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
 			pos.x = round(pos.x);
 			pos.y = round(pos.y);
@@ -98,19 +99,19 @@ void Grunt::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 			p_moveDirection = glm::vec2(0);
 		}
 		++m_counter;
-		if (m_attackingLeft || m_attackingRight || hit || m_counter > 6000) {
+		if (m_attackingLeft || m_attackingRight || hit || p_pause || m_counter > 6000) {
 			m_state = CIRCLING;
 			m_canAttack = false;
 			m_counter = 0;
 		}
-	  break;
-	  case RETREATING:
+		break;
+	case RETREATING:
 
-	  break;
-	  case DEAD:
+		break;
+	case DEAD:
 		p_moveDirection.x = 0;
 		p_moveDirection.y = 0;
-	  break;
+		break;
 	}
 	hit = false;
 }
@@ -177,14 +178,12 @@ void Grunt::p_endCollision(
 	}
 }
 void Grunt::updateBody() {
-	if (m_state != DEAD) {
-		if (test++ % 2 == 0) {
+	if (m_state != DEAD && !p_pause) {
 		b2BodyPtr->ApplyLinearImpulse(
-			b2Vec2(p_moveDirection.x * 2, p_moveDirection.y*2),
+			b2Vec2(p_moveDirection.x, p_moveDirection.y),
 			b2BodyPtr->GetWorldCenter(),
 			true
 		);
-		}
 		b2BodyPtr->SetTransform(b2BodyPtr->GetWorldCenter(), p_faceAngle);
 		if (!m_swipeRangePtrs.empty()) {
 			if (m_attackingLeft) {
@@ -198,7 +197,7 @@ void Grunt::updateBody() {
 					static_cast<Object*>(hitBodyPtr)->hit = true;
 				}
 			}
-			if (m_attackingLeft) {
+			if (m_attackingRight) {
 				for (auto&& hitBodyPtr : m_rightHitPtrs) {
 					hitBodyPtr->b2BodyPtr->ApplyLinearImpulse(
 						b2Vec2(-p_faceDirection.x, -p_faceDirection.y),
@@ -210,7 +209,7 @@ void Grunt::updateBody() {
 				}
 			}
 		}
-	}
+	} else if (p_pause > 0) { --p_pause; }
 }
 void Grunt::updateSprite() {
 	for (auto&& spriteID : spriteIDs) { spriteBatch[spriteID].canvas.rotationAngle = b2BodyPtr->GetAngle(); }

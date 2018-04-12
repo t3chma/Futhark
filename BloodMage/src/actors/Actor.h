@@ -35,14 +35,17 @@ class Actor : public Object {
 	void addOrder(std::vector<fk::Texture>& textures, glm::vec2& position);
 	void showNodes();
 	void hideNodes();
+	void pause(int frames);
   protected:
-	Order* currentOrder;
+	Order* p_currentOrder;
 	std::vector<Order*> p_orders;
 	float p_speed{ 1 };
 	glm::vec2 p_moveDirection{ 0,1 };
 	glm::vec2 p_faceDirection{ 0,1 };
 	float p_faceAngle{ 0 };
 	Map& p_map;
+	int p_pause{ 0 };
+	std::list<Actor*> p_attackerPtrList;
 	struct {
 		// If the current A* data is up to date.
 		// Note: Not being up to date does not mean that it is totally useless though.
@@ -78,17 +81,17 @@ class Actor : public Object {
 		float oil = 200;
 		float toxin = 200;
 		float grass = 1;
-	} m_floorWeights;
+	} p_floorWeights;
 	struct {
 		float none = 0;
 		float water = 20;
 		float oil = 20;
 		float toxin = 20;
-	} m_fluidWeights;
+	} p_fluidWeights;
 	struct {
 		float none = 0;
 		float fire = 20;
 		float poison = 20;
 		float steam = 0.1;
-	} m_vaporWeights;
+	} p_vaporWeights;
 };

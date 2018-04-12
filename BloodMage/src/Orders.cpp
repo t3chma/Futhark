@@ -9,7 +9,6 @@ Order::Order(Map& map, std::vector<fk::Texture>& textures, glm::vec2& position, 
 	mapPtr(&map),
 	target(position)
 {
-	b2BodyPtr->SetSleepingAllowed(false);
 	spriteIDs.push_back(spriteBatch.makeSprite(textures[0]));
 	spriteBatch[spriteIDs.back()].setDimensions(0.6, 0.6);
 	spriteBatch[spriteIDs.back()].setPosition(position);

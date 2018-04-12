@@ -19,7 +19,7 @@ public:
 		bool fixedRotation = false,
 		bool bullet = false
 	);
-	glm::vec2 getPosition();
+	virtual glm::vec2 getPosition();
 	virtual void updateBody() {};
 	virtual void updateSprite();
 	fk::SpriteBatch& spriteBatch;
