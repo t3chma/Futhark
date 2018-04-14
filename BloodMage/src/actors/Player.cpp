@@ -134,7 +134,7 @@ void Player::updateBody() {
 				m_targetPtr->pause(60);
 				if (distance > 0.7) {
 					b2BodyPtr->ApplyLinearImpulse(
-						b2Vec2(-targetDirection.x * 2, -targetDirection.y * 2),
+						b2Vec2(-targetDirection.x * 20, -targetDirection.y * 20),
 						b2BodyPtr->GetWorldCenter(),
 						true
 					);
