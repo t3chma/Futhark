@@ -24,7 +24,7 @@ StaticObject::StaticObject(
 	if (texture.id) {
 		spriteIDs.push_back(map.staticObjectSprites.makeSprite(texture));
 		spriteBatch[spriteIDs.back()].setPosition(x, y);
-		spriteBatch[spriteIDs.back()].setDimensions(1.01, 1.01);
+		spriteBatch[spriteIDs.back()].setDimensions(1.0, 1.0);
 		this->health = health;
 	} else {
 		this->health = -1;

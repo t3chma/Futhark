@@ -30,13 +30,8 @@ class Player : public Actor, b2RayCastCallback {
 	int m_rightSwipe{ 0 };
 	bool m_getTarget{ false };
 	Actor* m_targetPtr{ nullptr };
-	struct {
-		int w{ 0 };
-		int a{ 0 };
-		int s{ 0 };
-		int d{ 0 };
-	} m_moveKeys;
-	int m_dodge{ false };
+	int m_dodge{ 0 };
+	int m_dodgeCharge{ 0 };
 	int m_dodgeTimer{ 0 };
 	glm::vec2 m_dodgePos{ 0 };
 };

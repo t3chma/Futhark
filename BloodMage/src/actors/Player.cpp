@@ -26,62 +26,60 @@ Player::~Player() {
 }
 void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	m_mousePos = camPtr->getWorldCoordinates(m_uiPtr->getMouseInfo(0).position);
+	glm::vec2 position = glm::vec2(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
 	p_speed = 1;
+	if (m_uiPtr->getKeyInfo(fk::Key::SHIFT_L).downFrames > 0) { p_speed = 1.75; }
+	else {
+		// Left attack
+		if (m_leftSwipe > 0) { --m_leftSwipe; }
+		if (m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames == 1) {
+			m_getTarget = true;
+			if (m_leftSwipe == 0) { m_leftSwipe = 30; }
+		}
+		// Right attack
+		if (m_rightSwipe > 0) { --m_rightSwipe; }
+		if (m_uiPtr->getKeyInfo(fk::Key::MOUSE_RIGHT).downFrames == 1) {
+			m_getTarget = true;
+			if (m_rightSwipe == 0) { m_rightSwipe = 30; }
+		}
+	}
+	// Face direction
+	if (m_uiPtr->getKeyInfo(fk::Key::ALT_L).downFrames > 0) { m_targetPtr = nullptr; }
+	if (m_targetPtr && position != m_targetPtr->getPosition()) {
+		p_faceDirection = glm::normalize(position - m_targetPtr->getPosition());
+	} else if (m_mousePos != position) {
+		p_faceDirection = glm::normalize(position - m_mousePos);
+	}
+	p_faceAngle = fk::makeAngle(p_faceDirection) + fk::TAU / 4;
+	// Move direction
 	if (!m_dodge) {
 		p_moveDirection.x = 0;
 		p_moveDirection.y = 0;
 	}
 	if (m_uiPtr->getKeyInfo(fk::Key::SPACE).downFrames > 1) {
-		
-	} else {
-		if (m_uiPtr->getKeyInfo(fk::Key::W).downFrames > 1) {
-			p_moveDirection.y += 1;
-			if (m_moveKeys.w > 0 && m_moveKeys.w < 10 && !m_dodgeTimer) {
-				m_dodgePos = getPosition(); m_dodge = 10; m_targetPtr = nullptr;
+
+	} else if (!m_dodge) {
+		// WASD
+		if (m_uiPtr->getKeyInfo(fk::Key::W).downFrames > 0) { p_moveDirection.y += 1; }
+		if (m_uiPtr->getKeyInfo(fk::Key::S).downFrames > 0) { p_moveDirection.y -= 1; }
+		if (m_uiPtr->getKeyInfo(fk::Key::D).downFrames > 0) { p_moveDirection.x += 1; }
+		if (m_uiPtr->getKeyInfo(fk::Key::A).downFrames > 0) { p_moveDirection.x -= 1; }
+		// Dodge
+		if (p_speed == 1) {
+			if (m_uiPtr->getKeyInfo(fk::Key::ALT_L).downFrames > 0) {
+				p_moveDirection.x = 0;
+				p_moveDirection.y = 0;
+				++m_dodgeCharge;
+			} else if (m_dodgeCharge && !m_dodgeTimer) {
+				m_dodgeTimer = 40;
+				m_dodgePos = getPosition();
+				m_dodge = 10;
+				m_targetPtr = nullptr;
+				if (m_dodgeCharge > 20) { p_moveDirection = -p_faceDirection; }
+				else { p_moveDirection = p_faceDirection; }
 			}
-			m_moveKeys.w = 0;
 		}
-		else { ++m_moveKeys.w; }
-		if (m_uiPtr->getKeyInfo(fk::Key::S).downFrames > 1) {
-			p_moveDirection.y -= 1;
-			if (m_moveKeys.s > 0 && m_moveKeys.s < 10 && !m_dodgeTimer) {
-				m_dodgePos = getPosition(); m_dodge = 10; m_targetPtr = nullptr;
-			}
-			m_moveKeys.s = 0;
-		}
-		else { ++m_moveKeys.s; }
-		if (m_uiPtr->getKeyInfo(fk::Key::D).downFrames > 1) {
-			p_moveDirection.x += 1;
-			if (m_moveKeys.d > 0 && m_moveKeys.d < 10 && !m_dodgeTimer) {
-				m_dodgePos = getPosition(); m_dodge = 10; m_targetPtr = nullptr;
-			}
-			m_moveKeys.d = 0;
-		}
-		else { ++m_moveKeys.d; }
-		if (m_uiPtr->getKeyInfo(fk::Key::A).downFrames > 1) {
-			p_moveDirection.x -= 1;
-			if (m_moveKeys.a > 0 && m_moveKeys.a < 10 && !m_dodgeTimer) {
-				m_dodgePos = getPosition(); m_dodge = 10; m_targetPtr = nullptr;
-			}
-			m_moveKeys.a = 0;
-		}
-		else { ++m_moveKeys.a; }
-		if (m_uiPtr->getKeyInfo(fk::Key::SHIFT_L).downFrames > 1) { p_speed = 1.75; m_dodge = 0; }
 	}
-	if (m_leftSwipe > 0) { --m_leftSwipe; }
-	if (m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames == 1) {
-		m_getTarget = true;
-		if (m_leftSwipe == 0) { m_leftSwipe = 30; }
-	}
-	if (m_rightSwipe > 0) { --m_rightSwipe; }
-	if (m_uiPtr->getKeyInfo(fk::Key::MOUSE_RIGHT).downFrames == 1) {
-		m_getTarget = true;
-		if (m_rightSwipe == 0) { m_rightSwipe = 30; }
-	}
-	glm::vec2 position = glm::vec2(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
-	if (m_targetPtr) { p_faceDirection = glm::normalize(position - m_targetPtr->getPosition()); }
-	else if (m_mousePos != position) { p_faceDirection = glm::normalize(position - m_mousePos); }
-	p_faceAngle = fk::makeAngle(p_faceDirection) + fk::TAU / 4;
 	if (p_moveDirection.x || p_moveDirection.y) { p_moveDirection = p_speed * glm::normalize(p_moveDirection); }
 	hit = false;
 }
@@ -91,7 +89,7 @@ void Player::p_beginCollision(
 	b2Contact* contactPtr
 ) {
 	if (!collisionFixturePtr->IsSensor()) {
-		if (m_dodge) {
+		if (m_dodge && m_dodgeCharge > 20) {
 			Object* op = static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData());
 			if (op->category == "actor") {
 				static_cast<Actor*>(op)->pause(30);
@@ -118,13 +116,14 @@ void Player::updateBody() {
 				glm::length(getPosition() - m_mousePos) < b2BodyPtr->GetFixtureList()[0].GetShape()->m_radius
 				&& (m_leftSwipe == 30 || m_rightSwipe == 30)
 			) {
-
+				// Radial attack charge
+			} else {
+				b2BodyPtr->GetWorld()->RayCast(
+					this,
+					b2Vec2(getPosition().x, getPosition().y),
+					b2Vec2(m_mousePos.x, m_mousePos.y)
+				);
 			}
-			b2BodyPtr->GetWorld()->RayCast(
-				this,
-				b2Vec2(getPosition().x, getPosition().y),
-				b2Vec2(m_mousePos.x, m_mousePos.y)
-			);
 			if (m_targetPtr == nullptr) { m_leftSwipe = m_rightSwipe = 0; }
 		}
 		bool move{ true };
@@ -153,7 +152,7 @@ void Player::updateBody() {
 							);
 							spriteBatch[spriteIDs[1]].canvas.rotationAngle = b2BodyPtr->GetAngle() + fk::TAU / 8;
 							spriteBatch[spriteIDs[1]].setColor(255, 255, 255, 255);
-							m_leftSwipe = 20;
+							m_leftSwipe = 15;
 						} else {
 							spriteBatch[spriteIDs[3]].setPosition(
 								m_targetPtr->b2BodyPtr->GetPosition().x, m_targetPtr->b2BodyPtr->GetPosition().y
@@ -164,7 +163,7 @@ void Player::updateBody() {
 							spriteBatch[spriteIDs[3]].canvas.rotationAngle = b2BodyPtr->GetAngle() + fk::TAU / 8;
 							spriteBatch[spriteIDs[3]].setColor(255, 255, 255, 255);
 							m_targetPtr->b2BodyPtr->ApplyLinearImpulse(
-								b2Vec2(p_faceDirection.x * -3, p_faceDirection.y * -3),
+								b2Vec2(p_faceDirection.x * -7, p_faceDirection.y * -7),
 								m_targetPtr->b2BodyPtr->GetPosition(),
 								true
 							);
@@ -182,9 +181,8 @@ void Player::updateBody() {
 							);
 							spriteBatch[spriteIDs[2]].canvas.rotationAngle = b2BodyPtr->GetAngle() - fk::TAU / 8;
 							spriteBatch[spriteIDs[2]].setColor(255, 255, 255, 255);
-							m_rightSwipe = 20;
-						}
-						else {
+							m_rightSwipe = 15;
+						} else {
 							spriteBatch[spriteIDs[4]].setPosition(
 								m_targetPtr->b2BodyPtr->GetPosition().x, m_targetPtr->b2BodyPtr->GetPosition().y
 							);
@@ -194,7 +192,7 @@ void Player::updateBody() {
 							spriteBatch[spriteIDs[4]].canvas.rotationAngle = b2BodyPtr->GetAngle() - fk::TAU / 8;
 							spriteBatch[spriteIDs[4]].setColor(255, 255, 255, 255);
 							m_targetPtr->b2BodyPtr->ApplyLinearImpulse(
-								b2Vec2(p_faceDirection.x * -3, p_faceDirection.y * -3),
+								b2Vec2(p_faceDirection.x * -7, p_faceDirection.y * -7),
 								m_targetPtr->b2BodyPtr->GetPosition(),
 								true
 							);
@@ -207,15 +205,14 @@ void Player::updateBody() {
 		}
 		if (move) {
 			float dodgeMult = 1;
-			if (m_dodge == 10) { m_dodgeTimer = 32; }
-			if (m_dodge > 7) { dodgeMult = 20; }
+			if (m_dodge > 7) { dodgeMult = 16; }
 			b2BodyPtr->ApplyLinearImpulse(
 				b2Vec2(p_moveDirection.x * dodgeMult, p_moveDirection.y * dodgeMult),
 				b2BodyPtr->GetWorldCenter(),
 				true
 			);
 		}
-		if (m_dodge) { --m_dodge; }
+		if (m_dodge) { if (--m_dodge == 0) { m_dodgeCharge = 0; } }
 		if (m_dodgeTimer) { --m_dodgeTimer; }
 	}
 }
@@ -226,34 +223,19 @@ void Player::updateSprite() {
 	spriteBatch[spriteIDs[0]].setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
 	spriteBatch[spriteIDs[0]].setRotationAxis(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
 	if (health > 0) {
-		if (m_rightSwipe == 60) {
-			spriteBatch[spriteIDs[1]].setColor(255, 255, 255, 255);
-			spriteBatch[spriteIDs[1]].setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
-			spriteBatch[spriteIDs[1]].setRotationAxis(
-				b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y
-			);
-		} else {
-			int alpha = spriteBatch[spriteIDs[1]].canvas.color.a - 100;
-			if (alpha < 0) { alpha = 0; }
-			spriteBatch[spriteIDs[1]].setColor(255, 255, 255, alpha);
-			alpha = spriteBatch[spriteIDs[3]].canvas.color.a - 10;
-			if (alpha < 0) { alpha = 0; }
-			spriteBatch[spriteIDs[3]].setColor(255, 255, 255, alpha);
-		}
-		if (m_leftSwipe == 60) {
-			spriteBatch[spriteIDs[2]].setColor(255, 255, 255, 255);
-			spriteBatch[spriteIDs[2]].setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
-			spriteBatch[spriteIDs[2]].setRotationAxis(
-				b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y
-			);
-		} else {
-			int alpha = spriteBatch[spriteIDs[2]].canvas.color.a - 100;
-			if (alpha < 0) { alpha = 0; }
-			spriteBatch[spriteIDs[2]].setColor(255, 255, 255, alpha);
-			alpha = spriteBatch[spriteIDs[4]].canvas.color.a - 10;
-			if (alpha < 0) { alpha = 0; }
-			spriteBatch[spriteIDs[4]].setColor(255, 255, 255, alpha);
-		}
+		int alpha = spriteBatch[spriteIDs[1]].canvas.color.a - 10;
+		if (alpha < 0) { alpha = 0; }
+		spriteBatch[spriteIDs[1]].setColor(255, 255, 255, alpha);
+		alpha = spriteBatch[spriteIDs[3]].canvas.color.a - 10;
+		if (alpha < 0) { alpha = 0; }
+		spriteBatch[spriteIDs[3]].setColor(255, 255, 255, alpha);
+
+		alpha = spriteBatch[spriteIDs[2]].canvas.color.a - 10;
+		if (alpha < 0) { alpha = 0; }
+		spriteBatch[spriteIDs[2]].setColor(255, 255, 255, alpha);
+		alpha = spriteBatch[spriteIDs[4]].canvas.color.a - 10;
+		if (alpha < 0) { alpha = 0; }
+		spriteBatch[spriteIDs[4]].setColor(255, 255, 255, alpha);
 	} else {
 		spriteBatch[spriteIDs[0]].setColor(255, 255, 255, 100);
 		spriteBatch[spriteIDs[1]].setColor(255, 255, 255, 0);
