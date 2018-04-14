@@ -20,6 +20,13 @@ Player::Player(
 	spriteBatch[spriteIDs[4]].setTexturePosition(1, 0);
 	type = "player";
 	health = 50;
+	b2FixtureDef fixtureDef;
+	b2CircleShape circle;
+	circle.m_radius = ad.size * 2;
+	fixtureDef.shape = &circle;
+	fixtureDef.isSensor = true;
+	fixtureDef.userData = (void*)'r';
+	b2BodyPtr->CreateFixture(&fixtureDef);
 }
 Player::~Player() {
 
@@ -28,7 +35,7 @@ void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	m_mousePos = camPtr->getWorldCoordinates(m_uiPtr->getMouseInfo(0).position);
 	glm::vec2 position = glm::vec2(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
 	p_speed = 1;
-	if (m_uiPtr->getKeyInfo(fk::Key::SHIFT_L).downFrames > 0) { p_speed = 1.75; }
+	if (m_uiPtr->getKeyInfo(fk::Key::SHIFT_L).downFrames > 0) { p_speed = 1.75; m_targetPtr = nullptr; }
 	else {
 		// Left attack
 		if (m_leftSwipe > 0) { --m_leftSwipe; }
@@ -81,6 +88,7 @@ void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 		}
 	}
 	if (p_moveDirection.x || p_moveDirection.y) { p_moveDirection = p_speed * glm::normalize(p_moveDirection); }
+	if (m_dodgeCharge > 20) { p_moveDirection *= 1.5; }
 	hit = false;
 }
 void Player::p_beginCollision(
@@ -89,10 +97,12 @@ void Player::p_beginCollision(
 	b2Contact* contactPtr
 ) {
 	if (!collisionFixturePtr->IsSensor()) {
-		if (m_dodge && m_dodgeCharge > 20) {
+		if (m_dodge) {
 			Object* op = static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData());
-			if (op->category == "actor") {
+			if (op->category == "actor" && m_dodgeCharge > 20) {
 				static_cast<Actor*>(op)->pause(30);
+			} else if (op->category == "static" && !myFixturePtr->GetUserData()) {
+				m_dodge = 0; m_dodgeCharge = 0;
 			}
 		}
 	}
@@ -106,44 +116,50 @@ void Player::p_endCollision(
 }
 void Player::updateBody() {
 	if (health > 0) {
-		if (m_dodge) { b2BodyPtr->GetFixtureList()[0].SetSensor(true); }
-		else { b2BodyPtr->GetFixtureList()[0].SetSensor(false); }
+		b2Filter filter = b2BodyPtr->GetFixtureList()->GetNext()->GetFilterData();
+		if (m_dodge) { filter.maskBits = 1; }
+		else { filter.maskBits = 0b1111111111111111; }
+		b2BodyPtr->GetFixtureList()->GetNext()->SetFilterData(filter);
 		b2BodyPtr->SetTransform(b2BodyPtr->GetWorldCenter(), p_faceAngle);
 		if (m_getTarget) {
 			m_getTarget = false;
 			m_targetPtr = nullptr;
-			if (
-				glm::length(getPosition() - m_mousePos) < b2BodyPtr->GetFixtureList()[0].GetShape()->m_radius
-				&& (m_leftSwipe == 30 || m_rightSwipe == 30)
-			) {
-				// Radial attack charge
-			} else {
-				b2BodyPtr->GetWorld()->RayCast(
-					this,
-					b2Vec2(getPosition().x, getPosition().y),
-					b2Vec2(m_mousePos.x, m_mousePos.y)
-				);
-			}
+			glm::vec2 mp = glm::normalize(m_mousePos - getPosition());
+			mp *= 3;
+			b2BodyPtr->GetWorld()->RayCast(
+				this,
+				b2Vec2(getPosition().x, getPosition().y),
+				b2Vec2(getPosition().x + mp.x, getPosition().y + mp.y)
+			);
 			if (m_targetPtr == nullptr) { m_leftSwipe = m_rightSwipe = 0; }
 		}
 		bool move{ true };
+		m_charging = false;
 		if (m_targetPtr && (m_leftSwipe || m_rightSwipe)) {
 			glm::vec2 targetDirection = getPosition() - m_targetPtr->getPosition();
 			float distance = glm::length(getPosition() - m_targetPtr->getPosition());
 			if (distance < 3) {
-				m_targetPtr->pause(60);
-				if (distance > 0.7) {
-					b2BodyPtr->ApplyLinearImpulse(
-						b2Vec2(-targetDirection.x * 20, -targetDirection.y * 20),
-						b2BodyPtr->GetWorldCenter(),
-						true
-					);
-					if (m_leftSwipe == 1) { m_leftSwipe = 2; }
-					if (m_rightSwipe == 1) { m_rightSwipe = 2; }
-					move = false;
-				} else {
+				if (distance >= 0.6) {
+					if (
+						m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames ||
+						m_uiPtr->getKeyInfo(fk::Key::MOUSE_RIGHT).downFrames
+					) {
+						m_charging = true;
+						b2BodyPtr->ApplyLinearImpulse(
+							b2Vec2(-targetDirection.x * 2, -targetDirection.y * 2),
+							b2BodyPtr->GetWorldCenter(),
+							true
+						);
+						if (m_leftSwipe == 1) { m_leftSwipe = 2; }
+						if (m_rightSwipe == 1) { m_rightSwipe = 2; }
+						move = false;
+					}
+				}
+				if (distance <= 1) {
+					m_targetPtr->pause(60);
+					m_charging = true;
 					if (m_leftSwipe == 1) {
-						if (m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames > 10) {
+						if (p_drainCount.left < 4 && m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames > 10) {
 							spriteBatch[spriteIDs[1]].setPosition(
 								m_targetPtr->b2BodyPtr->GetPosition().x, m_targetPtr->b2BodyPtr->GetPosition().y
 							);
@@ -153,6 +169,7 @@ void Player::updateBody() {
 							spriteBatch[spriteIDs[1]].canvas.rotationAngle = b2BodyPtr->GetAngle() + fk::TAU / 8;
 							spriteBatch[spriteIDs[1]].setColor(255, 255, 255, 255);
 							m_leftSwipe = 15;
+							++p_drainCount.left;
 						} else {
 							spriteBatch[spriteIDs[3]].setPosition(
 								m_targetPtr->b2BodyPtr->GetPosition().x, m_targetPtr->b2BodyPtr->GetPosition().y
@@ -168,11 +185,12 @@ void Player::updateBody() {
 								true
 							);
 							m_targetPtr->health -= 1;
+							p_drainCount.left = 0;
 						}
 						m_targetPtr->hit = true;
 					}
 					if (m_rightSwipe == 1) {
-						if (m_uiPtr->getKeyInfo(fk::Key::MOUSE_RIGHT).downFrames > 10) {
+						if (p_drainCount.right < 4 && m_uiPtr->getKeyInfo(fk::Key::MOUSE_RIGHT).downFrames > 10) {
 							spriteBatch[spriteIDs[2]].setPosition(
 								m_targetPtr->b2BodyPtr->GetPosition().x, m_targetPtr->b2BodyPtr->GetPosition().y
 							);
@@ -182,6 +200,7 @@ void Player::updateBody() {
 							spriteBatch[spriteIDs[2]].canvas.rotationAngle = b2BodyPtr->GetAngle() - fk::TAU / 8;
 							spriteBatch[spriteIDs[2]].setColor(255, 255, 255, 255);
 							m_rightSwipe = 15;
+							++p_drainCount.right;
 						} else {
 							spriteBatch[spriteIDs[4]].setPosition(
 								m_targetPtr->b2BodyPtr->GetPosition().x, m_targetPtr->b2BodyPtr->GetPosition().y
@@ -197,6 +216,7 @@ void Player::updateBody() {
 								true
 							);
 							m_targetPtr->health -= 1;
+							p_drainCount.right = 0;
 						}
 						m_targetPtr->hit = true;
 					}
@@ -222,6 +242,13 @@ void Player::updateSprite() {
 	spriteBatch[spriteIDs[2]].canvas.rotationAngle = b2BodyPtr->GetAngle();
 	spriteBatch[spriteIDs[0]].setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
 	spriteBatch[spriteIDs[0]].setRotationAxis(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
+	if (m_charging) {
+		spriteBatch[spriteIDs[0]].setColor(255, 100, 100, 255);
+	} else if (m_dodgeCharge > 20) {
+		spriteBatch[spriteIDs[0]].setColor(100, 100, 255, 255);
+	} else {
+		spriteBatch[spriteIDs[0]].setColor(255, 255, 255, 255);
+	}
 	if (health > 0) {
 		int alpha = spriteBatch[spriteIDs[1]].canvas.color.a - 10;
 		if (alpha < 0) { alpha = 0; }

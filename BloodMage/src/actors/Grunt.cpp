@@ -35,7 +35,7 @@ Grunt::~Grunt() {
 	
 }
 void Grunt::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
-	if (hit) { p_pause = 30; }
+	if (hit) { p_pause = 10; }
 	if (health < 1) { m_state = DEAD; }
 	glm::vec2 position = getPosition();
 	glm::vec2 targetVec = glm::vec2(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y)

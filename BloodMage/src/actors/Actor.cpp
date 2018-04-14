@@ -22,6 +22,7 @@ Actor::Actor(Map& map, ActorDef& ad)
 	fixtureDef1.userData = nullptr;
 	fixtureDef1.density = 10.0f;
 	fixtureDef1.friction = 0.3f;
+	fixtureDef1.filter.categoryBits = 2;
 	b2BodyPtr->CreateFixture(&fixtureDef1);
 	category = "actor";
 }

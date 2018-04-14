@@ -4,7 +4,7 @@
 #include <thread>
 
 
-StaticObject::StaticObject(
+Static::Static(
 	Map& map,
 	Terrain& terrain,
 	Tile& tile,
@@ -36,22 +36,23 @@ StaticObject::StaticObject(
 	shape1.SetAsBox(0.49, 0.49);
 	fixtureDef1.userData = nullptr;
 	fixtureDef1.friction = 0.3f;
+	fixtureDef1.filter.categoryBits = 1;
 	b2BodyPtr->CreateFixture(&fixtureDef1);
-	category = "object";
+	category = "static";
 }
-StaticObject::~StaticObject() {
+Static::~Static() {
 	for (auto&& id : spriteIDs) { spriteBatch.destroySprite(id); }
 }
 
-void StaticObject::operator=(const StaticObject staticObject) {
+void Static::operator=(const Static staticObject) {
 	m_terrain = staticObject.m_terrain;
 	m_tile = staticObject.m_tile;
 }
-void StaticObject::update() {
+void Static::update() {
 	m_terrain.health = health;
 	if (health < 1) { despawn = true; }
 }
-void StaticObject::updateSprite() {
+void Static::updateSprite() {
 
 }
 
@@ -219,6 +220,6 @@ void Map::placeStaticObject(Terrain::Object type, int health, float x, float y) 
 	if (xi < 0 || xi >= m_terrain.size() || yi < 0 || yi >= m_terrain[xi].size()) { return; }
 	auto& tile = m_tiles[xi][yi];
 	staticObjectPtrs.push_back(
-		new StaticObject(*this, m_terrain[xi][yi], tile, m_terrainTextures[(int)type], xi, yi, health)
+		new Static(*this, m_terrain[xi][yi], tile, m_terrainTextures[(int)type], xi, yi, health)
 	);
 }

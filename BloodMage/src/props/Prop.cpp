@@ -21,6 +21,7 @@ Prop::Prop(Map& map, PropDef& pd)
 	fixtureDef1.userData = nullptr;
 	fixtureDef1.density = 1.0f;
 	fixtureDef1.friction = 0.3f;
+	fixtureDef1.filter.categoryBits = 4;
 	b2BodyPtr->CreateFixture(&fixtureDef1);
 	category = "prop";
 }

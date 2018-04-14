@@ -13,7 +13,7 @@ void AITester::create(fk::Tools& tools) {
 	cam.setDimensions(tools.windowPtr->getDimensions());
 	cam.setZoom(70);
 
-	map.resize(500, 500, tools.textures.get("RockyPath7.png", 1));
+	map.resize(500, 500, tools.textures.get("DevGray128.png", 1));
 	map.setFloorTexture(Terrain::Floor::GRASS, tools.textures.get("Grass128.png", 1));
 	map.setFloorTexture(Terrain::Floor::DIRT, tools.textures.get("Dirt128.png", 1));
 	map.setFloorTexture(Terrain::Floor::TOXIN, tools.textures.get("Toxin128.png", 1));

@@ -34,4 +34,5 @@ class Player : public Actor, b2RayCastCallback {
 	int m_dodgeCharge{ 0 };
 	int m_dodgeTimer{ 0 };
 	glm::vec2 m_dodgePos{ 0 };
+	bool m_charging{ false };
 };

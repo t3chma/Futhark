@@ -22,11 +22,11 @@ struct Terrain {
 	int health;
 };
 
-class StaticObject : public Object {
+class Static : public Object {
 public:
-	StaticObject(Map& map, Terrain& terrain, Tile& tile, fk::Texture& texture, int x, int y, int health);
-	~StaticObject();
-	void operator = (const StaticObject staticObject);
+	Static(Map& map, Terrain& terrain, Tile& tile, fk::Texture& texture, int x, int y, int health);
+	~Static();
+	void operator = (const Static staticObject);
 	void update();
 	virtual void updateSprite() override;
 private:
@@ -38,7 +38,7 @@ struct Tile {
 	int floorSpriteID{ 0 };
 	int fluidSpriteID{ 0 };
 	int vaporSpriteID{ 0 };
-	StaticObject* staticObjectPtr{ nullptr };
+	Static* staticObjectPtr{ nullptr };
 };
 
 class Map {
@@ -72,7 +72,7 @@ public:
 	fk::World world;
 	std::vector<Actor*> actorPtrs;
 	std::vector<Prop*> propPtrs;
-	std::vector<StaticObject*> staticObjectPtrs;
+	std::vector<Static*> staticObjectPtrs;
 	fk::SpriteRenderer spriteRenderer;
 private:
 	std::vector<fk::Texture> m_terrainTextures;

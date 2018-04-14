@@ -94,4 +94,14 @@ class Actor : public Object {
 		float poison = 20;
 		float steam = 0.1;
 	} p_vaporWeights;
+	struct {
+		float fire;
+		float earth;
+		float water;
+		float air;
+	} p_blood;
+	struct {
+		int right{ 0 };
+		int left{ 0 };
+	} p_drainCount;
 };
