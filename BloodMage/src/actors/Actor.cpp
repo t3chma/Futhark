@@ -1,6 +1,8 @@
 #include "Actor.h"
 
 
+int Actor::advances{ 0 };
+
 Actor::Actor(Map& map, ActorDef& ad)
 	: Object(map.dynamicObjectSprites, map.world, b2_dynamicBody, ad.position.x, ad.position.y),
 	p_map(map) {
@@ -84,11 +86,11 @@ void Actor::startAStar(glm::vec2 target) {
 	p_pathFindingData.frontier.push(startTile);
 	p_pathFindingData.flow[startTile.first.x][startTile.first.y] = startTile.first;
 	p_pathFindingData.gCosts[startTile.first.x][startTile.first.y] = 0;
-	category = "actor";
 }
 void Actor::advanceAStar() {
+	if (advances++ > 40) { return; }
 	// Search loop.
-	for (int i = 0; !p_pathFindingData.frontier.empty() && i < p_pathFindingData.advances; ++i) {
+	for (int i = 0; !p_pathFindingData.frontier.empty() && i < 10; ++i) {
 		// Inspect the tile with the lowest cost.
 		WeightedTile current = p_pathFindingData.frontier.top();
 		p_pathFindingData.frontier.pop();
@@ -127,7 +129,6 @@ void Actor::advanceAStar() {
 			}
 		}
 	}
-	//std::cout << p_pathFindingData.frontier.size() << " : " << p_pathFindingData.frontier.empty() << "\n";
 	if (p_pathFindingData.frontier.empty()) {
 		p_pathFindingData.upToDate = true;
 		p_pathFindingData.staleData = false;
@@ -161,4 +162,8 @@ void Actor::hideNodes() {
 
 void Actor::pause(int frames) {
 	p_pause = frames;
+}
+
+bool Actor::isDodging() {
+	return p_dodging;
 }

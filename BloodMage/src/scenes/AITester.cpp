@@ -57,8 +57,7 @@ void AITester::close(fk::Tools& tools) {
 }
 void AITester::update(fk::Tools& tools) {
 	cam.update();
-	b2Vec2 playerPos = map.actorPtrs[0]->b2BodyPtr->GetPosition();
-	cam.setPosition(glm::vec2(playerPos.x, playerPos.y));
+	cam.setPosition(map.actorPtrs[0]->getPosition());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	map.render(cam);
 	map.update(cam);

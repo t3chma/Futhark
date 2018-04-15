@@ -23,14 +23,10 @@ public:
 protected:
 	bool m_direction{ true };
 	int m_range{ 2 };
-	std::list<Object*> m_leftHitPtrs;
-	std::list<Object*> m_rightHitPtrs;
-	std::list<Object*> m_swipeRangePtrs;
+	std::list<Object*> m_hitPtrs;
 	fk::Random m_rangen;
 	int m_counter{ 0 };
 	bool m_canAttack{ false };
-	bool m_attackingLeft{ false };
-	bool m_attackingRight{ false };
+	bool m_attacking{ false };
 	State m_state{ RESTING };
-	int test{ 0 };
 };

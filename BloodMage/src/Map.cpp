@@ -95,6 +95,10 @@ const std::array<std::pair<Terrain*, glm::ivec2>, 8> Map::getNeighborTilePtrs(gl
 			++index;
 		}
 	}
+	if (ret[1].first->health && ret[3].first->health) { ret[0] = std::make_pair(nullptr, glm::ivec2(0)); }
+	if (ret[1].first->health && ret[4].first->health) { ret[2] = std::make_pair(nullptr, glm::ivec2(0)); }
+	if (ret[6].first->health && ret[3].first->health) { ret[5] = std::make_pair(nullptr, glm::ivec2(0)); }
+	if (ret[6].first->health && ret[4].first->health) { ret[7] = std::make_pair(nullptr, glm::ivec2(0)); }
 	return ret;
 }
 const Terrain* Map::getTilePtr(float x, float y) {
@@ -128,6 +132,7 @@ void Map::update(fk::Camera& cam) {
 			propPtrs.pop_back();
 		}
 	}
+	Actor::advances = 0;
 	for (int i = 0; i < actorPtrs.size(); ++i) {
 		actorPtrs[i]->think(actorPtrs, &cam);
 		if (actorPtrs[i]->despawn) {

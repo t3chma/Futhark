@@ -36,6 +36,8 @@ class Actor : public Object {
 	void showNodes();
 	void hideNodes();
 	void pause(int frames);
+	bool isDodging();
+	static int advances;
   protected:
 	Order* p_currentOrder;
 	std::vector<Order*> p_orders;
@@ -46,6 +48,8 @@ class Actor : public Object {
 	Map& p_map;
 	int p_pause{ 0 };
 	std::list<Actor*> p_attackerPtrList;
+	glm::vec2 p_targetPos{ 0 };
+	int p_dodging{ 0 };
 	struct {
 		// If the current A* data is up to date.
 		// Note: Not being up to date does not mean that it is totally useless though.
@@ -72,8 +76,6 @@ class Actor : public Object {
 		glm::ivec2 fStart;
 		// Target data
 		std::list<glm::vec2> path{ 0 };
-		// How many advances to do per call to the advanceAStar function.
-		int advances{ 1 };
 	} p_pathFindingData;
 	struct {
 		float dev = 1;

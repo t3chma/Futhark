@@ -59,13 +59,13 @@ void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	}
 	p_faceAngle = fk::makeAngle(p_faceDirection) + fk::TAU / 4;
 	// Move direction
-	if (!m_dodge) {
+	if (!p_dodging) {
 		p_moveDirection.x = 0;
 		p_moveDirection.y = 0;
 	}
 	if (m_uiPtr->getKeyInfo(fk::Key::SPACE).downFrames > 1) {
 
-	} else if (!m_dodge) {
+	} else if (!p_dodging) {
 		// WASD
 		if (m_uiPtr->getKeyInfo(fk::Key::W).downFrames > 0) { p_moveDirection.y += 1; }
 		if (m_uiPtr->getKeyInfo(fk::Key::S).downFrames > 0) { p_moveDirection.y -= 1; }
@@ -80,7 +80,7 @@ void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 			} else if (m_dodgeCharge && !m_dodgeTimer) {
 				m_dodgeTimer = 40;
 				m_dodgePos = getPosition();
-				m_dodge = 10;
+				p_dodging = m_dodgeIFrames;
 				m_targetPtr = nullptr;
 				if (m_dodgeCharge > 20) { p_moveDirection = -p_faceDirection; }
 				else { p_moveDirection = p_faceDirection; }
@@ -97,12 +97,12 @@ void Player::p_beginCollision(
 	b2Contact* contactPtr
 ) {
 	if (!collisionFixturePtr->IsSensor()) {
-		if (m_dodge) {
+		if (p_dodging) {
 			Object* op = static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData());
 			if (op->category == "actor" && m_dodgeCharge > 20) {
 				static_cast<Actor*>(op)->pause(30);
 			} else if (op->category == "static" && !myFixturePtr->GetUserData()) {
-				m_dodge = 0; m_dodgeCharge = 0;
+				p_dodging = 0; m_dodgeCharge = 0;
 			}
 		}
 	}
@@ -117,7 +117,7 @@ void Player::p_endCollision(
 void Player::updateBody() {
 	if (health > 0) {
 		b2Filter filter = b2BodyPtr->GetFixtureList()->GetNext()->GetFilterData();
-		if (m_dodge) { filter.maskBits = 1; }
+		if (p_dodging) { filter.maskBits = 1; }
 		else { filter.maskBits = 0b1111111111111111; }
 		b2BodyPtr->GetFixtureList()->GetNext()->SetFilterData(filter);
 		b2BodyPtr->SetTransform(b2BodyPtr->GetWorldCenter(), p_faceAngle);
@@ -155,7 +155,7 @@ void Player::updateBody() {
 						move = false;
 					}
 				}
-				if (distance <= 1) {
+				if (distance <= 1.5) {
 					m_targetPtr->pause(60);
 					m_charging = true;
 					if (m_leftSwipe == 1) {
@@ -225,14 +225,14 @@ void Player::updateBody() {
 		}
 		if (move) {
 			float dodgeMult = 1;
-			if (m_dodge > 7) { dodgeMult = 16; }
+			if (p_dodging > m_dodgeIFrames - 3) { dodgeMult = 16; }
 			b2BodyPtr->ApplyLinearImpulse(
 				b2Vec2(p_moveDirection.x * dodgeMult, p_moveDirection.y * dodgeMult),
 				b2BodyPtr->GetWorldCenter(),
 				true
 			);
 		}
-		if (m_dodge) { if (--m_dodge == 0) { m_dodgeCharge = 0; } }
+		if (p_dodging) { if (--p_dodging == 0) { m_dodgeCharge = 0; } }
 		if (m_dodgeTimer) { --m_dodgeTimer; }
 	}
 }
@@ -277,12 +277,4 @@ float32 Player::ReportFixture(b2Fixture* fixturePtr, const b2Vec2& point, const 
 		m_targetPtr = static_cast<Actor*>(fixturePtr->GetBody()->GetUserData());
 	}
 	return fraction;
-}
-
-glm::vec2 Player::getPosition() {
-	if (m_dodge) { return m_dodgePos; }
-	else {
-		b2Vec2 vec = b2BodyPtr->GetPosition();
-		return glm::vec2(vec.x, vec.y);
-	}
 }

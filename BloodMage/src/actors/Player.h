@@ -22,7 +22,6 @@ class Player : public Actor, b2RayCastCallback {
 	void updateBody() override;
 	void updateSprite() override;
 	float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float32 fraction);
-	glm::vec2 getPosition() override;
   private:
 	fk::UserInput* m_uiPtr{ nullptr };
 	glm::vec2 m_mousePos;
@@ -30,9 +29,9 @@ class Player : public Actor, b2RayCastCallback {
 	int m_rightSwipe{ 0 };
 	bool m_getTarget{ false };
 	Actor* m_targetPtr{ nullptr };
-	int m_dodge{ 0 };
 	int m_dodgeCharge{ 0 };
 	int m_dodgeTimer{ 0 };
 	glm::vec2 m_dodgePos{ 0 };
+	const int m_dodgeIFrames{ 15 };
 	bool m_charging{ false };
 };

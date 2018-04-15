@@ -1,4 +1,5 @@
 #include "Grunt.h"
+#include "Player.h"
 #include <thread>
 
 Grunt::Grunt(Map& map, ActorDef& ad) : Actor(map, ad) {
@@ -14,18 +15,11 @@ Grunt::Grunt(Map& map, ActorDef& ad) : Actor(map, ad) {
 	fixtureDef.shape = &box;
 	fixtureDef.isSensor = true;
 	b2Vec2 points1[]{
-		b2Vec2(-ad.size / 4, 0), b2Vec2(-ad.size / 4, ad.size/2),
-		b2Vec2(ad.size / 4, ad.size / 2), b2Vec2(ad.size / 4, 0)
+		b2Vec2(-ad.size / 4, 0), b2Vec2(-ad.size / 4, ad.size * 2),
+		b2Vec2(ad.size / 4, ad.size * 2), b2Vec2(ad.size / 4, 0)
 	};
 	box.Set(points1, 4);
 	fixtureDef.userData = (void*)'l';
-	b2BodyPtr->CreateFixture(&fixtureDef);
-	b2Vec2 points2[]{
-		b2Vec2(-ad.size / 4, 0), b2Vec2(-ad.size / 4, ad.size/2),
-		b2Vec2(ad.size / 4, ad.size/2), b2Vec2(ad.size / 4, 0)
-	};
-	box.Set(points2, 4);
-	fixtureDef.userData = (void*)'r';
 	b2BodyPtr->CreateFixture(&fixtureDef);
 	type = "grunt";
 	health = 5;
@@ -37,9 +31,11 @@ Grunt::~Grunt() {
 void Grunt::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	if (hit) { p_pause = 10; }
 	if (health < 1) { m_state = DEAD; }
+	m_attacking = false;
 	glm::vec2 position = getPosition();
-	glm::vec2 targetVec = glm::vec2(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y)
-		- actorPtrs[0]->getPosition();
+	if (!actorPtrs[0]->isDodging()) { p_targetPos = actorPtrs[0]->getPosition(); }
+	glm::vec2 targetVec = glm::vec2(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y) - p_targetPos;
+	float t;
 	switch (m_state) {
 	case RESTING:
 		p_moveDirection.x = 0;
@@ -99,7 +95,9 @@ void Grunt::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 			p_moveDirection = glm::vec2(0);
 		}
 		++m_counter;
-		if (m_attackingLeft || m_attackingRight || hit || p_pause || m_counter > 6000) {
+		if (glm::length(targetVec) < 0.7) {
+			m_attacking = true; }
+		if (m_attacking || hit || p_pause || m_counter > 6000) {
 			m_state = CIRCLING;
 			m_canAttack = false;
 			m_counter = 0;
@@ -125,30 +123,11 @@ void Grunt::p_beginCollision(
 		if (myFixturePtr->GetUserData() != nullptr) {
 			switch ((char)myFixturePtr->GetUserData()) {
 			  case 'l':
-				m_leftHitPtrs.push_back(static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData()));
-				if (
-					m_leftHitPtrs.back()->category == "actor"
-					&& m_rightHitPtrs.back()->type == "player"
-					&& m_canAttack
-				) {
-					m_attackingLeft = true;
-				}
-			  break;
-			  case 'r':
-				m_rightHitPtrs.push_back(static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData()));
-				if (
-					m_rightHitPtrs.back()->category == "actor"
-					&& m_rightHitPtrs.back()->type == "player"
-					&& m_canAttack
-				) {
-					m_attackingRight = true;
-				}
+				m_hitPtrs.push_back(static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData()));
 			  break;
 			  default:
 			  break;
 			}
-		} else {
-			m_swipeRangePtrs.push_back(static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData()));
 		}
 	}
 }
@@ -162,18 +141,11 @@ void Grunt::p_endCollision(
 		if (myFixturePtr->GetUserData() != nullptr) {
 			switch ((char)myFixturePtr->GetUserData()) {
 			  case 'l':
-				m_leftHitPtrs.remove(static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData()));
-				m_attackingLeft = false;
-			  break;
-			  case 'r':
-				m_rightHitPtrs.remove(static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData()));
-				m_attackingRight = false;
+				m_hitPtrs.remove(static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData()));
 			  break;
 			  default:
 			  break;
 			}
-		} else {
-			m_swipeRangePtrs.remove(static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData()));
 		}
 	}
 }
@@ -185,28 +157,15 @@ void Grunt::updateBody() {
 			true
 		);
 		b2BodyPtr->SetTransform(b2BodyPtr->GetWorldCenter(), p_faceAngle);
-		if (!m_swipeRangePtrs.empty()) {
-			if (m_attackingLeft) {
-				for (auto&& hitBodyPtr : m_leftHitPtrs) {
-					hitBodyPtr->b2BodyPtr->ApplyLinearImpulse(
-						b2Vec2(-p_faceDirection.x, -p_faceDirection.y),
-						hitBodyPtr->b2BodyPtr->GetPosition(),
-						true
-					);
-					static_cast<Object*>(hitBodyPtr)->health -= 1;
-					static_cast<Object*>(hitBodyPtr)->hit = true;
-				}
-			}
-			if (m_attackingRight) {
-				for (auto&& hitBodyPtr : m_rightHitPtrs) {
-					hitBodyPtr->b2BodyPtr->ApplyLinearImpulse(
-						b2Vec2(-p_faceDirection.x, -p_faceDirection.y),
-						hitBodyPtr->b2BodyPtr->GetPosition(),
-						true
-					);
-					static_cast<Object*>(hitBodyPtr)->health -= 1;
-					static_cast<Object*>(hitBodyPtr)->hit = true;
-				}
+		if (m_attacking) {
+			for (auto&& hitBodyPtr : m_hitPtrs) {
+				hitBodyPtr->b2BodyPtr->ApplyLinearImpulse(
+					b2Vec2(-p_faceDirection.x * 3, -p_faceDirection.y * 3),
+					hitBodyPtr->b2BodyPtr->GetPosition(),
+					true
+				);
+				static_cast<Object*>(hitBodyPtr)->health -= 1;
+				static_cast<Object*>(hitBodyPtr)->hit = true;
 			}
 		}
 	} else if (p_pause > 0) { --p_pause; }
@@ -222,25 +181,22 @@ void Grunt::updateSprite() {
 		} else {
 			spriteBatch[spriteIDs[0]].setColor(255, 255, 0, 255);
 		}
-		if (m_attackingRight) {
+		if (m_attacking) {
 			spriteBatch[spriteIDs[1]].setColor(255, 255, 0, 255);
 			spriteBatch[spriteIDs[1]].setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
 			spriteBatch[spriteIDs[1]].setRotationAxis(
 				b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y
 			);
-		} else {
-			int alpha = spriteBatch[spriteIDs[1]].canvas.color.a - 100;
-			if (alpha < 0) { alpha = 0; }
-			spriteBatch[spriteIDs[1]].setColor(255, 255, 0, alpha);
-		}
-		if (m_attackingLeft) {
 			spriteBatch[spriteIDs[2]].setColor(255, 255, 0, 255);
 			spriteBatch[spriteIDs[2]].setPosition(
 				b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y
 			);
 			spriteBatch[spriteIDs[2]].setRotationAxis(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
 		} else {
-			int alpha = spriteBatch[spriteIDs[2]].canvas.color.a - 100;
+			int alpha = spriteBatch[spriteIDs[1]].canvas.color.a - 100;
+			if (alpha < 0) { alpha = 0; }
+			spriteBatch[spriteIDs[1]].setColor(255, 255, 0, alpha);
+			alpha = spriteBatch[spriteIDs[2]].canvas.color.a - 100;
 			if (alpha < 0) { alpha = 0; }
 			spriteBatch[spriteIDs[2]].setColor(255, 255, 0, alpha);
 		}
