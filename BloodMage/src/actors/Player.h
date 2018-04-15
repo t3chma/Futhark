@@ -4,7 +4,7 @@
 #include "out/Camera.h"
 #include "../Mouse.h"
 
-class Player : public Actor, b2RayCastCallback {
+class Player : public Actor {
   public:
 	Player(Map& map, fk::UserInput* uiPtr, ActorDef& ad);
 	~Player();
@@ -28,7 +28,6 @@ class Player : public Actor, b2RayCastCallback {
 	int m_leftSwipe{ 0 };
 	int m_rightSwipe{ 0 };
 	bool m_getTarget{ false };
-	Actor* m_targetPtr{ nullptr };
 	int m_dodgeCharge{ 0 };
 	int m_dodgeTimer{ 0 };
 	glm::vec2 m_dodgePos{ 0 };

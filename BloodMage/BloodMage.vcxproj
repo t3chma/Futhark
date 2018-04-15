@@ -172,6 +172,7 @@
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Spells.cpp" />
     <ClCompile Include="src\Orders.cpp" />
     <ClCompile Include="src\Mouse.cpp" />
     <ClCompile Include="src\Map.cpp" />
@@ -190,6 +191,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Spells.h" />
     <ClInclude Include="src\Orders.h" />
     <ClInclude Include="src\Mouse.h" />
     <ClInclude Include="src\Map.h" />

@@ -4,9 +4,9 @@
 
 Grunt::Grunt(Map& map, ActorDef& ad) : Actor(map, ad) {
 	spriteBatch[spriteIDs[0]].setColor(255, 255, 0, 255);
-	spriteBatch[spriteIDs[1]].setDimensions(1, 2);
+	spriteBatch[spriteIDs[1]].setDimensions(0.8, 1.6);
 	spriteBatch[spriteIDs[1]].setColor(255, 255, 0, 255);
-	spriteBatch[spriteIDs[2]].setDimensions(1, 2);
+	spriteBatch[spriteIDs[2]].setDimensions(0.8, 1.6);
 	spriteBatch[spriteIDs[2]].setColor(255, 255, 0, 255);
 	spriteBatch[spriteIDs[2]].setTextureDimensions(-1, 1);
 	spriteBatch[spriteIDs[2]].setTexturePosition(1, 0);
@@ -33,14 +33,30 @@ void Grunt::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	if (health < 1) { m_state = DEAD; }
 	m_attacking = false;
 	glm::vec2 position = getPosition();
-	if (!actorPtrs[0]->isDodging()) { p_targetPos = actorPtrs[0]->getPosition(); }
-	glm::vec2 targetVec = glm::vec2(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y) - p_targetPos;
-	float t;
+	if (!actorPtrs[0]->isDodging()) { p_lastTargetPos = actorPtrs[0]->getPosition(); }
+	glm::vec2 targetVec = glm::vec2(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y) - p_lastTargetPos;
+	float angle = std::abs(
+		std::abs(fk::makeAngle(p_faceDirection) - fk::makeAngle(glm::normalize(targetVec))) - fk::TAU / 2
+	);
 	switch (m_state) {
 	case RESTING:
 		p_moveDirection.x = 0;
 		p_moveDirection.y = 0;
-		if (glm::length(targetVec) < 15) { m_state = CASTING; }
+		if (
+			glm::length(targetVec) < 7 &&
+			angle < fk::TAU / 4
+		) {
+			b2BodyPtr->GetWorld()->RayCast(
+				this,
+				b2Vec2(getPosition().x, getPosition().y),
+				b2Vec2(
+					getPosition().x + actorPtrs[0]->getPosition().x,
+					getPosition().y + actorPtrs[0]->getPosition().y
+				)
+			);
+			if (p_obstructionPtr == actorPtrs[0]) {
+				m_state = CASTING; }
+		}
 		break;
 	case CASTING:
 		p_moveDirection.x = 0;
@@ -95,7 +111,7 @@ void Grunt::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 			p_moveDirection = glm::vec2(0);
 		}
 		++m_counter;
-		if (glm::length(targetVec) < 0.7) {
+		if (glm::length(targetVec) < 0.8) {
 			m_attacking = true; }
 		if (m_attacking || hit || p_pause || m_counter > 6000) {
 			m_state = CIRCLING;

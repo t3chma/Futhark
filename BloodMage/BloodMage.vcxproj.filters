@@ -48,6 +48,9 @@
     <ClCompile Include="src\Orders.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Spells.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scenes\AITester.h">
@@ -78,6 +81,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Orders.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Spells.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

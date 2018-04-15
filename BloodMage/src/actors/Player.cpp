@@ -35,7 +35,7 @@ void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	m_mousePos = camPtr->getWorldCoordinates(m_uiPtr->getMouseInfo(0).position);
 	glm::vec2 position = glm::vec2(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
 	p_speed = 1;
-	if (m_uiPtr->getKeyInfo(fk::Key::SHIFT_L).downFrames > 0) { p_speed = 1.75; m_targetPtr = nullptr; }
+	if (m_uiPtr->getKeyInfo(fk::Key::SHIFT_L).downFrames > 0) { p_speed = 1.75; p_targetPtr = nullptr; }
 	else {
 		// Left attack
 		if (m_leftSwipe > 0) { --m_leftSwipe; }
@@ -51,9 +51,9 @@ void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 		}
 	}
 	// Face direction
-	if (m_uiPtr->getKeyInfo(fk::Key::ALT_L).downFrames > 0) { m_targetPtr = nullptr; }
-	if (m_targetPtr && position != m_targetPtr->getPosition()) {
-		p_faceDirection = glm::normalize(position - m_targetPtr->getPosition());
+	if (m_uiPtr->getKeyInfo(fk::Key::ALT_L).downFrames > 0) { p_targetPtr = nullptr; }
+	if (p_targetPtr && position != p_targetPtr->getPosition()) {
+		p_faceDirection = glm::normalize(position - p_targetPtr->getPosition());
 	} else if (m_mousePos != position) {
 		p_faceDirection = glm::normalize(position - m_mousePos);
 	}
@@ -81,7 +81,7 @@ void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 				m_dodgeTimer = 40;
 				m_dodgePos = getPosition();
 				p_dodging = m_dodgeIFrames;
-				m_targetPtr = nullptr;
+				p_targetPtr = nullptr;
 				if (m_dodgeCharge > 20) { p_moveDirection = -p_faceDirection; }
 				else { p_moveDirection = p_faceDirection; }
 			}
@@ -123,7 +123,7 @@ void Player::updateBody() {
 		b2BodyPtr->SetTransform(b2BodyPtr->GetWorldCenter(), p_faceAngle);
 		if (m_getTarget) {
 			m_getTarget = false;
-			m_targetPtr = nullptr;
+			p_targetPtr = nullptr;
 			glm::vec2 mp = glm::normalize(m_mousePos - getPosition());
 			mp *= 3;
 			b2BodyPtr->GetWorld()->RayCast(
@@ -131,13 +131,13 @@ void Player::updateBody() {
 				b2Vec2(getPosition().x, getPosition().y),
 				b2Vec2(getPosition().x + mp.x, getPosition().y + mp.y)
 			);
-			if (m_targetPtr == nullptr) { m_leftSwipe = m_rightSwipe = 0; }
+			if (p_targetPtr == nullptr) { m_leftSwipe = m_rightSwipe = 0; }
 		}
 		bool move{ true };
 		m_charging = false;
-		if (m_targetPtr && (m_leftSwipe || m_rightSwipe)) {
-			glm::vec2 targetDirection = getPosition() - m_targetPtr->getPosition();
-			float distance = glm::length(getPosition() - m_targetPtr->getPosition());
+		if (p_targetPtr && (m_leftSwipe || m_rightSwipe)) {
+			glm::vec2 targetDirection = getPosition() - p_targetPtr->getPosition();
+			float distance = glm::length(getPosition() - p_targetPtr->getPosition());
 			if (distance < 3) {
 				if (distance >= 0.6) {
 					if (
@@ -156,15 +156,15 @@ void Player::updateBody() {
 					}
 				}
 				if (distance <= 1.5) {
-					m_targetPtr->pause(60);
+					p_targetPtr->pause(60);
 					m_charging = true;
 					if (m_leftSwipe == 1) {
 						if (p_drainCount.left < 4 && m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames > 10) {
 							spriteBatch[spriteIDs[1]].setPosition(
-								m_targetPtr->b2BodyPtr->GetPosition().x, m_targetPtr->b2BodyPtr->GetPosition().y
+								p_targetPtr->b2BodyPtr->GetPosition().x, p_targetPtr->b2BodyPtr->GetPosition().y
 							);
 							spriteBatch[spriteIDs[1]].setRotationAxis(
-								m_targetPtr->b2BodyPtr->GetPosition().x, m_targetPtr->b2BodyPtr->GetPosition().y
+								p_targetPtr->b2BodyPtr->GetPosition().x, p_targetPtr->b2BodyPtr->GetPosition().y
 							);
 							spriteBatch[spriteIDs[1]].canvas.rotationAngle = b2BodyPtr->GetAngle() + fk::TAU / 8;
 							spriteBatch[spriteIDs[1]].setColor(255, 255, 255, 255);
@@ -172,30 +172,30 @@ void Player::updateBody() {
 							++p_drainCount.left;
 						} else {
 							spriteBatch[spriteIDs[3]].setPosition(
-								m_targetPtr->b2BodyPtr->GetPosition().x, m_targetPtr->b2BodyPtr->GetPosition().y
+								p_targetPtr->b2BodyPtr->GetPosition().x, p_targetPtr->b2BodyPtr->GetPosition().y
 							);
 							spriteBatch[spriteIDs[3]].setRotationAxis(
-								m_targetPtr->b2BodyPtr->GetPosition().x, m_targetPtr->b2BodyPtr->GetPosition().y
+								p_targetPtr->b2BodyPtr->GetPosition().x, p_targetPtr->b2BodyPtr->GetPosition().y
 							);
 							spriteBatch[spriteIDs[3]].canvas.rotationAngle = b2BodyPtr->GetAngle() + fk::TAU / 8;
 							spriteBatch[spriteIDs[3]].setColor(255, 255, 255, 255);
-							m_targetPtr->b2BodyPtr->ApplyLinearImpulse(
+							p_targetPtr->b2BodyPtr->ApplyLinearImpulse(
 								b2Vec2(p_faceDirection.x * -7, p_faceDirection.y * -7),
-								m_targetPtr->b2BodyPtr->GetPosition(),
+								p_targetPtr->b2BodyPtr->GetPosition(),
 								true
 							);
-							m_targetPtr->health -= 1;
+							p_targetPtr->health -= 1;
 							p_drainCount.left = 0;
 						}
-						m_targetPtr->hit = true;
+						p_targetPtr->hit = true;
 					}
 					if (m_rightSwipe == 1) {
 						if (p_drainCount.right < 4 && m_uiPtr->getKeyInfo(fk::Key::MOUSE_RIGHT).downFrames > 10) {
 							spriteBatch[spriteIDs[2]].setPosition(
-								m_targetPtr->b2BodyPtr->GetPosition().x, m_targetPtr->b2BodyPtr->GetPosition().y
+								p_targetPtr->b2BodyPtr->GetPosition().x, p_targetPtr->b2BodyPtr->GetPosition().y
 							);
 							spriteBatch[spriteIDs[2]].setRotationAxis(
-								m_targetPtr->b2BodyPtr->GetPosition().x, m_targetPtr->b2BodyPtr->GetPosition().y
+								p_targetPtr->b2BodyPtr->GetPosition().x, p_targetPtr->b2BodyPtr->GetPosition().y
 							);
 							spriteBatch[spriteIDs[2]].canvas.rotationAngle = b2BodyPtr->GetAngle() - fk::TAU / 8;
 							spriteBatch[spriteIDs[2]].setColor(255, 255, 255, 255);
@@ -203,25 +203,25 @@ void Player::updateBody() {
 							++p_drainCount.right;
 						} else {
 							spriteBatch[spriteIDs[4]].setPosition(
-								m_targetPtr->b2BodyPtr->GetPosition().x, m_targetPtr->b2BodyPtr->GetPosition().y
+								p_targetPtr->b2BodyPtr->GetPosition().x, p_targetPtr->b2BodyPtr->GetPosition().y
 							);
 							spriteBatch[spriteIDs[4]].setRotationAxis(
-								m_targetPtr->b2BodyPtr->GetPosition().x, m_targetPtr->b2BodyPtr->GetPosition().y
+								p_targetPtr->b2BodyPtr->GetPosition().x, p_targetPtr->b2BodyPtr->GetPosition().y
 							);
 							spriteBatch[spriteIDs[4]].canvas.rotationAngle = b2BodyPtr->GetAngle() - fk::TAU / 8;
 							spriteBatch[spriteIDs[4]].setColor(255, 255, 255, 255);
-							m_targetPtr->b2BodyPtr->ApplyLinearImpulse(
+							p_targetPtr->b2BodyPtr->ApplyLinearImpulse(
 								b2Vec2(p_faceDirection.x * -7, p_faceDirection.y * -7),
-								m_targetPtr->b2BodyPtr->GetPosition(),
+								p_targetPtr->b2BodyPtr->GetPosition(),
 								true
 							);
-							m_targetPtr->health -= 1;
+							p_targetPtr->health -= 1;
 							p_drainCount.right = 0;
 						}
-						m_targetPtr->hit = true;
+						p_targetPtr->hit = true;
 					}
 				}
-			} else { m_targetPtr = nullptr; }
+			} else { p_targetPtr = nullptr; }
 		}
 		if (move) {
 			float dodgeMult = 1;
@@ -272,9 +272,14 @@ void Player::updateSprite() {
 	}
 }
 
-float32 Player::ReportFixture(b2Fixture* fixturePtr, const b2Vec2& point, const b2Vec2& normal, float32 fraction) {
+float32 Player::ReportFixture(
+	b2Fixture* fixturePtr,
+	const b2Vec2& point,
+	const b2Vec2& normal,
+	float32 fraction
+) {
 	if (static_cast<Object*>(fixturePtr->GetBody()->GetUserData())->category == "actor") {
-		m_targetPtr = static_cast<Actor*>(fixturePtr->GetBody()->GetUserData());
+		p_targetPtr = static_cast<Actor*>(fixturePtr->GetBody()->GetUserData());
 	}
 	return fraction;
 }

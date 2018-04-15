@@ -88,9 +88,9 @@ void Actor::startAStar(glm::vec2 target) {
 	p_pathFindingData.gCosts[startTile.first.x][startTile.first.y] = 0;
 }
 void Actor::advanceAStar() {
-	if (advances++ > 40) { return; }
+	if (advances++ > 64) { return; }
 	// Search loop.
-	for (int i = 0; !p_pathFindingData.frontier.empty() && i < 10; ++i) {
+	for (int i = 0; !p_pathFindingData.frontier.empty() && i < 16; ++i) {
 		// Inspect the tile with the lowest cost.
 		WeightedTile current = p_pathFindingData.frontier.top();
 		p_pathFindingData.frontier.pop();
@@ -166,4 +166,16 @@ void Actor::pause(int frames) {
 
 bool Actor::isDodging() {
 	return p_dodging;
+}
+
+float32 Actor::ReportFixture(
+	b2Fixture* fixturePtr,
+	const b2Vec2& point,
+	const b2Vec2& normal,
+	float32 fraction
+) {
+	Object* op = static_cast<Object*>(fixturePtr->GetBody()->GetUserData());
+	if (op->category == "actor") { p_targetPtr = static_cast<Actor*>(fixturePtr->GetBody()->GetUserData()); }
+	p_obstructionPtr = op;
+	return fraction;
 }

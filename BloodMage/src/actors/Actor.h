@@ -21,7 +21,7 @@ struct Compare {
 	bool operator()(const WeightedTile& n1, const WeightedTile& n2) const { return n1.second > n2.second; }
 };
 
-class Actor : public Object {
+class Actor : public Object, public b2RayCastCallback {
   public:
 	Actor() = delete;
 	Actor(Map& map, ActorDef& ad);
@@ -37,6 +37,12 @@ class Actor : public Object {
 	void hideNodes();
 	void pause(int frames);
 	bool isDodging();
+	virtual float32 ReportFixture(
+		b2Fixture* fixture,
+		const b2Vec2& point,
+		const b2Vec2& normal,
+		float32 fraction
+	);
 	static int advances;
   protected:
 	Order* p_currentOrder;
@@ -48,7 +54,9 @@ class Actor : public Object {
 	Map& p_map;
 	int p_pause{ 0 };
 	std::list<Actor*> p_attackerPtrList;
-	glm::vec2 p_targetPos{ 0 };
+	Actor* p_targetPtr{ nullptr };
+	Object* p_obstructionPtr{ nullptr };
+	glm::vec2 p_lastTargetPos{ 0 };
 	int p_dodging{ 0 };
 	struct {
 		// If the current A* data is up to date.
