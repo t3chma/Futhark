@@ -23,7 +23,7 @@ Grunt::Grunt(Map& map, ActorDef& ad) : Actor(map, ad) {
 	b2BodyPtr->CreateFixture(&fixtureDef);
 	type = "grunt";
 	health = 5;
-	p_speed = 2;
+	p_speed = 1.8;
 }
 Grunt::~Grunt() {
 	

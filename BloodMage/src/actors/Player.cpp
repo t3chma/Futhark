@@ -126,10 +126,22 @@ void Player::updateBody() {
 			p_targetPtr = nullptr;
 			glm::vec2 mp = glm::normalize(m_mousePos - getPosition());
 			mp *= 3;
+			glm::vec2 mpl = fk::rotatePoint(mp, fk::TAU/25);
+			glm::vec2 mpr = fk::rotatePoint(mp, -fk::TAU/25);;
 			b2BodyPtr->GetWorld()->RayCast(
 				this,
 				b2Vec2(getPosition().x, getPosition().y),
 				b2Vec2(getPosition().x + mp.x, getPosition().y + mp.y)
+			);
+			b2BodyPtr->GetWorld()->RayCast(
+				this,
+				b2Vec2(getPosition().x, getPosition().y),
+				b2Vec2(getPosition().x + mpl.x, getPosition().y + mpl.y)
+			);
+			b2BodyPtr->GetWorld()->RayCast(
+				this,
+				b2Vec2(getPosition().x, getPosition().y),
+				b2Vec2(getPosition().x + mpr.x, getPosition().y + mpr.y)
 			);
 			if (p_targetPtr == nullptr) { m_leftSwipe = m_rightSwipe = 0; }
 		}
