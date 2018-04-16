@@ -94,14 +94,14 @@ class Actor : public Object, public b2RayCastCallback {
 	} p_floorWeights;
 	struct {
 		float none = 0;
-		float water = 20;
-		float oil = 20;
-		float toxin = 20;
+		float water = 10;
+		float oil = 10;
+		float toxin = 10;
 	} p_fluidWeights;
 	struct {
 		float none = 0;
-		float fire = 20;
-		float poison = 20;
+		float fire = 10;
+		float poison = 10;
 		float steam = 0.1;
 	} p_vaporWeights;
 	struct {
