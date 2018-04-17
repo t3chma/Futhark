@@ -210,5 +210,4 @@ void SpriteBatch::Sprite::makeLine(glm::vec2& b, glm::vec2& a, float thickness) 
 
 SpriteBatch::SpriteTray::SpriteTray(GLuint textureID, float depth, int offset)
 	: textureID(textureID), depth(depth), offset(offset) {}
-
 }

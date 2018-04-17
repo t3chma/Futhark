@@ -35,6 +35,7 @@
     <ClInclude Include="src\in\UserInput.h" />
     <ClInclude Include="src\out\OutUtility.h" />
     <ClInclude Include="src\up\World.h" />
+    <ClInclude Include="src\out\TTFont.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\up\Body.cpp" />
@@ -50,6 +51,7 @@
     <ClCompile Include="src\in\UserInput.cpp" />
     <ClCompile Include="src\out\OutUtility.cpp" />
     <ClCompile Include="src\up\World.cpp" />
+    <ClCompile Include="src\out\TTFont.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -129,7 +131,7 @@
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)Deps\lib\$(Platform);$(SolutionDir)Deps\lib\$(Platform)\debug;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;Box2D.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;glew32s.lib;opengl32.lib;Box2D.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -143,7 +145,7 @@
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)Deps\lib\$(Platform);$(SolutionDir)Deps\lib\$(Platform)\debug;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;Box2D.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;glew32s.lib;opengl32.lib;Box2D.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -165,7 +167,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)Deps\lib\$(Platform);$(SolutionDir)Deps\lib\$(Platform)\release;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;Box2D.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;glew32s.lib;opengl32.lib;Box2D.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -187,7 +189,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)Deps\lib\$(Platform);$(SolutionDir)Deps\lib\$(Platform)\release;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32s.lib;opengl32.lib;Box2D.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;glew32s.lib;opengl32.lib;Box2D.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

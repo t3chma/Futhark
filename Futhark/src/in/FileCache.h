@@ -1,6 +1,7 @@
 #pragma once
 #include <map>
-#include <GLEW\glew.h>
+#include <GLEW/glew.h>
+#include "../out/TTFont.h"
 namespace fk {
 
 
@@ -38,6 +39,7 @@ class FileCache {
 	std::map<std::string, T> m_map;
 };
 
+
 /* Contains an ID and dimensions
 [t3chma] */
 struct Texture {
@@ -49,8 +51,6 @@ struct Texture {
 	int frames{ 1 };
 	operator GLuint();
 };
-
-
 /* Loads and stores PNG files as textures in memory.
 [t3chma] */
 class TextureCache : public FileCache<Texture> {
@@ -82,8 +82,6 @@ struct Shader {
 	// The type of shader.
 	Type type;
 };
-
-
 /* Loads and stores GLSLShaders in memory.
 [t3chma] */
 class ShadersCache : public FileCache<Shader> {
@@ -93,6 +91,20 @@ class ShadersCache : public FileCache<Shader> {
 	< The texture.
 	[t3chma] */
 	Shader p_load(const std::string& filePath) override;
+};
+
+
+class TTFont;
+/* Loads and stores PNG files as textures in memory.
+[t3chma] */
+class FontCache : public FileCache<TTFont> {
+public:
+  protected:
+	/* Load texture from the given PNG file path.
+	(filepath) The file path to the texture.
+	< The texture.
+	[t3chma] */
+	TTFont p_load(const std::string& filePath) override;
 };
 
 }

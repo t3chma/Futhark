@@ -54,6 +54,9 @@
     <ClCompile Include="src\up\Body.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\out\TTFont.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\base\Engine.h">
@@ -102,6 +105,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\up\Body.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\out\TTFont.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

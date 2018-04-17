@@ -2,6 +2,7 @@
 #include "IOManager.h"
 #include "../out/Error.h"
 #include "PicoPNG.h"
+#include <SDL/TTF/SDL_ttf.h>
 namespace fk {
 
 
@@ -117,6 +118,10 @@ Shader ShadersCache::p_load(const std::string& SHADER_FILE_PATH) {
 		BREAK_IF(true);
 	}
 	return shader;
+}
+
+TTFont FontCache::p_load(const std::string& IMAGE_FILE_PATH) {
+	
 }
 
 }

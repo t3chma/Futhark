@@ -50,7 +50,7 @@ static bool checkSDLError(const char* function, const char* file, int line) {
 	bool returnVal = false;
 	std::string error = SDL_GetError();
 	if (error != "") {
-		std::cout << "[SDL Error] (" << error << ") with function:\n"
+		std::cout << "[SDL Error] (" << error.c_str() << ") with function:\n"
 			<< function << "\n"
 			<< "in " << file << "\n"
 			<< "at " << line << "\n\n";

@@ -1,6 +1,7 @@
 #pragma once
 #include "Engine.h"
 #include "../out/Error.h"
+#include <SDL/TTF/SDL_ttf.h>
 namespace fk {
 
 
@@ -12,6 +13,8 @@ Engine::Engine() {
 	// ^ https://wiki.libsdl.org/SDL_GL_SetAttribute
 	TRY_SDL(SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1));
 	TRY_SDL(SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1));
+	// Initialize SDL_ttf https://www.libsdl.org/projects/SDL_ttf/docs/SDL_ttf_9.html
+	TRY_SDL(TTF_Init());
 }
 Engine::~Engine() { stop(); }
 void Engine::run() {
