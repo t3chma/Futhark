@@ -29,7 +29,7 @@ Grunt::~Grunt() {
 	
 }
 void Grunt::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
-	if (hit) { p_pause = 10; }
+	if (hit) { p_pause += 10; }
 	if (health < 1) { m_state = DEAD; }
 	m_attacking = false;
 	glm::vec2 position = getPosition();

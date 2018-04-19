@@ -100,7 +100,8 @@ void Player::p_beginCollision(
 		if (p_dodging) {
 			Object* op = static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData());
 			if (op->category == "actor" && m_dodgeCharge > 20) {
-				static_cast<Actor*>(op)->pause(30);
+				static_cast<Actor*>(op)->pause(60);
+				static_cast<Actor*>(op)->hit = true;
 			} else if (op->category == "static" && !myFixturePtr->GetUserData()) {
 				p_dodging = 0; m_dodgeCharge = 0;
 			}
@@ -150,7 +151,7 @@ void Player::updateBody() {
 		if (p_targetPtr && (m_leftSwipe || m_rightSwipe)) {
 			glm::vec2 targetDirection = getPosition() - p_targetPtr->getPosition();
 			float distance = glm::length(getPosition() - p_targetPtr->getPosition());
-			if (distance < 3) {
+			if (distance < 2) {
 				if (distance >= 0.6) {
 					if (
 						m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames ||
@@ -158,7 +159,7 @@ void Player::updateBody() {
 					) {
 						m_charging = true;
 						b2BodyPtr->ApplyLinearImpulse(
-							b2Vec2(-targetDirection.x * 2, -targetDirection.y * 2),
+							b2Vec2(-targetDirection.x * 3, -targetDirection.y * 3),
 							b2BodyPtr->GetWorldCenter(),
 							true
 						);
@@ -167,8 +168,8 @@ void Player::updateBody() {
 						move = false;
 					}
 				}
-				if (distance <= 1.5) {
-					p_targetPtr->pause(60);
+				if (distance <= 2) {
+					p_targetPtr->pause(30);
 					m_charging = true;
 					if (m_leftSwipe == 1) {
 						if (p_drainCount.left < 4 && m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames > 10) {
