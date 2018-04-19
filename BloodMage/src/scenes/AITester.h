@@ -9,7 +9,7 @@
 #include "../props/Prop.h"
 #include "../Map.h"
 #include "../Mouse.h"
-#include <functional>
+#include "out/TTFont.h"
 
 class AITester : public fk::Scene {
   public:
@@ -29,6 +29,7 @@ class AITester : public fk::Scene {
 	int leftInfo{ 0 };
 	Mouse* mousePtr{ nullptr };
 	Map map;
+	fk::SpriteBatch* textBatchPtr{ nullptr };
 	fk::Camera cam;
 	AITester() = default;
 	~AITester() = default;

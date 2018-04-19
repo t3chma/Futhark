@@ -22,6 +22,8 @@ struct Tools {
 	ShadersCache shaders;
 	// A handle to the game's cached textures.
 	TextureCache textures;
+	// A handle to the game's cached fonts.
+	FontCache fonts;
 };
 
 }

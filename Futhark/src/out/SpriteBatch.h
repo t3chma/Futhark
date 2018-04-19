@@ -72,6 +72,7 @@ class SpriteBatch {
 		SpriteTray(GLuint textureID, float depth = 0, int offset = 0);
 	};
 	/* Creates vertex array object.
+	(dynamic) If the spritebatch will be changed often.
 	[t3chma] */
 	SpriteBatch(bool dynamic);
 	/* Adds a sprite to the sprite batch.

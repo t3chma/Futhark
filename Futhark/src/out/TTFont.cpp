@@ -60,8 +60,7 @@ TTFont::TTFont(const std::string fontFilePath, int size, char firstASCIIChar, ch
 	for (auto c = firstASCIIChar; c <= lastASCIIChar; c++) {
 		// Get glyph metrics https://www.libsdl.org/projects/SDL_ttf/docs/SDL_ttf_38.html
 		TTF_GlyphMetrics(
-			fontPtr,
-			c,
+			fontPtr, c,
 			&glyphRects[i].x,
 			&glyphRects[i].z,
 			&glyphRects[i].y,
@@ -115,9 +114,9 @@ TTFont::TTFont(const std::string fontFilePath, int size, char firstASCIIChar, ch
 	// Now draw all the glyphs.
 	SDL_Color color = { 255, 255, 255, 255 };
 	int yOffset = padding;
-	for (auto rowIndex = 0; rowIndex < bestRows; rowIndex++) {
+	for (auto rowIndex = 0; rowIndex < bestRows; ++rowIndex) {
 		int xOffset = padding;
-		for (auto charIndex = 0; charIndex < bestPartitions[rowIndex].size(); charIndex++) {
+		for (auto charIndex = 0; charIndex < bestPartitions[rowIndex].size(); ++charIndex) {
 			int glyphIndex = bestPartitions[rowIndex][charIndex];
 			SDL_Surface* glyphSurface = TTF_RenderGlyph_Blended(
 				fontPtr,
@@ -147,7 +146,7 @@ TTFont::TTFont(const std::string fontFilePath, int size, char firstASCIIChar, ch
 				glyphSurface->pixels
 			));
 			glyphRects[glyphIndex].x = xOffset;
-			glyphRects[glyphIndex].y = yOffset;
+			glyphRects[glyphIndex].y = -yOffset - m_height;
 			glyphRects[glyphIndex].z = glyphSurface->w;
 			glyphRects[glyphIndex].w = glyphSurface->h;
 			SDL_FreeSurface(glyphSurface);
@@ -160,9 +159,9 @@ TTFont::TTFont(const std::string fontFilePath, int size, char firstASCIIChar, ch
 	int pixelDims = padding - 1;
 	int* pureWhiteSquare = new int[pixelDims * pixelDims];
 	memset(pureWhiteSquare, 0xffffffff, pixelDims * pixelDims * sizeof(int));
-	TRY_GL(glTexSubImage2D(
-		GL_TEXTURE_2D, 0, 0, 0, pixelDims, pixelDims, GL_RGBA, GL_UNSIGNED_BYTE, pureWhiteSquare
-	));
+	TRY_GL(
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, pixelDims, pixelDims, GL_RGBA, GL_UNSIGNED_BYTE, pureWhiteSquare)
+	);
 	delete[] pureWhiteSquare;
 	pureWhiteSquare = nullptr;
 	// Set some texture parameters
@@ -171,7 +170,7 @@ TTFont::TTFont(const std::string fontFilePath, int size, char firstASCIIChar, ch
 	TRY_GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 	TRY_GL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 	// Create spriteBatch glyphs
-	m_GlyphsPtr = new m_Glyph[m_asciiRange + 1];
+	m_GlyphsPtr = new m_Glyph[m_asciiRange + 1]();
 	for (i = 0; i < m_asciiRange; i++) {
 		m_GlyphsPtr[i].character = (char)(firstASCIIChar + i);
 		m_GlyphsPtr[i].dimentions = glm::vec2(glyphRects[i].z, glyphRects[i].w);
@@ -216,30 +215,52 @@ glm::vec2 TTFont::measure(const char* s) {
 	return size;
 }
 
-void TTFont::generateCharSprites(const char* cString, SpriteBatch& spriteBatch, glm::vec2 scaling) {
-	glm::vec2 tp(0);
-	glm::vec2 m = measure(cString);
-	tp.y += m.y * scaling.y - m_height * scaling.y;
-	for (auto si = 0; cString[si] != 0; si++) {
-		char c = cString[si];
-		if (cString[si] == '\n') {
-			tp.y -= m_height * scaling.y;
-			tp.x = 0;
+void TTFont::generateCharSprites(const std::string text, SpriteBatch& spriteBatch, glm::vec2 scaling) {
+	scaling /= 60;
+	glm::vec2 textPosition(0);
+	glm::vec2 stringLength = measure(text.c_str());
+	textPosition.y += stringLength.y * scaling.y - m_height * scaling.y;
+	for (auto charIndex = 0; text[charIndex] != 0; charIndex++) {
+		char c = text[charIndex];
+		if (text[charIndex] == '\n') {
+			textPosition.y -= m_height * scaling.y;
+			textPosition.x = 0;
 		} else {
 			// Check for correct glyph
-			int gi = c - m_asciiStart;
-			if (gi < 0 || gi >= m_asciiRange) { gi = m_asciiRange; }
+			int glyphIndex = c - m_asciiStart;
+			if (glyphIndex < 0 || glyphIndex >= m_asciiRange) { glyphIndex = m_asciiRange; }
 			fk::Texture t;
 			t.id = m_textureID;
 			int id = spriteBatch.makeSprite(t);
-			spriteBatch[id].setPosition(tp);
+			spriteBatch[id].setPosition(textPosition);
 			spriteBatch[id].setDimensions(
-				m_GlyphsPtr[gi].dimentions.x * scaling.x,
-				m_GlyphsPtr[gi].dimentions.y * scaling.y
+				m_GlyphsPtr[glyphIndex].dimentions.x * scaling.x,
+				m_GlyphsPtr[glyphIndex].dimentions.y * scaling.y
 			);
-			tp.x += m_GlyphsPtr[gi].dimentions.x * scaling.x;
+			spriteBatch[id].setTexturePosition(
+				m_GlyphsPtr[glyphIndex].uvRectangle.x,
+				m_GlyphsPtr[glyphIndex].uvRectangle.y
+			);
+			spriteBatch[id].setTextureDimensions(
+				m_GlyphsPtr[glyphIndex].uvRectangle.z,
+				m_GlyphsPtr[glyphIndex].uvRectangle.w
+			);
+			textPosition.x += m_GlyphsPtr[glyphIndex].dimentions.x * scaling.x;
 		}
 	}
 }
+
+//TextSprite::TextSprite(SpriteBatch spriteBatch) : m_spriteBatch(spriteBatch) {}
+//void TextSprite::setPosition(glm::vec2 position) {
+//	move(position - m_spriteBatch[m_spriteIds[0]].getPosition());
+//}
+//void TextSprite::move(glm::vec2 translation) {
+//	for (auto&& index : m_spriteIds) { m_spriteBatch[index].move(translation); }
+//}
+//Sprite& TextSprite::getCharSprite(int charIndex) {
+//	Sprite& s = m_spriteBatch[m_spriteIds[charIndex]];
+//	return s;
+//}
+//std::string TextSprite::getText() { return m_string;  }
 
 }

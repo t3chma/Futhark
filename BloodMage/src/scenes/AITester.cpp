@@ -9,6 +9,7 @@ void AITester::create(fk::Tools& tools) {
 		tools.shaders.get("Sprite.frag"),
 		tools.shaders.get("Sprite.geom")
 	};
+	textBatchPtr = new fk::SpriteBatch(true);
 	map.spriteRenderer.setShaders(shaders);
 	cam.setDimensions(tools.windowPtr->getDimensions());
 	cam.setZoom(70);
@@ -38,13 +39,15 @@ void AITester::create(fk::Tools& tools) {
 	ad.textures.push_back(tools.textures.get("BigSpurt.png", 1));
 	ad.textures.push_back(tools.textures.get("BigSlash.png", 1));
 	ad.textures.push_back(tools.textures.get("BigSlash.png", 1));
-	ad.position.x = 250;
-	ad.position.y = 250;
+	ad.position.x = 0;
+	ad.position.y = 0;
 	new Player(map, &tools.ui, ad);
 
 	std::vector<fk::Texture> textures;
 	textures.push_back(tools.textures.get("Selector.png", 1));
 	mousePtr = new Mouse(map, textures);
+
+	tools.fonts.get("Fonts/eldermagic.ttf").generateCharSprites("  Fonts Work!", *textBatchPtr, glm::vec2(1.0));
 }
 void AITester::destroy(fk::Tools& tools) {
 
@@ -60,6 +63,7 @@ void AITester::update(fk::Tools& tools) {
 	cam.setPosition(map.actorPtrs[0]->getPosition());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	map.render(cam);
+	map.spriteRenderer.render(*textBatchPtr, cam.getTransScaledMatrix());
 	map.update(cam);
 	mousePtr->position = cam.getWorldCoordinates(tools.ui.getMouseInfo(0).position);
 	mousePtr->updateBody();
@@ -82,7 +86,7 @@ void AITester::getCommandLine(fk::Tools& tools) {
 	std::getline(std::cin, input);
 	int* bindPtr = nullptr;
 	int* infoPtr = nullptr;
-	std::function<void(fk::Tools& tools)>* funcPtr = nullptr;
+	//std::function<void(fk::Tools& tools)>* funcPtr = nullptr;
 	switch (input[0]) {
 	  case 'l':
 		bindPtr = &leftBind;

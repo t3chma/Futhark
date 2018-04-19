@@ -95,10 +95,15 @@ class ShadersCache : public FileCache<Shader> {
 
 
 class TTFont;
+class StringSprite {
+  private:
+	std::string m_string{ "" };
+	std::vector<int> m_ids;
+	SpriteBatch* batchPtr;
+};
 /* Loads and stores PNG files as textures in memory.
 [t3chma] */
 class FontCache : public FileCache<TTFont> {
-public:
   protected:
 	/* Load texture from the given PNG file path.
 	(filepath) The file path to the texture.

@@ -205,6 +205,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\Arrow.png" />
+    <Image Include="Textures\BigSlash.png" />
     <Image Include="Textures\Box128.png" />
     <Image Include="Textures\Circle.png" />
     <Image Include="Textures\CursorBlood.png" />
