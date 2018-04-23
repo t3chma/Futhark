@@ -110,5 +110,11 @@
     <ClInclude Include="src\out\TTFont.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\out\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\out\Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

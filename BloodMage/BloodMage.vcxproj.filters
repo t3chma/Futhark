@@ -48,7 +48,10 @@
     <ClCompile Include="src\Orders.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Spells.cpp">
+    <ClCompile Include="src\Hud.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Spells.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -83,7 +86,10 @@
     <ClInclude Include="src\Orders.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Spells.h">
+    <ClInclude Include="src\Hud.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Spells.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

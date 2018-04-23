@@ -3,7 +3,6 @@
 #include "GLM/gtx/vector_angle.hpp"
 namespace fk {
 
-
 SpriteBatch::SpriteBatch(bool dynamic) : m_dynamic(dynamic) {
 	TRY_GL(glGenVertexArrays(1, &m_vertexArrayObjectID));
 	TRY_GL(glBindVertexArray(m_vertexArrayObjectID));
@@ -72,9 +71,7 @@ void SpriteBatch::m_makeSpriteTrays() {
 	// Filter out dead sprites
 	m_spritePtrs.clear();
 	for (auto&& sprite : m_spriteBuffer) {
-		if (sprite.canvas.color.a != 0) {
-			m_spritePtrs.push_back(&sprite);
-		}
+		if (sprite.canvas.color.a != 0) { m_spritePtrs.push_back(&sprite); }
 	}
 	std::sort(
 		m_spritePtrs.begin(),

@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "../in/FileCache.h"
 #include "OutUtility.h"
+#include "Texture.h"
 namespace fk {
 
 
@@ -11,8 +11,7 @@ namespace fk {
 class SpriteBatch {
   public:
 	friend class SpriteRenderer;
-	/* Information for drawing a sprite canvases to the screen.
-	[t3chma] */
+	// Information for drawing a sprite canvases to the screen.
 	struct Canvas {
 		// Center position of this sprite. 12
 		Vec3 position{ 0, 0, 0 };
@@ -29,6 +28,7 @@ class SpriteBatch {
 		// Hue of the canvas. 52
 		Color color{ 255, 255, 255, 255 };
 	};
+	// 2D Sprite.
 	struct Sprite {
 		// Canvas. 52
 		Canvas canvas;
@@ -57,7 +57,6 @@ class SpriteBatch {
 		(thickness) The thickness of the line.
 		[t3chma] */
 		void makeLine(glm::vec2& b, glm::vec2& a, float thickness);
-		void resetCanvas();
 	};
 	// Used to store the sorting info for the vertex buffer.
 	struct SpriteTray {

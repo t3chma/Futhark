@@ -6,7 +6,6 @@
 namespace fk {
 
 
-Texture::operator GLuint() { return id; }
 Texture TextureCache::get(const std::string& IMAGE_FILE_PATH, int frames) {
 	Texture texture = FileCache<Texture>::get(IMAGE_FILE_PATH);
 	if (frames < 1) { frames = 1; }

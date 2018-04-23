@@ -6,6 +6,12 @@
 
 class Player : public Actor {
   public:
+	struct {
+		int fire{ 0 };
+		int water{ 0 };
+		int earth{ 0 };
+		int air{ 0 };
+	} drainTimer;
 	Player(Map& map, fk::UserInput* uiPtr, ActorDef& ad);
 	~Player();
 	void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr) override;
@@ -33,4 +39,10 @@ class Player : public Actor {
 	glm::vec2 m_dodgePos{ 0 };
 	const int m_dodgeIFrames{ 15 };
 	bool m_charging{ false };
+	struct {
+		int fire{ 0 };
+		int water{ 0 };
+		int earth{ 0 };
+		int air{ 0 };
+	} oldFloor;
 };

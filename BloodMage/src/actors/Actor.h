@@ -22,6 +22,13 @@ struct Compare {
 };
 
 class Actor : public Object, public b2RayCastCallback {
+  protected:
+	struct P_Blood {
+		float fire{ 0 };
+		float earth{ 0 };
+		float water{ 0 };
+		float air{ 0 };
+	} p_blood;
   public:
 	Actor() = delete;
 	Actor(Map& map, ActorDef& ad);
@@ -29,6 +36,7 @@ class Actor : public Object, public b2RayCastCallback {
 	float getFloorCost(Terrain::Floor floor);
 	float getFluidCost(Terrain::Fluid fluid);
 	float getVaporCost(Terrain::Vapor floor);
+	P_Blood getBlood();
 	void startAStar(glm::vec2 target);
 	void advanceAStar();
 	virtual void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr) = 0;
@@ -104,12 +112,6 @@ class Actor : public Object, public b2RayCastCallback {
 		float poison = 10;
 		float steam = 0.1;
 	} p_vaporWeights;
-	struct {
-		float fire;
-		float earth;
-		float water;
-		float air;
-	} p_blood;
 	struct {
 		int right{ 0 };
 		int left{ 0 };

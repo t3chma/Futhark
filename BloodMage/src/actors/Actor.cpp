@@ -71,6 +71,9 @@ float Actor::getVaporCost(Terrain::Vapor floor) {
 	  return 0;
 	}
 }
+Actor::P_Blood Actor::getBlood() {
+	return p_blood;
+}
 void Actor::startAStar(glm::vec2 target) {
 	// Reset data.
 	p_pathFindingData.frontier.clear();

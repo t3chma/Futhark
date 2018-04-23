@@ -2,36 +2,49 @@
 #include <GLEW/glew.h>
 #include <GLM/glm.hpp>
 #include <vector>
+#include "SpriteBatch.h"
 namespace fk {
-class SpriteBatch;
 
-//class TextSprite {
-//  public:
-//	friend class TTFont;
-//	TextSprite(SpriteBatch spriteBatch);
-//	void setPosition(glm::vec2 position);
-//	void move(glm::vec2 translation);
-//	SpriteBatch::Sprite& getCharSprite(int charIndex);
-//	std::string getText();
-//  private:
-//	// The string this textSprite represents.
-//	std::string m_string;
-//	// The sprite ids for each character.
-//	std::vector<int> m_spriteIds;
-//	// The spritebatch for the given character sprites.
-//	SpriteBatch m_spriteBatch;
-//};
+// For text justification.
+enum class Justification {
+	LEFT,
+	MIDDLE,
+	RIGHT
+};
+
+/* For managing text sprites.
+[t3chma] */
+class TextSprite {
+  public:
+	friend class TTFont;
+	TextSprite(SpriteBatch& spriteBatch, TTFont& font);
+	TextSprite(const TextSprite&) = default;
+	TextSprite operator = (const TextSprite& rhs);
+	void setPosition(glm::vec2 position, Justification justification = Justification::LEFT);
+	void move(glm::vec2 translation);
+	SpriteBatch::Sprite& operator [] (int charIndex);
+	std::string getText();
+	void clearText();
+	void setText(
+		std::string& text,
+		glm::vec2 size = glm::vec2(1),
+		Justification justification = Justification::LEFT
+	);
+  private:
+	// The font of this class
+	TTFont& m_font;
+	// The string this textSprite represents.
+	std::string m_string{""};
+	// The sprite ids for each character.
+	std::vector<int> m_spriteIds;
+	// The spritebatch for the given character sprites.
+	SpriteBatch& m_spriteBatch;
+};
 
 /* Allows fonts to be displayed on screen.
 [t3chma] */
 class TTFont {
   public:
-	// For text justification.
-	enum class Justification {
-		LEFT,
-		MIDDLE,
-		RIGHT
-	};
 	TTFont() = default;
 	/* Constructor.
 	(fontFilePath) Filepath for this font.
@@ -39,7 +52,7 @@ class TTFont {
 	(firstASCIIChar) First ASCII character to be represented by this font.
 	(lastASCIIChar) Last ASCII character to be represented by this font.
 	[t3chma] */ 
-	TTFont(const std::string fontFilePath, int size = 64, char firstASCIIChar = 32, char lastASCIIChar = 126);
+	TTFont(const std::string& fontFilePath, int size = 64, char firstASCIIChar = 32, char lastASCIIChar = 126);
 	// Returns the height of this font.
 	inline int getHeight() const { return m_height; }
 	/* Measures the dimensions of a string.
@@ -52,10 +65,11 @@ class TTFont {
 	(size) The size of the generated text.
 	< A wrapper class for handling the character sprites.
 	[t3chma] */
-	void generateCharSprites(
+	TextSprite generateCharSprites(
 		const std::string text,
 		SpriteBatch& spriteBatch,
-		glm::vec2 size = glm::vec2(1)
+		glm::vec2 size = glm::vec2(1),
+		Justification justification = Justification::LEFT
 	);
   private:
 	/* Used to represent a single character in a sprite sheet.

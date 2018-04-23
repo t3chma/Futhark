@@ -39,15 +39,42 @@ void AITester::create(fk::Tools& tools) {
 	ad.textures.push_back(tools.textures.get("BigSpurt.png", 1));
 	ad.textures.push_back(tools.textures.get("BigSlash.png", 1));
 	ad.textures.push_back(tools.textures.get("BigSlash.png", 1));
-	ad.position.x = 0;
-	ad.position.y = 0;
-	new Player(map, &tools.ui, ad);
+	ad.position.x = 250;
+	ad.position.y = 250;
+	Player* playerPtr = new Player(map, &tools.ui, ad);
 
 	std::vector<fk::Texture> textures;
 	textures.push_back(tools.textures.get("Selector.png", 1));
 	mousePtr = new Mouse(map, textures);
 
-	tools.fonts.get("Fonts/eldermagic.ttf").generateCharSprites("  Fonts Work!", *textBatchPtr, glm::vec2(1.0));
+	font = tools.fonts.get("Fonts/eldermagic.ttf");
+
+	HudDef hd;
+	hd.playerPtr = playerPtr;
+	hd.screenDimentions = tools.windowPtr->getDimensions();
+	hd.fontPtr = &font;
+	hd.vials.fire = tools.textures.get("BloodVial.png", 1);
+	hd.vials.water = tools.textures.get("BloodVial.png", 1);
+	hd.vials.earth = tools.textures.get("BloodVial.png", 1);
+	hd.vials.wind = tools.textures.get("BloodVial.png", 1);
+	hd.castingBlood = tools.textures.get("BloodFluidCast.png", 1);
+	hd.sterileBlood = tools.textures.get("BloodFluid.png", 1);
+	hd.dial = tools.textures.get("Dial.png", 1);
+	hd.itemSlot = tools.textures.get("Pouch.png", 1);
+	hudPtr = new Hud(hd);
+
+	fk::TextSprite ts = font.generateCharSprites("w", *textBatchPtr, glm::vec2(1.0));
+	ts.setPosition(glm::vec2(250, 251));
+	ts = font.generateCharSprites("q", *textBatchPtr, glm::vec2(1.0));
+	ts.setPosition(glm::vec2(249, 250.5));
+	ts = font.generateCharSprites("e", *textBatchPtr, glm::vec2(1.0));
+	ts.setPosition(glm::vec2(251, 250.5));
+	ts = font.generateCharSprites("a", *textBatchPtr, glm::vec2(1.0));
+	ts.setPosition(glm::vec2(249, 249.5));
+	ts = font.generateCharSprites("d", *textBatchPtr, glm::vec2(1.0));
+	ts.setPosition(glm::vec2(251, 249.5));
+	ts = font.generateCharSprites("s", *textBatchPtr, glm::vec2(1.0));
+	ts.setPosition(glm::vec2(250, 249));
 }
 void AITester::destroy(fk::Tools& tools) {
 
@@ -64,7 +91,11 @@ void AITester::update(fk::Tools& tools) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	map.render(cam);
 	map.spriteRenderer.render(*textBatchPtr, cam.getTransScaledMatrix());
+	map.spriteRenderer.render(hudPtr->backBatch, cam.getBaseMatrix());
+	map.spriteRenderer.render(hudPtr->frontBatch, cam.getBaseMatrix());
+	map.spriteRenderer.render(hudPtr->textBatch, cam.getBaseMatrix());
 	map.update(cam);
+	hudPtr->update();
 	mousePtr->position = cam.getWorldCoordinates(tools.ui.getMouseInfo(0).position);
 	mousePtr->updateBody();
 	mousePtr->updateSprite();

@@ -1,7 +1,6 @@
 #include "TTFont.h"
 #include <SDL/TTF/SDL_ttf.h>
 #include "Error.h"
-#include "SpriteBatch.h"
 namespace fk {
 
 
@@ -42,7 +41,7 @@ std::vector<int>* TTFont::m_createRows(
 	return partitions;
 }
 
-TTFont::TTFont(const std::string fontFilePath, int size, char firstASCIIChar, char lastASCIIChar) {
+TTFont::TTFont(const std::string& fontFilePath, int size, char firstASCIIChar, char lastASCIIChar) {
 	// Open a font https://www.libsdl.org/projects/SDL_ttf/docs/SDL_ttf_14.html
 	TTF_Font* fontPtr = TTF_OpenFont(fontFilePath.c_str(), size);
 	if (fontPtr == nullptr) {
@@ -215,11 +214,20 @@ glm::vec2 TTFont::measure(const char* s) {
 	return size;
 }
 
-void TTFont::generateCharSprites(const std::string text, SpriteBatch& spriteBatch, glm::vec2 scaling) {
+TextSprite TTFont::generateCharSprites(
+	const std::string text,
+	SpriteBatch& spriteBatch,
+	glm::vec2 scaling,
+	Justification justification
+) {
+	TextSprite textSprite(spriteBatch, *this);
+	textSprite.m_string = text;
 	scaling /= 60;
 	glm::vec2 textPosition(0);
 	glm::vec2 stringLength = measure(text.c_str());
 	textPosition.y += stringLength.y * scaling.y - m_height * scaling.y;
+	if (justification == Justification::MIDDLE) { textPosition.x -= stringLength.x * scaling.x / 2; }
+	else if (justification == Justification::RIGHT) { textPosition.x -= stringLength.x * scaling.x; }
 	for (auto charIndex = 0; text[charIndex] != 0; charIndex++) {
 		char c = text[charIndex];
 		if (text[charIndex] == '\n') {
@@ -229,38 +237,58 @@ void TTFont::generateCharSprites(const std::string text, SpriteBatch& spriteBatc
 			// Check for correct glyph
 			int glyphIndex = c - m_asciiStart;
 			if (glyphIndex < 0 || glyphIndex >= m_asciiRange) { glyphIndex = m_asciiRange; }
-			fk::Texture t;
-			t.id = m_textureID;
-			int id = spriteBatch.makeSprite(t);
-			spriteBatch[id].setPosition(textPosition);
-			spriteBatch[id].setDimensions(
+			textSprite.m_spriteIds.push_back(spriteBatch.makeSprite(m_textureID));
+			spriteBatch[textSprite.m_spriteIds.back()].setPosition(textPosition);
+			spriteBatch[textSprite.m_spriteIds.back()].setDimensions(
 				m_GlyphsPtr[glyphIndex].dimentions.x * scaling.x,
 				m_GlyphsPtr[glyphIndex].dimentions.y * scaling.y
 			);
-			spriteBatch[id].setTexturePosition(
+			spriteBatch[textSprite.m_spriteIds.back()].setTexturePosition(
 				m_GlyphsPtr[glyphIndex].uvRectangle.x,
 				m_GlyphsPtr[glyphIndex].uvRectangle.y
 			);
-			spriteBatch[id].setTextureDimensions(
+			spriteBatch[textSprite.m_spriteIds.back()].setTextureDimensions(
 				m_GlyphsPtr[glyphIndex].uvRectangle.z,
 				m_GlyphsPtr[glyphIndex].uvRectangle.w
 			);
 			textPosition.x += m_GlyphsPtr[glyphIndex].dimentions.x * scaling.x;
 		}
 	}
+	textSprite.m_font = *this;
+	return textSprite;
 }
 
-//TextSprite::TextSprite(SpriteBatch spriteBatch) : m_spriteBatch(spriteBatch) {}
-//void TextSprite::setPosition(glm::vec2 position) {
-//	move(position - m_spriteBatch[m_spriteIds[0]].getPosition());
-//}
-//void TextSprite::move(glm::vec2 translation) {
-//	for (auto&& index : m_spriteIds) { m_spriteBatch[index].move(translation); }
-//}
-//Sprite& TextSprite::getCharSprite(int charIndex) {
-//	Sprite& s = m_spriteBatch[m_spriteIds[charIndex]];
-//	return s;
-//}
-//std::string TextSprite::getText() { return m_string;  }
+
+TextSprite::TextSprite(SpriteBatch& spriteBatch, TTFont& font) : m_spriteBatch(spriteBatch), m_font(font) {}
+TextSprite TextSprite::operator=(const TextSprite& rhs) {
+	m_string = rhs.m_string;
+	m_spriteIds = rhs.m_spriteIds;
+	m_spriteBatch = rhs.m_spriteBatch;
+	return *this;
+}
+void TextSprite::setPosition(glm::vec2 position, Justification justification) {
+	switch (justification) {
+	  case Justification::LEFT: move(position - m_spriteBatch[m_spriteIds.front()].getPosition()); break;
+	  case Justification::RIGHT: move(position - m_spriteBatch[m_spriteIds.back()].getPosition()); break;
+	  default: break;
+	}
+}
+void TextSprite::move(glm::vec2 translation) {
+	for (auto&& index : m_spriteIds) { m_spriteBatch[index].move(translation); }
+}
+SpriteBatch::Sprite& TextSprite::operator [](int charIndex) {
+	return m_spriteBatch[m_spriteIds[charIndex]];
+}
+std::string TextSprite::getText() { return m_string;  }
+
+void TextSprite::clearText() {
+	m_string = "";
+	for (auto&& id : m_spriteIds) { m_spriteBatch.destroySprite(id); }
+}
+
+void TextSprite::setText(std::string& text, glm::vec2 size, Justification justification) {
+	for (auto&& id : m_spriteIds) { m_spriteBatch.destroySprite(id); }
+	*this = m_font.generateCharSprites(text, m_spriteBatch, size, justification);
+}
 
 }

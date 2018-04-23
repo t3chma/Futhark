@@ -10,6 +10,7 @@
 #include "../Map.h"
 #include "../Mouse.h"
 #include "out/TTFont.h"
+#include "../Hud.h"
 
 class AITester : public fk::Scene {
   public:
@@ -29,8 +30,10 @@ class AITester : public fk::Scene {
 	int leftInfo{ 0 };
 	Mouse* mousePtr{ nullptr };
 	Map map;
+	fk::TTFont font;
 	fk::SpriteBatch* textBatchPtr{ nullptr };
 	fk::Camera cam;
+	Hud* hudPtr;
 	AITester() = default;
 	~AITester() = default;
 	void getCommandLine(fk::Tools& tools);

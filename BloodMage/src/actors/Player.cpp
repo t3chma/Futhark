@@ -22,7 +22,7 @@ Player::Player(
 	health = 50;
 	b2FixtureDef fixtureDef;
 	b2CircleShape circle;
-	circle.m_radius = ad.size * 2;
+	circle.m_radius = ad.size * 1.5;
 	fixtureDef.shape = &circle;
 	fixtureDef.isSensor = true;
 	fixtureDef.userData = (void*)'r';
@@ -32,6 +32,38 @@ Player::~Player() {
 
 }
 void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
+	int fireFloor = floor(p_blood.fire);
+	int waterFloor = floor(p_blood.water);
+	int earthFloor = floor(p_blood.earth);
+	int airFloor = floor(p_blood.air);
+	if (oldFloor.fire < fireFloor) { drainTimer.fire = 60 * 20; }
+	if (oldFloor.water < fireFloor) { drainTimer.water = 60 * 20; }
+	if (oldFloor.earth < fireFloor) { drainTimer.earth = 60 * 20; }
+	if (oldFloor.air < fireFloor) { drainTimer.air = 60 * 20; }
+	oldFloor.fire = fireFloor;
+	oldFloor.water = fireFloor;
+	oldFloor.earth = fireFloor;
+	oldFloor.air = fireFloor;
+	if (drainTimer.fire) { --drainTimer.fire; }
+	else if (p_blood.fire >= 1) {
+		if (p_blood.fire >= 2) { drainTimer.fire = 60 * 20; }
+		p_blood.fire -= 1;
+	}
+	if (drainTimer.water) { --drainTimer.water; }
+	else if (p_blood.water >= 1) {
+		if (p_blood.water >= 2) { drainTimer.water = 60 * 20; }
+		p_blood.water -= 1;
+	}
+	if (drainTimer.earth) { --drainTimer.earth; }
+	else if (p_blood.earth >= 1) {
+		if (p_blood.earth >= 2) { drainTimer.earth = 60 * 20; }
+		p_blood.earth -= 1;
+	}
+	if (drainTimer.air) { --drainTimer.air; }
+	else if (p_blood.air >= 1) {
+		if (p_blood.air >= 2) { drainTimer.air = 60 * 20; }
+		p_blood.air -= 1;
+	}
 	m_mousePos = camPtr->getWorldCoordinates(m_uiPtr->getMouseInfo(0).position);
 	glm::vec2 position = glm::vec2(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
 	p_speed = 1;
@@ -127,8 +159,8 @@ void Player::updateBody() {
 			p_targetPtr = nullptr;
 			glm::vec2 mp = glm::normalize(m_mousePos - getPosition());
 			mp *= 3;
-			glm::vec2 mpl = fk::rotatePoint(mp, fk::TAU/25);
-			glm::vec2 mpr = fk::rotatePoint(mp, -fk::TAU/25);;
+			glm::vec2 mpl = fk::rotatePoint(mp, fk::TAU/20);
+			glm::vec2 mpr = fk::rotatePoint(mp, -fk::TAU/20);;
 			b2BodyPtr->GetWorld()->RayCast(
 				this,
 				b2Vec2(getPosition().x, getPosition().y),
@@ -200,6 +232,10 @@ void Player::updateBody() {
 							p_targetPtr->health -= 1;
 							p_drainCount.left = 0;
 						}
+						if ((p_blood.fire += 0.07) >= 7) { p_blood.fire = 6.99; }
+						if ((p_blood.water += 0.07) >= 7) { p_blood.water = 6.99; }
+						if ((p_blood.earth += 0.07) >= 7) { p_blood.earth = 6.99; }
+						if ((p_blood.air += 0.07) >= 7) { p_blood.air = 6.99; }
 						p_targetPtr->hit = true;
 					}
 					if (m_rightSwipe == 1) {
@@ -231,6 +267,10 @@ void Player::updateBody() {
 							p_targetPtr->health -= 1;
 							p_drainCount.right = 0;
 						}
+						if ((p_blood.fire += 0.07) >= 7) { p_blood.fire = 6.99; }
+						if ((p_blood.water += 0.07) >= 7) { p_blood.water = 6.99; }
+						if ((p_blood.earth += 0.07) >= 7) { p_blood.earth = 6.99; }
+						if ((p_blood.air += 0.07) >= 7) { p_blood.air = 6.99; }
 						p_targetPtr->hit = true;
 					}
 				}

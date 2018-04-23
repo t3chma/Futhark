@@ -169,7 +169,7 @@ void Grunt::updateBody() {
 		if (m_attacking) {
 			for (auto&& hitBodyPtr : m_hitPtrs) {
 				hitBodyPtr->b2BodyPtr->ApplyLinearImpulse(
-					b2Vec2(-p_faceDirection.x * 3, -p_faceDirection.y * 3),
+					b2Vec2(-p_faceDirection.x * 8, -p_faceDirection.y * 8),
 					hitBodyPtr->b2BodyPtr->GetPosition(),
 					true
 				);
