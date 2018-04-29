@@ -3,7 +3,6 @@
 #include "out/SpriteBatch.h"
 #include "out/Camera.h"
 #include "Box2D/Box2D.h"
-#include "../actors/Spear.h"
 #include "../actors/Grunt.h"
 #include "../actors/Player.h"
 #include "../props/Prop.h"

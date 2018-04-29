@@ -181,7 +181,6 @@
     <ClCompile Include="src\actors\Actor.cpp" />
     <ClCompile Include="src\actors\Player.cpp" />
     <ClCompile Include="src\actors\Grunt.cpp" />
-    <ClCompile Include="src\actors\Spear.cpp" />
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\scenes\AITester.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -192,6 +191,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\actors\StateFactory.h" />
     <ClInclude Include="src\Hud.h" />
     <ClInclude Include="src\Spells.h" />
     <ClInclude Include="src\Orders.h" />
@@ -202,7 +202,6 @@
     <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\actors\Player.h" />
     <ClInclude Include="src\actors\Grunt.h" />
-    <ClInclude Include="src\actors\Spear.h" />
     <ClInclude Include="src\scenes\AITester.h" />
   </ItemGroup>
   <ItemGroup>

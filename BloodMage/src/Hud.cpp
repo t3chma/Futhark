@@ -29,26 +29,26 @@ Hud::Hud(HudDef hd) :
 	bloodBars.fire.bloodId = backBatch.makeSprite(hd.sterileBlood);
 	backBatch[bloodBars.fire.bloodId].setDimensions(0.25 * unit, 0);
 	backBatch[bloodBars.fire.bloodId].setColor(255, 0, 0, 255);
-	backBatch[bloodBars.fire.bloodId].setPosition(0.4851 * unit, 6.25 * unit);
-	bloodBars.fire.baseBloodHeight = 5.94 * unit;
+	backBatch[bloodBars.fire.bloodId].setPosition(0.4851 * unit, 0);
+	bloodBars.fire.baseBloodHeight = 5.905 * unit;
 	// Water blood.
 	bloodBars.water.bloodId = backBatch.makeSprite(hd.sterileBlood);
 	backBatch[bloodBars.water.bloodId].setDimensions(0.25 * unit, 0);
 	backBatch[bloodBars.water.bloodId].setColor(0, 0, 255, 255);
-	backBatch[bloodBars.water.bloodId].setPosition(0.4851 * unit, 3.23 * unit);
-	bloodBars.water.baseBloodHeight = 2.94 * unit;
+	backBatch[bloodBars.water.bloodId].setPosition(0.4851 * unit, 0);
+	bloodBars.water.baseBloodHeight = 2.905 * unit;
 	// Earth blood.
 	bloodBars.earth.bloodId = backBatch.makeSprite(hd.sterileBlood);
 	backBatch[bloodBars.earth.bloodId].setDimensions(0.25 * unit, 0);
 	backBatch[bloodBars.earth.bloodId].setColor(0, 255, 0, 255);
-	backBatch[bloodBars.earth.bloodId].setPosition(0.4851 * unit, 1.75 * unit);
-	bloodBars.earth.baseBloodHeight = 1.44 * unit;
+	backBatch[bloodBars.earth.bloodId].setPosition(0.4851 * unit, 0);
+	bloodBars.earth.baseBloodHeight = 1.405 * unit;
 	// Air blood.
 	bloodBars.air.bloodId = backBatch.makeSprite(hd.sterileBlood);
 	backBatch[bloodBars.air.bloodId].setDimensions(0.25 * unit, 0);
 	backBatch[bloodBars.air.bloodId].setColor(255, 255, 0, 255);
-	backBatch[bloodBars.air.bloodId].setPosition(0.4851 * unit, 4.75 * unit);
-	bloodBars.air.baseBloodHeight = 4.44 * unit;
+	backBatch[bloodBars.air.bloodId].setPosition(0.4851 * unit, 0);
+	bloodBars.air.baseBloodHeight = 4.405 * unit;
 
 	for (int i = 0; i < 8; ++i) {
 		// Fire casting blood.
@@ -80,27 +80,27 @@ Hud::Hud(HudDef hd) :
 	// Fire dial.
 	bloodBars.fire.dialId = frontBatch.makeSprite(hd.dial);
 	frontBatch[bloodBars.fire.dialId].setDimensions(0.15 * unit, 0.15 * unit);
-	frontBatch[bloodBars.fire.dialId].setColor(255, 255, 255, 255);
-	frontBatch[bloodBars.fire.dialId].setPosition(0.135 * unit, 6.47 * unit);
-	frontBatch[bloodBars.fire.dialId].setRotationAxis(0.155 * unit, 6.49 * unit);
+	frontBatch[bloodBars.fire.dialId].setColor(100, 0, 0, 255);
+	frontBatch[bloodBars.fire.dialId].setPosition(0.135 * unit, 6.425 * unit);
+	frontBatch[bloodBars.fire.dialId].setRotationAxis(0.155 * unit, 6.445 * unit);
 	// Water dial.
 	bloodBars.water.dialId = frontBatch.makeSprite(hd.dial);
 	frontBatch[bloodBars.water.dialId].setDimensions(0.15 * unit, 0.15 * unit);
-	frontBatch[bloodBars.water.dialId].setColor(255, 255, 255, 255);
-	frontBatch[bloodBars.water.dialId].setPosition(0.135 * unit, 3.47 * unit);
-	frontBatch[bloodBars.water.dialId].setRotationAxis(0.155 * unit, 3.49 * unit);
+	frontBatch[bloodBars.water.dialId].setColor(0, 0, 100, 255);
+	frontBatch[bloodBars.water.dialId].setPosition(0.135 * unit, 3.425 * unit);
+	frontBatch[bloodBars.water.dialId].setRotationAxis(0.155 * unit, 3.445 * unit);
 	// Earth dial.
 	bloodBars.earth.dialId = frontBatch.makeSprite(hd.dial);
 	frontBatch[bloodBars.earth.dialId].setDimensions(0.15 * unit, 0.15 * unit);
-	frontBatch[bloodBars.earth.dialId].setColor(255, 255, 255, 255);
-	frontBatch[bloodBars.earth.dialId].setPosition(0.135 * unit, 1.97 * unit);
-	frontBatch[bloodBars.earth.dialId].setRotationAxis(0.155 * unit, 1.99 * unit);
+	frontBatch[bloodBars.earth.dialId].setColor(0, 100, 0, 255);
+	frontBatch[bloodBars.earth.dialId].setPosition(0.135 * unit, 1.925 * unit);
+	frontBatch[bloodBars.earth.dialId].setRotationAxis(0.155 * unit, 1.945 * unit);
 	// Air dial.
 	bloodBars.air.dialId = frontBatch.makeSprite(hd.dial);
 	frontBatch[bloodBars.air.dialId].setDimensions(0.15 * unit, 0.15 * unit);
-	frontBatch[bloodBars.air.dialId].setColor(255, 255, 255, 255);
-	frontBatch[bloodBars.air.dialId].setPosition(0.135 * unit, 4.97 * unit);
-	frontBatch[bloodBars.air.dialId].setRotationAxis(0.155 * unit, 4.99 * unit);
+	frontBatch[bloodBars.air.dialId].setColor(100, 100, 0, 255);
+	frontBatch[bloodBars.air.dialId].setPosition(0.135 * unit, 4.925 * unit);
+	frontBatch[bloodBars.air.dialId].setRotationAxis(0.155 * unit, 4.945 * unit);
 
 	// Enchant text.
 	rightEnchants.emplace_back(textBatch, font);
@@ -159,12 +159,12 @@ Hud::~Hud() {
 void Hud::update() {
 	float unit = screenDimentions.y / 9;
 	// Get blood info.
-	auto blood = playerPtr->getBlood();
+	auto blood = playerPtr->blood;
 	// Fire counter.
 	if ((int)blood.fire > 0) {
 		bloodBars.fire.text.setText(std::string(std::to_string((int)blood.fire)), glm::vec2(unit * 0.24));
 		bloodBars.fire.text[0].setColor(255, 0, 0, 255);
-		bloodBars.fire.text.setPosition(glm::vec2(0.16 * unit, 6.13 * unit));
+		bloodBars.fire.text.setPosition(glm::vec2(0.165 * unit, 6.13 * unit));
 	} else {
 		bloodBars.fire.text.setText(std::string(""), glm::vec2(unit * 0.24));
 	}
@@ -172,7 +172,7 @@ void Hud::update() {
 	if ((int)blood.water > 0) {
 		bloodBars.water.text.setText(std::string(std::to_string((int)blood.water)), glm::vec2(unit * 0.24));
 		bloodBars.water.text[0].setColor(0, 0, 255, 255);
-		bloodBars.water.text.setPosition(glm::vec2(0.16 * unit, 3.13 * unit));
+		bloodBars.water.text.setPosition(glm::vec2(0.165 * unit, 3.13 * unit));
 	} else {
 		bloodBars.water.text.setText(std::string(""), glm::vec2(unit * 0.24));
 	}
@@ -180,7 +180,7 @@ void Hud::update() {
 	if ((int)blood.earth > 0) {
 		bloodBars.earth.text.setText(std::string(std::to_string((int)blood.earth)), glm::vec2(unit * 0.24));
 		bloodBars.earth.text[0].setColor(0, 255, 0, 255);
-		bloodBars.earth.text.setPosition(glm::vec2(0.16 * unit, 1.63 * unit));
+		bloodBars.earth.text.setPosition(glm::vec2(0.165 * unit, 1.63 * unit));
 	} else {
 		bloodBars.earth.text.setText(std::string(""), glm::vec2(unit * 0.24));
 	}
@@ -188,7 +188,7 @@ void Hud::update() {
 	if ((int)blood.air > 0) {
 		bloodBars.air.text.setText(std::string(std::to_string((int)blood.air)), glm::vec2(unit * 0.24));
 		bloodBars.air.text[0].setColor(255, 255, 0, 255);
-		bloodBars.air.text.setPosition(glm::vec2(0.16 * unit, 4.63 * unit));
+		bloodBars.air.text.setPosition(glm::vec2(0.165 * unit, 4.63 * unit));
 	} else {
 		bloodBars.air.text.setText(std::string(""), glm::vec2(unit * 0.24));
 	}
@@ -243,12 +243,12 @@ void Hud::update() {
 	frontBatch[bloodBars.air.dialId].canvas.rotationAngle =
 		-(fk::TAU * 0.72) / (60 * 20) * playerPtr->drainTimer.air;
 	// Scale.
-	blood.fire *= unit * 0.6;
-	blood.water *= unit * 0.6;
-	blood.earth *= unit * 0.6;
-	blood.air *= unit * 0.6;
+	blood.fire *= unit * 0.73;
+	blood.water *= unit * 0.73;
+	blood.earth *= unit * 0.73;
+	blood.air *= unit * 0.73;
 	// Update sterile info.
-	float changeRate = 0.02;
+	float changeRate = 0.07;
 	// Fire.
 	float& fireDim = backBatch[bloodBars.fire.bloodId].canvas.dimensions.y;
 	if (fireDim > blood.fire) {

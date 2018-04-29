@@ -5,7 +5,7 @@ Player::Player(
 	Map& map,
 	fk::UserInput* uiPtr,
 	ActorDef& ad
-) : Actor(map, ad), m_uiPtr(uiPtr) {
+) : Actor(map, ad, *(new M_Control(*this)), VOID), m_uiPtr(uiPtr) {
 	spriteBatch[spriteIDs[1]].setDimensions(ad.size*2, ad.size*3);
 	spriteBatch[spriteIDs[1]].setColor(255, 255, 255, 0);
 	spriteBatch[spriteIDs[2]].setDimensions(ad.size*2, ad.size*3);
@@ -19,7 +19,7 @@ Player::Player(
 	spriteBatch[spriteIDs[4]].setTextureDimensions(-1, 1);
 	spriteBatch[spriteIDs[4]].setTexturePosition(1, 0);
 	type = "player";
-	health = 50;
+	health = 5000;
 	b2FixtureDef fixtureDef;
 	b2CircleShape circle;
 	circle.m_radius = ad.size * 1.5;
@@ -27,100 +27,62 @@ Player::Player(
 	fixtureDef.isSensor = true;
 	fixtureDef.userData = (void*)'r';
 	b2BodyPtr->CreateFixture(&fixtureDef);
+	movement.speed = 1;
 }
 Player::~Player() {
 
 }
 void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
-	int fireFloor = floor(p_blood.fire);
-	int waterFloor = floor(p_blood.water);
-	int earthFloor = floor(p_blood.earth);
-	int airFloor = floor(p_blood.air);
-	if (oldFloor.fire < fireFloor) { drainTimer.fire = 60 * 20; }
-	if (oldFloor.water < fireFloor) { drainTimer.water = 60 * 20; }
-	if (oldFloor.earth < fireFloor) { drainTimer.earth = 60 * 20; }
-	if (oldFloor.air < fireFloor) { drainTimer.air = 60 * 20; }
-	oldFloor.fire = fireFloor;
-	oldFloor.water = fireFloor;
-	oldFloor.earth = fireFloor;
-	oldFloor.air = fireFloor;
+	// Blood levels.
+	int fireFloor = floor(blood.fire);
+	int waterFloor = floor(blood.water);
+	int earthFloor = floor(blood.earth);
+	int airFloor = floor(blood.air);
+	if (m_oldFloor.fire < fireFloor) { drainTimer.fire = 60 * 20; }
+	if (m_oldFloor.water < fireFloor) { drainTimer.water = 60 * 20; }
+	if (m_oldFloor.earth < fireFloor) { drainTimer.earth = 60 * 20; }
+	if (m_oldFloor.air < fireFloor) { drainTimer.air = 60 * 20; }
+	m_oldFloor.fire = fireFloor;
+	m_oldFloor.water = fireFloor;
+	m_oldFloor.earth = fireFloor;
+	m_oldFloor.air = fireFloor;
 	if (drainTimer.fire) { --drainTimer.fire; }
-	else if (p_blood.fire >= 1) {
-		if (p_blood.fire >= 2) { drainTimer.fire = 60 * 20; }
-		p_blood.fire -= 1;
+	else if (blood.fire >= 1) {
+		if (blood.fire >= 2) { drainTimer.fire = 60 * 20; }
+		blood.fire -= 1;
 	}
 	if (drainTimer.water) { --drainTimer.water; }
-	else if (p_blood.water >= 1) {
-		if (p_blood.water >= 2) { drainTimer.water = 60 * 20; }
-		p_blood.water -= 1;
+	else if (blood.water >= 1) {
+		if (blood.water >= 2) { drainTimer.water = 60 * 20; }
+		blood.water -= 1;
 	}
 	if (drainTimer.earth) { --drainTimer.earth; }
-	else if (p_blood.earth >= 1) {
-		if (p_blood.earth >= 2) { drainTimer.earth = 60 * 20; }
-		p_blood.earth -= 1;
+	else if (blood.earth >= 1) {
+		if (blood.earth >= 2) { drainTimer.earth = 60 * 20; }
+		blood.earth -= 1;
 	}
 	if (drainTimer.air) { --drainTimer.air; }
-	else if (p_blood.air >= 1) {
-		if (p_blood.air >= 2) { drainTimer.air = 60 * 20; }
-		p_blood.air -= 1;
+	else if (blood.air >= 1) {
+		if (blood.air >= 2) { drainTimer.air = 60 * 20; }
+		blood.air -= 1;
 	}
+	if (hit) {
+		if ((blood.fire -= 0.25) <= 0) { blood.fire = 0; }
+		if ((blood.water -= 0.25) <= 0) { blood.water = 0; }
+		if ((blood.earth -= 0.25) <= 0) { blood.earth = 0; }
+		if ((blood.air -= 0.25) <= 0) { blood.air = 0; }
+	}
+	// Timers
+	if (m_leftSwipeTimer == -30) { m_leftSwipes = 0; }
+	if (m_rightSwipeTimer == -30) { m_rightSwipes = 0; }
+	if (m_leftSwipeTimer > -30) { --m_leftSwipeTimer; }
+	if (m_rightSwipeTimer > -30) { --m_rightSwipeTimer; }
+	if (m_dodgeTimer > 0) { --m_dodgeTimer; }
+	// Mouse.
 	m_mousePos = camPtr->getWorldCoordinates(m_uiPtr->getMouseInfo(0).position);
-	glm::vec2 position = glm::vec2(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
-	p_speed = 1;
-	if (m_uiPtr->getKeyInfo(fk::Key::SHIFT_L).downFrames > 0) { p_speed = 1.75; p_targetPtr = nullptr; }
-	else {
-		// Left attack
-		if (m_leftSwipe > 0) { --m_leftSwipe; }
-		if (m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames == 1) {
-			m_getTarget = true;
-			if (m_leftSwipe == 0) { m_leftSwipe = 30; }
-		}
-		// Right attack
-		if (m_rightSwipe > 0) { --m_rightSwipe; }
-		if (m_uiPtr->getKeyInfo(fk::Key::MOUSE_RIGHT).downFrames == 1) {
-			m_getTarget = true;
-			if (m_rightSwipe == 0) { m_rightSwipe = 30; }
-		}
-	}
-	// Face direction
-	if (m_uiPtr->getKeyInfo(fk::Key::ALT_L).downFrames > 0) { p_targetPtr = nullptr; }
-	if (p_targetPtr && position != p_targetPtr->getPosition()) {
-		p_faceDirection = glm::normalize(position - p_targetPtr->getPosition());
-	} else if (m_mousePos != position) {
-		p_faceDirection = glm::normalize(position - m_mousePos);
-	}
-	p_faceAngle = fk::makeAngle(p_faceDirection) + fk::TAU / 4;
-	// Move direction
-	if (!p_dodging) {
-		p_moveDirection.x = 0;
-		p_moveDirection.y = 0;
-	}
-	if (m_uiPtr->getKeyInfo(fk::Key::SPACE).downFrames > 1) {
-
-	} else if (!p_dodging) {
-		// WASD
-		if (m_uiPtr->getKeyInfo(fk::Key::W).downFrames > 0) { p_moveDirection.y += 1; }
-		if (m_uiPtr->getKeyInfo(fk::Key::S).downFrames > 0) { p_moveDirection.y -= 1; }
-		if (m_uiPtr->getKeyInfo(fk::Key::D).downFrames > 0) { p_moveDirection.x += 1; }
-		if (m_uiPtr->getKeyInfo(fk::Key::A).downFrames > 0) { p_moveDirection.x -= 1; }
-		// Dodge
-		if (p_speed == 1) {
-			if (m_uiPtr->getKeyInfo(fk::Key::ALT_L).downFrames > 0) {
-				p_moveDirection.x = 0;
-				p_moveDirection.y = 0;
-				++m_dodgeCharge;
-			} else if (m_dodgeCharge && !m_dodgeTimer) {
-				m_dodgeTimer = 40;
-				m_dodgePos = getPosition();
-				p_dodging = m_dodgeIFrames;
-				p_targetPtr = nullptr;
-				if (m_dodgeCharge > 20) { p_moveDirection = -p_faceDirection; }
-				else { p_moveDirection = p_faceDirection; }
-			}
-		}
-	}
-	if (p_moveDirection.x || p_moveDirection.y) { p_moveDirection = p_speed * glm::normalize(p_moveDirection); }
-	if (m_dodgeCharge > 20) { p_moveDirection *= 1.5; }
+	// States.
+	if (health < 1) { setState(new Dead(*this)); }
+	states.currentPtr->think(actorPtrs, camPtr);
 	hit = false;
 }
 void Player::p_beginCollision(
@@ -129,13 +91,13 @@ void Player::p_beginCollision(
 	b2Contact* contactPtr
 ) {
 	if (!collisionFixturePtr->IsSensor()) {
-		if (p_dodging) {
+		if (movement.dodging) {
 			Object* op = static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData());
-			if (op->category == "actor" && m_dodgeCharge > 20) {
-				static_cast<Actor*>(op)->pause(60);
+			if (op->category == "actor") {
+				///static_cast<Actor*>(op)->pause(60);
 				static_cast<Actor*>(op)->hit = true;
 			} else if (op->category == "static" && !myFixturePtr->GetUserData()) {
-				p_dodging = 0; m_dodgeCharge = 0;
+				///movement.dodging = 0;
 			}
 		}
 	}
@@ -147,184 +109,15 @@ void Player::p_endCollision(
 ) {
 	if (!collisionFixturePtr->IsSensor()) {}
 }
-void Player::updateBody() {
-	if (health > 0) {
-		b2Filter filter = b2BodyPtr->GetFixtureList()->GetNext()->GetFilterData();
-		if (p_dodging) { filter.maskBits = 1; }
-		else { filter.maskBits = 0b1111111111111111; }
-		b2BodyPtr->GetFixtureList()->GetNext()->SetFilterData(filter);
-		b2BodyPtr->SetTransform(b2BodyPtr->GetWorldCenter(), p_faceAngle);
-		if (m_getTarget) {
-			m_getTarget = false;
-			p_targetPtr = nullptr;
-			glm::vec2 mp = glm::normalize(m_mousePos - getPosition());
-			mp *= 3;
-			glm::vec2 mpl = fk::rotatePoint(mp, fk::TAU/20);
-			glm::vec2 mpr = fk::rotatePoint(mp, -fk::TAU/20);;
-			b2BodyPtr->GetWorld()->RayCast(
-				this,
-				b2Vec2(getPosition().x, getPosition().y),
-				b2Vec2(getPosition().x + mp.x, getPosition().y + mp.y)
-			);
-			b2BodyPtr->GetWorld()->RayCast(
-				this,
-				b2Vec2(getPosition().x, getPosition().y),
-				b2Vec2(getPosition().x + mpl.x, getPosition().y + mpl.y)
-			);
-			b2BodyPtr->GetWorld()->RayCast(
-				this,
-				b2Vec2(getPosition().x, getPosition().y),
-				b2Vec2(getPosition().x + mpr.x, getPosition().y + mpr.y)
-			);
-			if (p_targetPtr == nullptr) { m_leftSwipe = m_rightSwipe = 0; }
-		}
-		bool move{ true };
-		m_charging = false;
-		if (p_targetPtr && (m_leftSwipe || m_rightSwipe)) {
-			glm::vec2 targetDirection = getPosition() - p_targetPtr->getPosition();
-			float distance = glm::length(getPosition() - p_targetPtr->getPosition());
-			if (distance < 2) {
-				if (distance >= 0.6) {
-					if (
-						m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames ||
-						m_uiPtr->getKeyInfo(fk::Key::MOUSE_RIGHT).downFrames
-					) {
-						m_charging = true;
-						b2BodyPtr->ApplyLinearImpulse(
-							b2Vec2(-targetDirection.x * 3, -targetDirection.y * 3),
-							b2BodyPtr->GetWorldCenter(),
-							true
-						);
-						if (m_leftSwipe == 1) { m_leftSwipe = 2; }
-						if (m_rightSwipe == 1) { m_rightSwipe = 2; }
-						move = false;
-					}
-				}
-				if (distance <= 2) {
-					p_targetPtr->pause(30);
-					m_charging = true;
-					if (m_leftSwipe == 1) {
-						if (p_drainCount.left < 4 && m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames > 10) {
-							spriteBatch[spriteIDs[1]].setPosition(
-								p_targetPtr->b2BodyPtr->GetPosition().x, p_targetPtr->b2BodyPtr->GetPosition().y
-							);
-							spriteBatch[spriteIDs[1]].setRotationAxis(
-								p_targetPtr->b2BodyPtr->GetPosition().x, p_targetPtr->b2BodyPtr->GetPosition().y
-							);
-							spriteBatch[spriteIDs[1]].canvas.rotationAngle = b2BodyPtr->GetAngle() + fk::TAU / 8;
-							spriteBatch[spriteIDs[1]].setColor(255, 255, 255, 255);
-							m_leftSwipe = 15;
-							++p_drainCount.left;
-						} else {
-							spriteBatch[spriteIDs[3]].setPosition(
-								p_targetPtr->b2BodyPtr->GetPosition().x, p_targetPtr->b2BodyPtr->GetPosition().y
-							);
-							spriteBatch[spriteIDs[3]].setRotationAxis(
-								p_targetPtr->b2BodyPtr->GetPosition().x, p_targetPtr->b2BodyPtr->GetPosition().y
-							);
-							spriteBatch[spriteIDs[3]].canvas.rotationAngle = b2BodyPtr->GetAngle() + fk::TAU / 8;
-							spriteBatch[spriteIDs[3]].setColor(255, 255, 255, 255);
-							p_targetPtr->b2BodyPtr->ApplyLinearImpulse(
-								b2Vec2(p_faceDirection.x * -7, p_faceDirection.y * -7),
-								p_targetPtr->b2BodyPtr->GetPosition(),
-								true
-							);
-							p_targetPtr->health -= 1;
-							p_drainCount.left = 0;
-						}
-						if ((p_blood.fire += 0.07) >= 7) { p_blood.fire = 6.99; }
-						if ((p_blood.water += 0.07) >= 7) { p_blood.water = 6.99; }
-						if ((p_blood.earth += 0.07) >= 7) { p_blood.earth = 6.99; }
-						if ((p_blood.air += 0.07) >= 7) { p_blood.air = 6.99; }
-						p_targetPtr->hit = true;
-					}
-					if (m_rightSwipe == 1) {
-						if (p_drainCount.right < 4 && m_uiPtr->getKeyInfo(fk::Key::MOUSE_RIGHT).downFrames > 10) {
-							spriteBatch[spriteIDs[2]].setPosition(
-								p_targetPtr->b2BodyPtr->GetPosition().x, p_targetPtr->b2BodyPtr->GetPosition().y
-							);
-							spriteBatch[spriteIDs[2]].setRotationAxis(
-								p_targetPtr->b2BodyPtr->GetPosition().x, p_targetPtr->b2BodyPtr->GetPosition().y
-							);
-							spriteBatch[spriteIDs[2]].canvas.rotationAngle = b2BodyPtr->GetAngle() - fk::TAU / 8;
-							spriteBatch[spriteIDs[2]].setColor(255, 255, 255, 255);
-							m_rightSwipe = 15;
-							++p_drainCount.right;
-						} else {
-							spriteBatch[spriteIDs[4]].setPosition(
-								p_targetPtr->b2BodyPtr->GetPosition().x, p_targetPtr->b2BodyPtr->GetPosition().y
-							);
-							spriteBatch[spriteIDs[4]].setRotationAxis(
-								p_targetPtr->b2BodyPtr->GetPosition().x, p_targetPtr->b2BodyPtr->GetPosition().y
-							);
-							spriteBatch[spriteIDs[4]].canvas.rotationAngle = b2BodyPtr->GetAngle() - fk::TAU / 8;
-							spriteBatch[spriteIDs[4]].setColor(255, 255, 255, 255);
-							p_targetPtr->b2BodyPtr->ApplyLinearImpulse(
-								b2Vec2(p_faceDirection.x * -7, p_faceDirection.y * -7),
-								p_targetPtr->b2BodyPtr->GetPosition(),
-								true
-							);
-							p_targetPtr->health -= 1;
-							p_drainCount.right = 0;
-						}
-						if ((p_blood.fire += 0.07) >= 7) { p_blood.fire = 6.99; }
-						if ((p_blood.water += 0.07) >= 7) { p_blood.water = 6.99; }
-						if ((p_blood.earth += 0.07) >= 7) { p_blood.earth = 6.99; }
-						if ((p_blood.air += 0.07) >= 7) { p_blood.air = 6.99; }
-						p_targetPtr->hit = true;
-					}
-				}
-			} else { p_targetPtr = nullptr; }
-		}
-		if (move) {
-			float dodgeMult = 1;
-			if (p_dodging > m_dodgeIFrames - 3) { dodgeMult = 16; }
-			b2BodyPtr->ApplyLinearImpulse(
-				b2Vec2(p_moveDirection.x * dodgeMult, p_moveDirection.y * dodgeMult),
-				b2BodyPtr->GetWorldCenter(),
-				true
-			);
-		}
-		if (p_dodging) { if (--p_dodging == 0) { m_dodgeCharge = 0; } }
-		if (m_dodgeTimer) { --m_dodgeTimer; }
-	}
-}
 void Player::updateSprite() {
-	spriteBatch[spriteIDs[0]].canvas.rotationAngle = b2BodyPtr->GetAngle();
-	spriteBatch[spriteIDs[1]].canvas.rotationAngle = b2BodyPtr->GetAngle();
-	spriteBatch[spriteIDs[2]].canvas.rotationAngle = b2BodyPtr->GetAngle();
-	spriteBatch[spriteIDs[0]].setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
-	spriteBatch[spriteIDs[0]].setRotationAxis(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
-	if (m_charging) {
-		spriteBatch[spriteIDs[0]].setColor(255, 100, 100, 255);
-	} else if (m_dodgeCharge > 20) {
-		spriteBatch[spriteIDs[0]].setColor(100, 100, 255, 255);
-	} else {
-		spriteBatch[spriteIDs[0]].setColor(255, 255, 255, 255);
+	int alpha;
+	for (int i = 1; i < spriteIDs.size(); ++i) {
+		alpha = spriteBatch[spriteIDs[i]].canvas.color.a - 10;
+		if (alpha < 0) { alpha = 0; }
+		spriteBatch[spriteIDs[i]].canvas.color.a = alpha;
 	}
-	if (health > 0) {
-		int alpha = spriteBatch[spriteIDs[1]].canvas.color.a - 10;
-		if (alpha < 0) { alpha = 0; }
-		spriteBatch[spriteIDs[1]].setColor(255, 255, 255, alpha);
-		alpha = spriteBatch[spriteIDs[3]].canvas.color.a - 10;
-		if (alpha < 0) { alpha = 0; }
-		spriteBatch[spriteIDs[3]].setColor(255, 255, 255, alpha);
-
-		alpha = spriteBatch[spriteIDs[2]].canvas.color.a - 10;
-		if (alpha < 0) { alpha = 0; }
-		spriteBatch[spriteIDs[2]].setColor(255, 255, 255, alpha);
-		alpha = spriteBatch[spriteIDs[4]].canvas.color.a - 10;
-		if (alpha < 0) { alpha = 0; }
-		spriteBatch[spriteIDs[4]].setColor(255, 255, 255, alpha);
-	} else {
-		spriteBatch[spriteIDs[0]].setColor(255, 255, 255, 100);
-		spriteBatch[spriteIDs[1]].setColor(255, 255, 255, 0);
-		spriteBatch[spriteIDs[2]].setColor(255, 255, 255, 0);
-		spriteBatch[spriteIDs[3]].setColor(255, 255, 255, 0);
-		spriteBatch[spriteIDs[4]].setColor(255, 255, 255, 0);
-	}
+	Actor::updateSprite();
 }
-
 float32 Player::ReportFixture(
 	b2Fixture* fixturePtr,
 	const b2Vec2& point,
@@ -332,7 +125,339 @@ float32 Player::ReportFixture(
 	float32 fraction
 ) {
 	if (static_cast<Object*>(fixturePtr->GetBody()->GetUserData())->category == "actor") {
-		p_targetPtr = static_cast<Actor*>(fixturePtr->GetBody()->GetUserData());
+		targetInfo.ptr = static_cast<Actor*>(fixturePtr->GetBody()->GetUserData());
 	}
 	return fraction;
+}
+
+
+void Player::M_Control::enter() {
+	actorPtr->spriteBatch[actorPtr->spriteIDs[0]].setColor(255, 255, 255, 255);
+}
+void Player::M_Control::think(std::vector<Actor*>& actorPtrs, fk::Camera * camPtr) {
+	Player& player = *static_cast<Player*>(actorPtr);
+	// Face direction
+	if (player.m_mousePos != player.getPosition()) {
+		player.los.faceDirection = glm::normalize(player.getPosition() - player.m_mousePos);
+	}
+	// Move direction
+	player.movement.vector.x = 0;
+	player.movement.vector.y = 0;
+	if (player.m_uiPtr->getKeyInfo(fk::Key::W).downFrames > 0) { player.movement.vector.y += 1; }
+	if (player.m_uiPtr->getKeyInfo(fk::Key::S).downFrames > 0) { player.movement.vector.y -= 1; }
+	if (player.m_uiPtr->getKeyInfo(fk::Key::D).downFrames > 0) { player.movement.vector.x += 1; }
+	if (player.m_uiPtr->getKeyInfo(fk::Key::A).downFrames > 0) { player.movement.vector.x -= 1; }
+	if (player.movement.vector.x || player.movement.vector.y) {
+		float boost{ 0 };
+		if (player.m_uiPtr->getKeyInfo(fk::Key::SHIFT_L).downFrames > 0) { boost = { 0.75 }; }
+		player.movement.vector = (player.movement.speed + boost) * glm::normalize(player.movement.vector);
+	}
+	// State change
+	if (player.m_uiPtr->getKeyInfo(fk::Key::ALT_L).downFrames == 1 && !player.m_dodgeTimer) {
+		player.m_readyToDash = false;
+		player.setState(new M_Dodge(*actorPtr));
+	} else if (player.m_uiPtr->getKeyInfo(fk::Key::SPACE).downFrames) {
+		player.m_readyToDash = false;
+		player.setState(new M_Cast(*actorPtr));
+	} else if (
+		player.m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames == 1 ||
+		player.m_uiPtr->getKeyInfo(fk::Key::MOUSE_RIGHT).downFrames == 1
+	) {
+		if (glm::length(player.m_mousePos - player.getPosition()) <= player.getRadius()) {
+			player.m_readyToDash = true;
+		} else if (
+			player.m_leftSwipeTimer <= 0 &&
+			player.m_leftSwipes < player.m_leftMaxSwipes &&
+			player.m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames == 1 ||
+			player.m_rightSwipeTimer <= 0 &&
+			player.m_rightSwipes < player.m_rightMaxSwipes &&
+			player.m_uiPtr->getKeyInfo(fk::Key::MOUSE_RIGHT).downFrames == 1
+		) {
+			player.m_readyToDash = false;
+			player.setState(new M_Attack(*actorPtr));
+		}
+	} else if (
+		player.m_readyToDash && !player.m_dodgeTimer &&
+		!player.m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames &&
+		!player.m_uiPtr->getKeyInfo(fk::Key::MOUSE_RIGHT).downFrames
+	) {
+		player.m_readyToDash = false;
+		player.setState(new M_StunDash(*actorPtr));
+	}
+}
+
+
+void Player::M_StunDash::enter() {
+	Player& player = *static_cast<Player*>(actorPtr);
+	player.movement.dodging = true;
+	player.movement.vector = player.m_mousePos - player.getPosition();
+	if (player.movement.vector.x || player.movement.vector.y) {
+		player.movement.vector = glm::normalize(player.movement.vector);
+	}
+	b2Filter filter = player.b2BodyPtr->GetFixtureList()->GetNext()->GetFilterData();
+	filter.maskBits = 1;
+	player.b2BodyPtr->GetFixtureList()->GetNext()->SetFilterData(filter);
+	player.m_dodgeTimer = 40;
+	player.spriteBatch[player.spriteIDs[0]].setColor(100, 100, 255, 255);
+}
+void Player::M_StunDash::think(std::vector<Actor*>& actorPtrs, fk::Camera * camPtr) {
+	if (!iFrames--) {
+		actorPtr->movement.dodging = false;
+		b2Filter filter = actorPtr->b2BodyPtr->GetFixtureList()->GetNext()->GetFilterData();
+		filter.maskBits = 0b1111111111111111;
+		actorPtr->b2BodyPtr->GetFixtureList()->GetNext()->SetFilterData(filter);
+		actorPtr->setState(new M_Control(*actorPtr));
+	}
+}
+void Player::M_StunDash::updateBody() {
+	if (iFrames > 10) {
+		actorPtr->b2BodyPtr->ApplyLinearImpulse(
+			b2Vec2(actorPtr->movement.vector.x * 16, actorPtr->movement.vector.y * 16),
+			actorPtr->b2BodyPtr->GetWorldCenter(),
+			true
+		);
+	}
+}
+
+
+void Player::M_Attack::enter() {
+	Player& player = *static_cast<Player*>(actorPtr);
+	player.movement.vector.x = 0;
+	player.movement.vector.y = 0;
+	mouseButtons = {
+		player.m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames,
+		player.m_uiPtr->getKeyInfo(fk::Key::MOUSE_RIGHT).downFrames
+	};
+	player.spriteBatch[actorPtr->spriteIDs[0]].setColor(255, 200, 200, 255);
+	// Get target
+	player.targetInfo.ptr = nullptr;
+	glm::vec2 rayCast = glm::normalize(player.m_mousePos - player.getPosition());
+	rayCast *= 1;
+	glm::vec2 leftRayCast = fk::rotatePoint(rayCast, fk::TAU / 20);
+	glm::vec2 rightRayCast = fk::rotatePoint(rayCast, -fk::TAU / 20);
+	// Cast 3 rays
+	player.b2BodyPtr->GetWorld()->RayCast(
+		actorPtr,
+		b2Vec2(player.getPosition().x, player.getPosition().y),
+		b2Vec2(player.getPosition().x + rayCast.x, player.getPosition().y + rayCast.y)
+	);
+	if (!player.targetInfo.ptr) {
+		player.b2BodyPtr->GetWorld()->RayCast(
+			actorPtr,
+			b2Vec2(player.getPosition().x, player.getPosition().y),
+			b2Vec2(player.getPosition().x + leftRayCast.x, player.getPosition().y + leftRayCast.y)
+		);
+		player.b2BodyPtr->GetWorld()->RayCast(
+			actorPtr,
+			b2Vec2(player.getPosition().x, player.getPosition().y),
+			b2Vec2(player.getPosition().x + rightRayCast.x, player.getPosition().y + rightRayCast.y)
+		);
+	}
+	if (!player.targetInfo.ptr) { player.returnToPrevState(); return; }
+	else {
+		for (int i = 0; i < mouseButtons.size(); ++i) {
+			if (
+				mouseButtons[i] == 1 &&
+				(i ? player.m_rightSwipeTimer <= 0 : player.m_leftSwipeTimer <= 0) && (
+					i ? player.m_rightSwipes < player.m_rightMaxSwipes :
+					player.m_leftSwipes < player.m_leftMaxSwipes
+				)
+			) {
+				// Attack
+				player.targetInfo.ptr->health -= 1;
+				--drainCount;
+				if ((player.blood.fire += 0.03) >= 7) { player.blood.fire = 6.99; }
+				if ((player.blood.water += 0.03) >= 7) { player.blood.water = 6.99; }
+				if ((player.blood.earth += 0.03) >= 7) { player.blood.earth = 6.99; }
+				if ((player.blood.air += 0.03) >= 7) { player.blood.air = 6.99; }
+				(i ? player.m_rightSwipeTimer : player.m_leftSwipeTimer) =
+					(i ? player.m_rightSwipeRest : player.m_leftSwipeRest);
+				i ? ++player.m_rightSwipes : ++player.m_leftSwipes;
+			}
+		}
+	}
+}
+void Player::M_Attack::think(std::vector<Actor*>& actorPtrs, fk::Camera * camPtr) {
+	Player& player = *static_cast<Player*>(actorPtr);
+	// If no target cancel attack
+	mouseButtons = {
+		player.m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames,
+		player.m_uiPtr->getKeyInfo(fk::Key::MOUSE_RIGHT).downFrames
+	};
+	// State switch
+	if (!drainCount || !mouseButtons[0] && !mouseButtons[1]) {
+		player.m_readyToDash = false;
+		player.setState(new M_Control(*actorPtr));
+	} else if (player.m_uiPtr->getKeyInfo(fk::Key::ALT_L).downFrames == 1 && !player.m_dodgeTimer) {
+		player.m_readyToDash = false;
+		player.setState(new M_Dodge(*actorPtr));
+	} else if (
+		glm::length(player.m_mousePos - player.getPosition()) <= player.getRadius() &&
+		(mouseButtons[0] == 1 || mouseButtons[1] == 1)
+	) {
+		player.m_readyToDash = true;
+		dodgeButton = mouseButtons[0] == 1 ? 0 : 1;
+	} else if (player.m_readyToDash && !player.m_dodgeTimer && !mouseButtons[dodgeButton]) {
+		player.m_readyToDash = false;
+		player.setState(new M_StunDash(*actorPtr));
+	}
+	// Face direction
+	if (player.getPosition() != player.targetInfo.ptr->getPosition()) {
+		player.los.faceDirection =
+			glm::normalize(player.getPosition() - player.targetInfo.ptr->getPosition());
+	}
+	///p_targetPtr->pause(30);
+	for (int i = 0; i < mouseButtons.size(); ++i) {
+		if (mouseButtons[i]) {
+			if (
+				mouseButtons[i] == 1 &&
+				(i ? player.m_rightSwipeTimer <= 0 : player.m_leftSwipeTimer <= 0) && (
+					i ? player.m_rightSwipes < player.m_rightMaxSwipes :
+					player.m_leftSwipes < player.m_leftMaxSwipes
+				)
+			) {
+				// Attack
+				player.targetInfo.ptr->health -= 1;
+				--drainCount;
+				if ((player.blood.fire += 0.03) >= 7) { player.blood.fire = 6.99; }
+				if ((player.blood.water += 0.03) >= 7) { player.blood.water = 6.99; }
+				if ((player.blood.earth += 0.03) >= 7) { player.blood.earth = 6.99; }
+				if ((player.blood.air += 0.03) >= 7) { player.blood.air = 6.99; }
+				(i ? player.m_rightSwipeTimer : player.m_leftSwipeTimer) =
+					(i ? player.m_rightSwipeRest : player.m_leftSwipeRest);
+				i ? ++player.m_rightSwipes : ++player.m_leftSwipes;
+			}
+			if (drainCount && mouseButtons[i] % 15 == 0) {
+				// Drain
+				--drainCount;
+				if ((player.blood.fire += 0.03) >= 7) { player.blood.fire = 6.99; }
+				if ((player.blood.water += 0.03) >= 7) { player.blood.water = 6.99; }
+				if ((player.blood.earth += 0.03) >= 7) { player.blood.earth = 6.99; }
+				if ((player.blood.air += 0.03) >= 7) { player.blood.air = 6.99; }
+			}
+			player.targetInfo.ptr->hit = true;
+		}
+	}
+}
+void Player::M_Attack::updateBody() {
+	State::updateBody();
+	Player& player = *static_cast<Player*>(actorPtr);
+	// Lunging
+	glm::vec2 targetVector = player.getPosition() - player.targetInfo.ptr->getPosition();
+	if (glm::length(targetVector) >= 0.6 && (mouseButtons[0] || mouseButtons[1])) {
+		player.b2BodyPtr->ApplyLinearImpulse(
+			b2Vec2(-targetVector.x * 2, -targetVector.y * 2),
+			player.b2BodyPtr->GetWorldCenter(),
+			true
+		);
+	}
+	// Knockback
+	for (int i = 0; i < mouseButtons.size(); ++i) {
+		if (
+			mouseButtons[i] == 1 &&
+			(i ? player.m_rightSwipeTimer : player.m_leftSwipeTimer) ==
+			(i ? player.m_rightSwipeRest : player.m_leftSwipeRest) && (
+				i ? player.m_rightSwipes <= player.m_rightMaxSwipes :
+				player.m_leftSwipes <= player.m_leftMaxSwipes
+			) || !drainCount
+		) {
+			// Attack/drain knock back
+			player.targetInfo.ptr->b2BodyPtr->ApplyLinearImpulse(
+				b2Vec2(player.los.faceDirection.x * -10, player.los.faceDirection.y * -10),
+				player.targetInfo.ptr->b2BodyPtr->GetPosition(),
+				true
+			);
+		}
+	}
+}
+void Player::M_Attack::updateSprite() {
+	State::updateSprite();
+	Player& player = *static_cast<Player*>(actorPtr);
+	for (int i = 0; i < mouseButtons.size(); ++i) {
+		if (mouseButtons[i]) {
+			if (
+				mouseButtons[i] == 1 &&
+				(i ? player.m_rightSwipeTimer : player.m_leftSwipeTimer) ==
+				(i ? player.m_rightSwipeRest : player.m_leftSwipeRest) && (
+					i ? player.m_rightSwipes <= player.m_rightMaxSwipes :
+					player.m_leftSwipes <= player.m_leftMaxSwipes
+				)
+			) {
+				// Attack
+				player.spriteBatch[player.spriteIDs[3 + i]].setPosition(
+					player.targetInfo.ptr->b2BodyPtr->GetPosition().x,
+					player.targetInfo.ptr->b2BodyPtr->GetPosition().y
+				);
+				player.spriteBatch[player.spriteIDs[3 + i]].setRotationAxis(
+					player.targetInfo.ptr->b2BodyPtr->GetPosition().x,
+					player.targetInfo.ptr->b2BodyPtr->GetPosition().y
+				);
+				player.spriteBatch[player.spriteIDs[3 + i]].canvas.rotationAngle =
+					player.b2BodyPtr->GetAngle() + (i ? fk::TAU / 8 : -fk::TAU / 8);
+				player.spriteBatch[player.spriteIDs[3 + i]].setColor(255, 255, 255, 255);
+			} else if (drainCount && mouseButtons[i] % 15 == 0) {
+				// Drain
+				player.spriteBatch[player.spriteIDs[2 - i]].setPosition(
+					player.targetInfo.ptr->b2BodyPtr->GetPosition().x,
+					player.targetInfo.ptr->b2BodyPtr->GetPosition().y
+				);
+				player.spriteBatch[player.spriteIDs[2 - i]].setRotationAxis(
+					player.targetInfo.ptr->b2BodyPtr->GetPosition().x,
+					player.targetInfo.ptr->b2BodyPtr->GetPosition().y
+				);
+				player.spriteBatch[player.spriteIDs[2 - i]].canvas.rotationAngle =
+					player.b2BodyPtr->GetAngle();
+				player.spriteBatch[player.spriteIDs[2 - i]].setColor(255, 255, 255, 255);
+			}
+		}
+	}
+}
+
+
+void Player::M_Dodge::enter() {
+	Player& player = *static_cast<Player*>(actorPtr);
+	player.movement.vector.x = 0;
+	player.movement.vector.y = 0;
+	player.movement.dodging = true;
+	player.m_dodgeTimer = 25;
+	b2Filter filter = player.b2BodyPtr->GetFixtureList()->GetNext()->GetFilterData();
+	filter.maskBits = 1;
+	player.b2BodyPtr->GetFixtureList()->GetNext()->SetFilterData(filter);
+	player.spriteBatch[player.spriteIDs[0]].setColor(100, 100, 255, 255);
+}
+void Player::M_Dodge::think(std::vector<Actor*>& actorPtrs, fk::Camera * camPtr) {
+	if (!iFrames--) {
+		actorPtr->movement.dodging = false;
+		b2Filter filter = actorPtr->b2BodyPtr->GetFixtureList()->GetNext()->GetFilterData();
+		filter.maskBits = 0b1111111111111111;
+		actorPtr->b2BodyPtr->GetFixtureList()->GetNext()->SetFilterData(filter);
+		actorPtr->setState(new M_Control(*actorPtr));
+	}
+}
+void Player::M_Dodge::updateBody() {
+	if (iFrames > 12) {
+		actorPtr->b2BodyPtr->ApplyLinearImpulse(
+			b2Vec2(actorPtr->los.faceDirection.x * 8, actorPtr->los.faceDirection.y * 8),
+			actorPtr->b2BodyPtr->GetWorldCenter(),
+			true
+		);
+	}
+}
+
+
+void Player::M_Cast::enter() {
+	actorPtr->movement.vector.x = 0;
+	actorPtr->movement.vector.y = 0;
+	actorPtr->spriteBatch[actorPtr->spriteIDs[0]].setColor(255, 255, 255, 255);
+}
+void Player::M_Cast::think(std::vector<Actor*>& actorPtrs, fk::Camera * camPtr) {
+	Player& player = *static_cast<Player*>(actorPtr);
+	// State change
+	if (player.m_uiPtr->getKeyInfo(fk::Key::ALT_L).downFrames && !player.m_dodgeTimer) {
+		player.m_readyToDash = false;
+		player.setState(new M_Dodge(*actorPtr));
+	} else if (!player.m_uiPtr->getKeyInfo(fk::Key::SPACE).downFrames) {
+		player.m_readyToDash = false;
+		player.setState(new M_Control(*actorPtr));
+	}
 }

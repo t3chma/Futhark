@@ -17,7 +17,6 @@ glm::vec2 Object::getPosition() {
 	b2Vec2 vec = b2BodyPtr->GetPosition();
 	return glm::vec2(vec.x, vec.y);
 }
-
 void Object::updateSprite() {
 	for (auto&& spriteID : spriteIDs) {
 		spriteBatch[spriteID].canvas.rotationAngle = b2BodyPtr->GetAngle();

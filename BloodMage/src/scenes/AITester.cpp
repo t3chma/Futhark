@@ -394,7 +394,6 @@ void AITester::edit(fk::Tools& tools, int downFrames, int bind, int info) {
 			ad.position = mousePtr->position;
 			ad.textures.push_back(tools.textures.get("Circle.png", 1));
 			ad.textures.push_back(tools.textures.get("Stab.png", 1));
-			new Spear(map, ad);
 		}
 	  break;
 	  case BEHAVIOR:

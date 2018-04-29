@@ -27,9 +27,6 @@
     <ClCompile Include="src\actors\Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\actors\Spear.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\actors\Actor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -65,9 +62,6 @@
     <ClInclude Include="src\actors\Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\actors\Spear.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\actors\Actor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -90,6 +84,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Spells.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\actors\StateFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

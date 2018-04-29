@@ -1,12 +1,16 @@
-#include "Actor.h"
+#include "StateFactory.h"
 
 
 int Actor::advances{ 0 };
 
-Actor::Actor(Map& map, ActorDef& ad)
-	: Object(map.dynamicObjectSprites, map.world, b2_dynamicBody, ad.position.x, ad.position.y),
-	p_map(map) {
-	//b2BodyPtr->SetSleepingAllowed(false);
+
+Actor::Actor(Map& map, ActorDef& ad, State& startState, AgroClass agroClass) :
+	Object(map.dynamicObjectSprites, map.world, b2_dynamicBody, ad.position.x, ad.position.y),
+	map(map),
+	p_radius(ad.size / 2)
+{
+	states.currentPtr = &startState;
+	states.agroClass = agroClass;
 	ad.size *= 0.6;
 	map.actorPtrs.push_back(this);
 	spriteIDs.reserve(ad.textures.size());
@@ -30,7 +34,51 @@ Actor::Actor(Map& map, ActorDef& ad)
 }
 Actor::~Actor() {
 	for (auto&& id : spriteIDs) { spriteBatch.destroySprite(id); }
+	delete states.currentPtr;
+	delete states.prevPtr;
 }
+bool Actor::inLOS(Actor* targetPtr, float awareness, std::string ignoreCategory) {
+	glm::vec2 targetVec = targetPtr->getPosition() - getPosition();
+	float halfAngle = std::abs(
+		std::abs(fk::makeAngle(los.faceDirection) -
+			fk::makeAngle(glm::normalize(targetVec))) - fk::TAU / 2
+	);
+	float length(glm::length(targetVec));
+	targetInfo.obstructionPtr = nullptr;
+	p_raycast.target = targetPtr;
+	targetInfo.ptr = nullptr;
+	p_raycast.ignore = ignoreCategory;
+	if (length < awareness || length < los.distance && halfAngle < los.halfAngle) {
+		b2BodyPtr->GetWorld()->RayCast(
+			this,
+			b2Vec2(getPosition().x, getPosition().y),
+			b2Vec2(targetPtr->getPosition().x, targetPtr->getPosition().y)
+		);
+	}
+	p_raycast.target = nullptr;
+	p_raycast.ignore = "";
+	return (targetInfo.obstructionPtr == targetInfo.ptr && targetInfo.ptr == targetPtr);
+}
+bool Actor::inLOS(glm::vec2 target, float awareness, std::string ignoreCategory) {
+	glm::vec2 targetVec = target - getPosition();
+	float halfAngle = std::abs(
+		std::abs(fk::makeAngle(los.faceDirection) -
+			fk::makeAngle(glm::normalize(targetVec))) - fk::TAU / 2
+	);
+	float length(glm::length(targetVec));
+	targetInfo.obstructionPtr = nullptr;
+	p_raycast.ignore = ignoreCategory;
+	if (length < awareness || length < los.distance && halfAngle < los.halfAngle) {
+		b2BodyPtr->GetWorld()->RayCast(
+			this,
+			b2Vec2(getPosition().x, getPosition().y),
+			b2Vec2(target.x, target.y)
+		);
+	}
+	p_raycast.ignore = "";
+	return !targetInfo.obstructionPtr;
+}
+float Actor::getRadius() { return p_radius; }
 float Actor::getFloorCost(Terrain::Floor floor) {
 	switch (floor) {
 	  case Terrain::Floor::DEV:
@@ -71,13 +119,10 @@ float Actor::getVaporCost(Terrain::Vapor floor) {
 	  return 0;
 	}
 }
-Actor::P_Blood Actor::getBlood() {
-	return p_blood;
-}
 void Actor::startAStar(glm::vec2 target) {
 	// Reset data.
 	p_pathFindingData.frontier.clear();
-	p_pathFindingData.upToDate = false;
+	p_pathFindingData.done = false;
 	p_pathFindingData.gCosts.clear();
 	p_pathFindingData.flow.clear();
 	glm::vec2 goal = getPosition();
@@ -103,7 +148,7 @@ void Actor::advanceAStar() {
 			break;
 		}
 		// Process each neighbor.
-		std::array<std::pair<Terrain*, glm::ivec2>, 8> neghbors = p_map.getNeighborTilePtrs(current.first);
+		std::array<std::pair<Terrain*, glm::ivec2>, 8> neghbors = map.getNeighborTilePtrs(current.first);
 		for (int i = 0; i < 8; ++i) {
 			// Will be nullptr if at the map edge.
 			if (neghbors[i].first == nullptr) { continue; }
@@ -133,7 +178,7 @@ void Actor::advanceAStar() {
 		}
 	}
 	if (p_pathFindingData.frontier.empty()) {
-		p_pathFindingData.upToDate = true;
+		p_pathFindingData.done = true;
 		p_pathFindingData.staleData = false;
 		glm::ivec2 currentTarget(-1);
 		if (!p_pathFindingData.path.empty()) { currentTarget = p_pathFindingData.path.front(); }
@@ -150,27 +195,28 @@ void Actor::advanceAStar() {
 		p_pathFindingData.path.emplace_back(p_pathFindingData.fStart);
 	}
 }
-
+glm::vec2 Actor::getNextPathPointDirection(glm::vec2 targetPos) {
+	// Get tile position
+	glm::vec2 pos(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
+	pos.x = round(pos.x);
+	pos.y = round(pos.y);
+	// If on the next tile in the path remove that tile.
+	if (p_pathFindingData.path.size() > 1 && pos == p_pathFindingData.path.front() ) {
+		p_pathFindingData.path.pop_front();
+	}// Get the vector
+	glm::vec2 moveVec = p_pathFindingData.path.front() - pos;
+	if (moveVec.x == 0 && moveVec.y == 0 || glm::length(moveVec) > 2) { moveVec = targetPos - pos; }
+	return glm::normalize(moveVec);
+}
+void Actor::markPathStale() {
+	p_pathFindingData.staleData = true;
+}
+const Actor::P_PathFindingData& Actor::getPathFindingData() { return p_pathFindingData; }
 void Actor::addOrder(std::vector<fk::Texture>& textures, glm::vec2& position) {
-	p_orders.push_back(new Order(p_map, textures, position, this, true));
+	orders.all.push_back(new Order(map, textures, position, this, true));
 }
-
-void Actor::showNodes() {
-	for (auto&& node : p_orders) { node->show(); }
-}
-
-void Actor::hideNodes() {
-	for (auto&& node : p_orders) { node->hide(); }
-}
-
-void Actor::pause(int frames) {
-	p_pause = frames;
-}
-
-bool Actor::isDodging() {
-	return p_dodging;
-}
-
+void Actor::showNodes() { for (auto&& node : orders.all) { node->show(); } }
+void Actor::hideNodes() { for (auto&& node : orders.all) { node->hide(); } }
 float32 Actor::ReportFixture(
 	b2Fixture* fixturePtr,
 	const b2Vec2& point,
@@ -178,7 +224,85 @@ float32 Actor::ReportFixture(
 	float32 fraction
 ) {
 	Object* op = static_cast<Object*>(fixturePtr->GetBody()->GetUserData());
-	if (op->category == "actor") { p_targetPtr = static_cast<Actor*>(fixturePtr->GetBody()->GetUserData()); }
-	p_obstructionPtr = op;
+	if (
+		(p_raycast.target == fixturePtr->GetBody()->GetUserData() || !p_raycast.target)
+		&& op->category == "actor"
+	) {
+		targetInfo.ptr = static_cast<Actor*>(fixturePtr->GetBody()->GetUserData());
+		targetInfo.obstructionPtr = op;
+	}
+	if (op->category != p_raycast.ignore) {
+		targetInfo.obstructionPtr = op;
+	}
 	return fraction;
+}
+void Actor::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
+	if (health < 1) { setState(new Dead(*this)); }
+	states.currentPtr->think(actorPtrs, camPtr);
+}
+void Actor::updateBody() { states.currentPtr->updateBody(); }
+void Actor::updateSprite() {
+	spriteBatch[spriteIDs[0]].canvas.rotationAngle = b2BodyPtr->GetAngle();
+	spriteBatch[spriteIDs[0]].setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
+	spriteBatch[spriteIDs[0]].setRotationAxis(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
+	states.currentPtr->updateSprite();
+}
+void Actor::setState(State* newStatePtr) {
+	delete states.prevPtr;
+	states.prevPtr = states.currentPtr;
+	states.currentPtr = newStatePtr;
+	newStatePtr->enter();
+}
+void Actor::look(glm::vec2 targetVector) {
+	b2BodyPtr->SetTransform(b2BodyPtr->GetWorldCenter(), fk::makeAngle(targetVector) + fk::TAU / 4);
+}
+void Actor::returnToPrevState() {
+	std::swap(states.currentPtr, states.prevPtr);
+	states.currentPtr->enter();
+}
+
+
+void Actor::State::updateBody() {
+	actorPtr->b2BodyPtr->ApplyLinearImpulse(
+		b2Vec2(actorPtr->movement.vector.x, actorPtr->movement.vector.y),
+		actorPtr->b2BodyPtr->GetWorldCenter(),
+		true
+	);
+	actorPtr->look(actorPtr->los.faceDirection);
+}
+
+
+void Actor::Dead::enter() {
+	actorPtr->movement.vector.x = 0;
+	actorPtr->movement.vector.y = 0;
+	for (auto&& spriteID : actorPtr->spriteIDs) { actorPtr->spriteBatch[spriteID].canvas.color.a = 0; }
+	actorPtr->spriteBatch[actorPtr->spriteIDs[0]].canvas.color.a = 100;
+}
+
+
+void Actor::Idle::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
+	// TODO: follow orders
+	actorPtr->movement.vector.x = 0;
+	actorPtr->movement.vector.y = 0;
+	if (actorPtr->inLOS(actorPtrs[0], 1)) { actorPtr->setState(new Cast(*actorPtr)); }
+	///if (actorPtr->hit) { actorPtr->setState(new P_Stun(actorPtr)); }
+}
+
+
+void Actor::Cast::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
+	// TODO: casting
+	///if (actorPtr->hit) { actorPtr->setState(new P_Stun(actorPtr)); }
+	actorPtr->setState(makeState(actorPtr->states.agroClass, *actorPtr));
+}
+
+
+void Actor::Search::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
+	// TODO: search
+	///if (actorPtr->hit) { actorPtr->setState(new P_Stun(actorPtr)); }
+	actorPtr->setState(new Idle(*actorPtr));
+}
+
+
+void Actor::Flee::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
+	// TODO: flee
 }

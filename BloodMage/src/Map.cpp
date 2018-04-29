@@ -75,9 +75,6 @@ void Map::resize(int width, int height, fk::Texture& texture) {
 		}
 	}
 }
-const Terrain* Map::getTilePtr(glm::vec2& position) {
-	return getTilePtr(position.x, position.y);
-}
 const std::array<std::pair<Terrain*, glm::ivec2>, 8> Map::getNeighborTilePtrs(glm::ivec2& position) {
 	std::array<std::pair<Terrain*, glm::ivec2>, 8> ret;
 	int xi = position.x - 1;
@@ -101,10 +98,14 @@ const std::array<std::pair<Terrain*, glm::ivec2>, 8> Map::getNeighborTilePtrs(gl
 	if (ret[6].first->health && ret[4].first->health) { ret[7] = std::make_pair(nullptr, glm::ivec2(0)); }
 	return ret;
 }
+const Terrain* Map::getTilePtr(glm::vec2& position) {
+	return getTilePtr(position.x, position.y);
+}
 const Terrain* Map::getTilePtr(float x, float y) {
 	int xi = round(x);
 	int yi = round(y);
-	if (xi < 0 || xi >= m_terrain.size() || yi < 0 || yi >= m_terrain[xi].size()) { return nullptr; }
+	if (xi < 0 || xi >= m_terrain.size() || yi < 0 || yi >= m_terrain[xi].size()) {
+		return nullptr; }
 	return &m_terrain[xi][yi];
 }
 void Map::render(fk::Camera& cam) {

@@ -5,6 +5,7 @@
 #include "boost/heap/fibonacci_heap.hpp"
 #include "../Orders.h"
 
+enum AgroClass { VOID, GRUNT };
 
 struct ActorDef {
 	float speed{ 1 };
@@ -22,54 +23,155 @@ struct Compare {
 };
 
 class Actor : public Object, public b2RayCastCallback {
-  protected:
-	struct P_Blood {
+  public:
+	struct State {
+		Actor* actorPtr{ nullptr };
+		State() = delete;
+		State(Actor& actor) : actorPtr(&actor) {};
+		virtual void enter() {};
+		virtual void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr) {};
+		virtual void updateBody();
+		virtual void updateSprite() {};
+	};
+	struct Dead : public Actor::State {
+		Dead(Actor& actor) : State(actor) {};
+		virtual void enter() override;
+		virtual void updateBody() {};
+	};
+	struct Idle : Actor::State {
+		Idle(Actor& actor) : State(actor) {};
+		virtual void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr) override;
+	};
+	struct Cast : Actor::State {
+		Cast(Actor& actor) : State(actor) {};
+		virtual void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr) override;
+		virtual void updateBody() override {};
+	};
+	struct Search : Actor::State {
+		Search(Actor& actor) : State(actor) {};
+		virtual void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr) override;
+	};
+	struct Flee : Actor::State {
+		Flee(Actor& actor) : State(actor) {};
+		virtual void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr) override;
+	};
+	struct {
 		float fire{ 0 };
 		float earth{ 0 };
 		float water{ 0 };
 		float air{ 0 };
-	} p_blood;
-  public:
+	} blood;
+	struct {
+		State* currentPtr{ nullptr };
+		State* prevPtr{ nullptr };
+		AgroClass agroClass;
+	} states;
+	struct {
+		Order* current;
+		std::vector<Order*> all;
+	} orders;
+	struct {
+		float speed{ 1 };
+		glm::vec2 vector{ 0,0 };
+		bool dodging{ false };
+	} movement;
+	struct {
+		glm::vec2 faceDirection{ 0,1 };
+		double halfAngle{ fk::TAU / 4 };
+		float distance{ 7 };
+	} los;
+	struct {
+		glm::vec2 lastPos{ 0 };
+		Actor* ptr{ nullptr };
+		Object* obstructionPtr{ nullptr };
+	} targetInfo;
+	struct StatEffect { float buildup{ 0 }; int time{ 0 }; };
+	struct {
+		StatEffect oiled;
+		struct : public StatEffect { float strength{ 0 }; } buffed;
+		StatEffect anchored;
+		StatEffect petrified;
+		StatEffect invincible;
+		StatEffect fallen;
+		struct : public StatEffect { float strength{ 0 }; } lubed;
+		StatEffect muted;
+		StatEffect summoning;
+		struct : public StatEffect { glm::vec2 source; float length; } chained;
+		StatEffect wet;
+		StatEffect frozen;
+		StatEffect cleansed;
+		StatEffect bonded;
+		struct : public StatEffect { float strength; } healing;
+		struct : public StatEffect { float strength; } energized;
+		struct : public StatEffect { float strength; } slowed;
+		struct : public StatEffect { float strength; } bleeding;
+		struct : public StatEffect { Actor* markerPtr; } marked;
+		struct : public StatEffect { float strength; } sped;
+		StatEffect burning;
+		struct : public StatEffect { float buildup{ 0 }; int time{ 0 }; glm::vec2 source; } frightened;
+		StatEffect highlighted;
+		StatEffect distracted;
+		StatEffect panicked;
+		struct : public StatEffect { Actor* allyPtr; } charmed;
+		struct : public StatEffect { Actor* attractorPtr; } attracted;
+		struct : public StatEffect { float strength; } strengthened;
+		struct : public StatEffect { float strength; } lighting;
+		struct : public StatEffect { Actor* targetPtr; } tracking;
+		struct : public StatEffect { float strength; } weakened;
+		struct : public StatEffect { float strength; } hidden;
+		StatEffect invisible;
+		StatEffect blinded;
+		struct : public StatEffect { glm::vec2 vector; } blown;
+		StatEffect ethereal;
+		StatEffect electrified;
+		StatEffect poisoned;
+		struct : public StatEffect { glm::vec2 destination; bool ready; } teleporting;
+		struct : public StatEffect { float strength; } reaching;
+		StatEffect mirroring;
+		struct : public StatEffect { glm::vec2 direction; float halfAngle; } shielded;
+		StatEffect stunned;
+	} statEffects;
+	Map& map;
+	static int advances;
 	Actor() = delete;
-	Actor(Map& map, ActorDef& ad);
+	Actor(Map& map, ActorDef& ad, State& startState, AgroClass agroClass);
 	~Actor();
+	virtual void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr);
+	virtual void updateBody() override;
+	virtual void updateSprite() override;
+	void setState(State* newStatePtr);
+	void look(glm::vec2 targetVector);
+	void returnToPrevState();
+	bool inLOS(Actor* targetPtr, float awareness = 0, std::string ignoreCategory = "");
+	bool inLOS(glm::vec2 target, float awareness = 0, std::string ignoreCategory = "");
+	float getRadius();
 	float getFloorCost(Terrain::Floor floor);
 	float getFluidCost(Terrain::Fluid fluid);
 	float getVaporCost(Terrain::Vapor floor);
-	P_Blood getBlood();
 	void startAStar(glm::vec2 target);
 	void advanceAStar();
-	virtual void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr) = 0;
+	glm::vec2 getNextPathPointDirection(glm::vec2 targetPos);
+	void markPathStale();
+	struct P_PathFindingData;
+	const P_PathFindingData& getPathFindingData();
 	void addOrder(std::vector<fk::Texture>& textures, glm::vec2& position);
 	void showNodes();
 	void hideNodes();
-	void pause(int frames);
-	bool isDodging();
 	virtual float32 ReportFixture(
 		b2Fixture* fixture,
 		const b2Vec2& point,
 		const b2Vec2& normal,
 		float32 fraction
 	);
-	static int advances;
   protected:
-	Order* p_currentOrder;
-	std::vector<Order*> p_orders;
-	float p_speed{ 1 };
-	glm::vec2 p_moveDirection{ 0,1 };
-	glm::vec2 p_faceDirection{ 0,1 };
-	float p_faceAngle{ 0 };
-	Map& p_map;
-	int p_pause{ 0 };
-	std::list<Actor*> p_attackerPtrList;
-	Actor* p_targetPtr{ nullptr };
-	Object* p_obstructionPtr{ nullptr };
-	glm::vec2 p_lastTargetPos{ 0 };
-	int p_dodging{ 0 };
 	struct {
+		std::string ignore{ "" };
+		Actor* target{ nullptr };
+	} p_raycast;
+	struct P_PathFindingData {
 		// If the current A* data is up to date.
 		// Note: Not being up to date does not mean that it is totally useless though.
-		bool upToDate{ false };
+		bool done{ false };
 		// If the current A* data is totally worthless.
 		bool staleData{ true };
 		// Path map.
@@ -112,8 +214,6 @@ class Actor : public Object, public b2RayCastCallback {
 		float poison = 10;
 		float steam = 0.1;
 	} p_vaporWeights;
-	struct {
-		int right{ 0 };
-		int left{ 0 };
-	} p_drainCount;
+	float p_radius;
+	std::list<Actor*> p_attackerPtrList;
 };
