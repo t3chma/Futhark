@@ -6,11 +6,8 @@ Mouse::Mouse(Map& map, std::vector<fk::Texture>& textures)
 	: Object(map.logicSprites, map.world, b2_kinematicBody)
 {
 	b2BodyPtr->SetSleepingAllowed(false);
-	spriteIDs.reserve(textures.size());
-	for (auto&& texture : textures) {
-		spriteIDs.push_back(spriteBatch.makeSprite(texture));
-		spriteBatch[spriteIDs.back()].setDimensions(1.0, 1.0);
-	}
+	sprites.add("cursor", textures[0]);
+	sprites.get("cursor")->setDimensions(1.0, 1.0);
 	b2FixtureDef fixtureDef1;
 	b2CircleShape shape1;
 	fixtureDef1.isSensor = true;
@@ -27,9 +24,9 @@ void Mouse::updateBody() {
 
 void Mouse::updateSprite() {
 	if (orderEditPtr) {
-		spriteBatch[spriteIDs[0]].setPosition(orderEditPtr->getPosition());
+		sprites.get("cursor")->setPosition(orderEditPtr->getPosition());
 	} else if (acotrEditPtr) {
-		spriteBatch[spriteIDs[0]].setPosition(acotrEditPtr->getPosition());
+		sprites.get("cursor")->setPosition(acotrEditPtr->getPosition());
 	}
 }
 

@@ -9,9 +9,9 @@ Prop::Prop(Map& map, PropDef& pd)
 		pd.position.y
 ) {
 	map.propPtrs.push_back(this);
-	spriteIDs.push_back(spriteBatch.makeSprite(pd.texture));
-	spriteBatch[spriteIDs.back()].setDimensions(pd.size + 0.01, pd.size + 0.01);
-	spriteBatch[spriteIDs.back()].setPosition(pd.position);
+	sprites.add("", pd.texture);
+	sprites.get("")->setDimensions(pd.size + 0.01, pd.size + 0.01);
+	sprites.get("")->setPosition(pd.position);
 	b2BodyPtr->SetLinearDamping(10);
 	b2BodyPtr->SetAngularDamping(5);
 	b2FixtureDef fixtureDef1;

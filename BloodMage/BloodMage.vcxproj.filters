@@ -48,7 +48,10 @@
     <ClCompile Include="src\Hud.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Spells.cpp">
+    <ClCompile Include="src\SpellCatalog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Thrown.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -83,10 +86,10 @@
     <ClInclude Include="src\Hud.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Spells.h">
+    <ClInclude Include="src\SpellCatalog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\actors\StateFactory.h">
+    <ClInclude Include="src\Thrown.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

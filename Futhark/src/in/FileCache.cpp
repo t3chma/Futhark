@@ -120,7 +120,7 @@ Shader ShadersCache::p_load(const std::string& SHADER_FILE_PATH) {
 }
 
 TTFont FontCache::p_load(const std::string& IMAGE_FILE_PATH) {
-	return TTFont(IMAGE_FILE_PATH);
+	return TTFont("Fonts/" + IMAGE_FILE_PATH);
 }
 
 }

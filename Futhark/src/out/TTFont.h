@@ -24,6 +24,7 @@ class TextSprite {
 	void move(glm::vec2 translation);
 	SpriteBatch::Sprite& operator [] (int charIndex);
 	std::string getText();
+	int getTextLength();
 	void clearText();
 	void setText(
 		std::string& text,

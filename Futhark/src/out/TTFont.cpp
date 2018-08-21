@@ -280,6 +280,7 @@ SpriteBatch::Sprite& TextSprite::operator [](int charIndex) {
 	return m_spriteBatch[m_spriteIds[charIndex]];
 }
 std::string TextSprite::getText() { return m_string;  }
+int TextSprite::getTextLength() { return m_string.length(); }
 
 void TextSprite::clearText() {
 	m_string = "";

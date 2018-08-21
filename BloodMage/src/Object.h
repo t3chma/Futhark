@@ -5,7 +5,6 @@
 #include "up/Body.h"
 #include "up/World.h"
 
-
 class Object : public fk::Body {
 public:
 	Object() = delete;
@@ -22,8 +21,7 @@ public:
 	virtual glm::vec2 getPosition();
 	virtual void updateBody() {};
 	virtual void updateSprite();
-	fk::SpriteBatch& spriteBatch;
-	std::vector<int> spriteIDs;
+	fk::Sprites sprites;
 	int health{ 100 };
 	bool hit{ false };
 	bool despawn{ false };

@@ -22,9 +22,9 @@ Static::Static(
 	}
 	tile.staticObjectPtr = this;
 	if (texture.id) {
-		spriteIDs.push_back(map.staticObjectSprites.makeSprite(texture));
-		spriteBatch[spriteIDs.back()].setPosition(x, y);
-		spriteBatch[spriteIDs.back()].setDimensions(1.0, 1.0);
+		sprites.add("", texture);
+		sprites.get("")->setPosition(x, y);
+		sprites.get("")->setDimensions(1.0, 1.0);
 		this->health = health;
 	} else {
 		this->health = -1;
@@ -41,7 +41,7 @@ Static::Static(
 	category = "static";
 }
 Static::~Static() {
-	for (auto&& id : spriteIDs) { spriteBatch.destroySprite(id); }
+	for (auto&& id : sprites.ids) { sprites.batch.destroySprite(id.second); }
 }
 
 void Static::operator=(const Static staticObject) {

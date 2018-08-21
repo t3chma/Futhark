@@ -4,14 +4,13 @@
 #include <unordered_map>
 #include "boost/heap/fibonacci_heap.hpp"
 #include "../Orders.h"
-
-enum AgroClass { VOID, GRUNT };
+class Spell;
 
 struct ActorDef {
 	float speed{ 1 };
-	float size{ 1 };
+	float size{ 0.6f };
 	glm::vec2 position{ 0,0 };
-	std::vector<fk::Texture> textures;
+	fk::Texture body;
 };
 
 // Comparable class for A* queue.
@@ -33,6 +32,11 @@ class Actor : public Object, public b2RayCastCallback {
 		virtual void updateBody();
 		virtual void updateSprite() {};
 	};
+	struct AgroState : public State {
+		AgroState() = delete;
+		AgroState(Actor& actor) : State(actor) {};
+		virtual State* copy() = 0;
+	};
 	struct Dead : public Actor::State {
 		Dead(Actor& actor) : State(actor) {};
 		virtual void enter() override;
@@ -41,11 +45,6 @@ class Actor : public Object, public b2RayCastCallback {
 	struct Idle : Actor::State {
 		Idle(Actor& actor) : State(actor) {};
 		virtual void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr) override;
-	};
-	struct Cast : Actor::State {
-		Cast(Actor& actor) : State(actor) {};
-		virtual void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr) override;
-		virtual void updateBody() override {};
 	};
 	struct Search : Actor::State {
 		Search(Actor& actor) : State(actor) {};
@@ -61,10 +60,11 @@ class Actor : public Object, public b2RayCastCallback {
 		float water{ 0 };
 		float air{ 0 };
 	} blood;
+	float* const bloodPtrs[4]{ &blood.fire, &blood.earth, &blood.water, &blood.air};
 	struct {
 		State* currentPtr{ nullptr };
 		State* prevPtr{ nullptr };
-		AgroClass agroClass;
+		AgroState* agroStatePtr{ nullptr };
 	} states;
 	struct {
 		Order* current;
@@ -81,10 +81,15 @@ class Actor : public Object, public b2RayCastCallback {
 		float distance{ 7 };
 	} los;
 	struct {
-		glm::vec2 lastPos{ 0 };
+		glm::vec2 lastKnownPos{ 0 };
 		Actor* ptr{ nullptr };
 		Object* obstructionPtr{ nullptr };
 	} targetInfo;
+	struct {
+		std::vector<Spell*> self;
+		std::vector<Spell*> melee;
+		std::vector<Spell*> gun;
+	} enchants;
 	struct StatEffect { float buildup{ 0 }; int time{ 0 }; };
 	struct {
 		StatEffect oiled;
@@ -113,9 +118,9 @@ class Actor : public Object, public b2RayCastCallback {
 		StatEffect distracted;
 		StatEffect panicked;
 		struct : public StatEffect { Actor* allyPtr; } charmed;
-		struct : public StatEffect { Actor* attractorPtr; } attracted;
+		struct : public StatEffect { Actor* attractorPtr; } fixated;
 		struct : public StatEffect { float strength; } strengthened;
-		struct : public StatEffect { float strength; } lighting;
+		struct : public StatEffect { float strength; } sight;
 		struct : public StatEffect { Actor* targetPtr; } tracking;
 		struct : public StatEffect { float strength; } weakened;
 		struct : public StatEffect { float strength; } hidden;
@@ -134,7 +139,7 @@ class Actor : public Object, public b2RayCastCallback {
 	Map& map;
 	static int advances;
 	Actor() = delete;
-	Actor(Map& map, ActorDef& ad, State& startState, AgroClass agroClass);
+	Actor(Map& map, ActorDef& ad, State& startState, Actor::AgroState* agroStatePtr);
 	~Actor();
 	virtual void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr);
 	virtual void updateBody() override;
@@ -215,5 +220,4 @@ class Actor : public Object, public b2RayCastCallback {
 		float steam = 0.1;
 	} p_vaporWeights;
 	float p_radius;
-	std::list<Actor*> p_attackerPtrList;
 };

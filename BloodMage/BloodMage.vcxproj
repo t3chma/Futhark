@@ -173,7 +173,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Hud.cpp" />
-    <ClCompile Include="src\Spells.cpp" />
+    <ClCompile Include="src\SpellCatalog.cpp" />
     <ClCompile Include="src\Orders.cpp" />
     <ClCompile Include="src\Mouse.cpp" />
     <ClCompile Include="src\Map.cpp" />
@@ -184,6 +184,7 @@
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\scenes\AITester.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Thrown.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Futhark\Futhark.vcxproj">
@@ -191,9 +192,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\actors\StateFactory.h" />
     <ClInclude Include="src\Hud.h" />
-    <ClInclude Include="src\Spells.h" />
+    <ClInclude Include="src\SpellCatalog.h" />
     <ClInclude Include="src\Orders.h" />
     <ClInclude Include="src\Mouse.h" />
     <ClInclude Include="src\Map.h" />
@@ -203,6 +203,7 @@
     <ClInclude Include="src\actors\Player.h" />
     <ClInclude Include="src\actors\Grunt.h" />
     <ClInclude Include="src\scenes\AITester.h" />
+    <ClInclude Include="src\Thrown.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\Arrow.png" />

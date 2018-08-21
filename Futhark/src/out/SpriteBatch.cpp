@@ -79,7 +79,7 @@ void SpriteBatch::m_makeSpriteTrays() {
 		[](Sprite* aPtr, Sprite* bPtr) { return (
 			aPtr->canvas.position.z == bPtr->canvas.position.z
 			? aPtr->texture.id < bPtr->texture.id
-			: aPtr->canvas.position.z > bPtr->canvas.position.z
+			: aPtr->canvas.position.z < bPtr->canvas.position.z
 		); }
 	);
 	// Make sure there are sprites to render
@@ -207,4 +207,18 @@ void SpriteBatch::Sprite::makeLine(glm::vec2& b, glm::vec2& a, float thickness) 
 
 SpriteBatch::SpriteTray::SpriteTray(GLuint textureID, float depth, int offset)
 	: textureID(textureID), depth(depth), offset(offset) {}
+
+
+SpriteBatch::Sprite* fk::Sprites::get(const std::string& nickname) {
+	auto it = ids.find(nickname);
+	if (it == ids.end()) { return nullptr; }
+	else { return &batch[it->second]; }
+}
+
+int Sprites::add(const std::string& nickname, const Texture& texture) {
+	int id = batch.makeSprite(texture);
+	ids.insert(std::make_pair(nickname, id));
+	return id;
+}
+
 }

@@ -10,7 +10,7 @@ Object::Object(
 	float angle,
 	bool fixedRotation,
 	bool bullet
-) : spriteBatch(spriteBatch), Body(world, type, xPosition, yPosition, angle, fixedRotation, bullet) {
+) : sprites(spriteBatch), Body(world, type, xPosition, yPosition, angle, fixedRotation, bullet) {
 
 }
 glm::vec2 Object::getPosition() {
@@ -18,10 +18,14 @@ glm::vec2 Object::getPosition() {
 	return glm::vec2(vec.x, vec.y);
 }
 void Object::updateSprite() {
-	for (auto&& spriteID : spriteIDs) {
-		spriteBatch[spriteID].canvas.rotationAngle = b2BodyPtr->GetAngle();
-		spriteBatch[spriteID].setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
-		spriteBatch[spriteID].setRotationAxis(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
+	for (auto&& spriteID : sprites.ids) {
+		sprites.batch[spriteID.second].canvas.rotationAngle = b2BodyPtr->GetAngle();
+		sprites.batch[spriteID.second].setPosition(
+			b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y
+		);
+		sprites.batch[spriteID.second].setRotationAxis(
+			b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y
+		);
 	}
 }
 

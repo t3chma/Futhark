@@ -1,41 +1,38 @@
-#include "StateFactory.h"
-
+#include "Actor.h"
 
 int Actor::advances{ 0 };
 
 
-Actor::Actor(Map& map, ActorDef& ad, State& startState, AgroClass agroClass) :
+Actor::Actor(Map& map, ActorDef& ad, State& startState, Actor::AgroState* agroStatePtr) :
 	Object(map.dynamicObjectSprites, map.world, b2_dynamicBody, ad.position.x, ad.position.y),
 	map(map),
 	p_radius(ad.size / 2)
 {
-	states.currentPtr = &startState;
-	states.agroClass = agroClass;
-	ad.size *= 0.6;
 	map.actorPtrs.push_back(this);
-	spriteIDs.reserve(ad.textures.size());
-	for (auto&& texture : ad.textures) {
-		spriteIDs.push_back(spriteBatch.makeSprite(texture));
-		spriteBatch[spriteIDs.back()].setDimensions(ad.size, ad.size);
-		spriteBatch[spriteIDs.back()].setPosition(ad.position);
-	}
-	b2BodyPtr->SetLinearDamping(10);
-	b2BodyPtr->SetAngularDamping(5);
-	b2FixtureDef fixtureDef1;
+	states.currentPtr = &startState;
+	states.agroStatePtr = agroStatePtr;
+	movement.speed = ad.speed;
+	category = "actor";
+	sprites.add("body", ad.body);
+	sprites.get("body")->setDimensions(ad.size, ad.size);
+	sprites.get("body")->setPosition(ad.position);
 	b2CircleShape shape1;
-	fixtureDef1.shape = &shape1;
 	shape1.m_radius = ad.size / 2;
+	b2FixtureDef fixtureDef1;
+	fixtureDef1.shape = &shape1;
 	fixtureDef1.userData = nullptr;
 	fixtureDef1.density = 10.0f;
 	fixtureDef1.friction = 0.3f;
 	fixtureDef1.filter.categoryBits = 2;
+	b2BodyPtr->SetLinearDamping(10);
+	b2BodyPtr->SetAngularDamping(5);
 	b2BodyPtr->CreateFixture(&fixtureDef1);
-	category = "actor";
 }
 Actor::~Actor() {
-	for (auto&& id : spriteIDs) { spriteBatch.destroySprite(id); }
+	for (auto&& id : sprites.ids) { sprites.batch.destroySprite(id.second); }
 	delete states.currentPtr;
 	delete states.prevPtr;
+	delete states.agroStatePtr;
 }
 bool Actor::inLOS(Actor* targetPtr, float awareness, std::string ignoreCategory) {
 	glm::vec2 targetVec = targetPtr->getPosition() - getPosition();
@@ -242,9 +239,9 @@ void Actor::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 }
 void Actor::updateBody() { states.currentPtr->updateBody(); }
 void Actor::updateSprite() {
-	spriteBatch[spriteIDs[0]].canvas.rotationAngle = b2BodyPtr->GetAngle();
-	spriteBatch[spriteIDs[0]].setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
-	spriteBatch[spriteIDs[0]].setRotationAxis(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
+	sprites.get("body")->canvas.rotationAngle = b2BodyPtr->GetAngle();
+	sprites.get("body")->setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
+	sprites.get("body")->setRotationAxis(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
 	states.currentPtr->updateSprite();
 }
 void Actor::setState(State* newStatePtr) {
@@ -275,8 +272,10 @@ void Actor::State::updateBody() {
 void Actor::Dead::enter() {
 	actorPtr->movement.vector.x = 0;
 	actorPtr->movement.vector.y = 0;
-	for (auto&& spriteID : actorPtr->spriteIDs) { actorPtr->spriteBatch[spriteID].canvas.color.a = 0; }
-	actorPtr->spriteBatch[actorPtr->spriteIDs[0]].canvas.color.a = 100;
+	for (auto&& spriteID : actorPtr->sprites.ids) {
+		actorPtr->sprites.batch[spriteID.second].canvas.color.a = 0;
+	}
+	actorPtr->sprites.get("body")->canvas.color.a = 100;
 }
 
 
@@ -284,25 +283,19 @@ void Actor::Idle::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	// TODO: follow orders
 	actorPtr->movement.vector.x = 0;
 	actorPtr->movement.vector.y = 0;
-	if (actorPtr->inLOS(actorPtrs[0], 1)) { actorPtr->setState(new Cast(*actorPtr)); }
+	if (actorPtr->inLOS(actorPtrs[0], 1)) { actorPtr->setState(actorPtr->states.agroStatePtr->copy()); }
 	///if (actorPtr->hit) { actorPtr->setState(new P_Stun(actorPtr)); }
-}
-
-
-void Actor::Cast::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
-	// TODO: casting
-	///if (actorPtr->hit) { actorPtr->setState(new P_Stun(actorPtr)); }
-	actorPtr->setState(makeState(actorPtr->states.agroClass, *actorPtr));
 }
 
 
 void Actor::Search::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	// TODO: search
 	///if (actorPtr->hit) { actorPtr->setState(new P_Stun(actorPtr)); }
-	actorPtr->setState(new Idle(*actorPtr));
+	actorPtr->setState(actorPtr->states.agroStatePtr->copy());
 }
 
 
 void Actor::Flee::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	// TODO: flee
+	actorPtr->setState(new Idle(*actorPtr));
 }

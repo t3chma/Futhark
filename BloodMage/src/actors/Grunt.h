@@ -1,10 +1,15 @@
 #pragma once
+#include <set>
 #include "Actor.h"
 
+struct GruntDef {
+	ActorDef ad;
+	fk::Texture swipe;
+};
 
 class Grunt : public Actor {
 public:
-	Grunt(Map& map, ActorDef& ad);
+	Grunt(Map& map, GruntDef& gd);
 	~Grunt();
 	void updateSprite() override;
 	void p_beginCollision(
@@ -17,13 +22,14 @@ public:
 		b2Fixture* myFixturePtr,
 		b2Contact* contactPtr
 	) override;
-	struct Agro : Actor::State {
+	struct Agro : Actor::AgroState {
 		fk::Random rangen;
 		int direction{ 1 };
 		float range{ 8 };
 		bool justEntered{ true };
 		virtual void enter() override;
-		Agro(Actor& actor) : State(actor) { if (rangen.getInt(0,1)) { direction *= -1; } };
+		Agro(Actor& actor) : AgroState(actor) { if (rangen.getInt(0,1)) { direction *= -1; } };
+		State* copy() override { return new Grunt::Agro(*this->actorPtr); };
 		virtual void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr) override;
 	};
 	struct Charge: Actor::State {
@@ -39,5 +45,5 @@ public:
 		virtual void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr) override;
 	};
   private:
-	std::list<Object*> m_hitPtrs;
+	std::set<Object*> m_swipePtrs;
 };

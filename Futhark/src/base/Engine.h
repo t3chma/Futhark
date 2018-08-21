@@ -21,9 +21,9 @@ class Engine {
 	/* Creates the window for the app.
 	This is just a wrapper and can be called on p_window instead.
 	(name) The name of the window.
+	(width) The width of the window in pixels, 0 = screen width, width < 0 = screen width + width.
+	(height) The height of the window in pixels, 0 = screen height, height < 0 = screen width + height.
 	(flags) These ORable flags specify the type of window.
-	(width) The width of the window in pixels, 0 = scene width, width < 0 = scene width + width.
-	(height) The height of the window in pixels, 0 = scene height, height < 0 = scene width + height.
 	< The index of the window.
 	[T3chma : 2018/01/31] */
 	virtual int makeWindow(

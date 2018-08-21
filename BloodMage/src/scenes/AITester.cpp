@@ -34,20 +34,21 @@ void AITester::create(fk::Tools& tools) {
 	map.setStaticObjectTexture(Terrain::Object::TREE, tools.textures.get("Tree128.png", 1));
 
 	ActorDef ad;
-	ad.textures.push_back(tools.textures.get("Circle.png", 1));
-	ad.textures.push_back(tools.textures.get("BigSpurt.png", 1));
-	ad.textures.push_back(tools.textures.get("BigSpurt.png", 1));
-	ad.textures.push_back(tools.textures.get("BigSlash.png", 1));
-	ad.textures.push_back(tools.textures.get("BigSlash.png", 1));
+	ad.body = tools.textures.get("Circle.png", 1);
 	ad.position.x = 250;
 	ad.position.y = 250;
-	Player* playerPtr = new Player(map, &tools.ui, ad);
+	PlayerDef pd;
+	pd.ad = ad;
+	pd.swipe = tools.textures.get("Swipe.png", 1);
+	pd.sword = tools.textures.get("Sword.png", 1);
+	pd.thrown = tools.textures.get("Thrown.png", 1);
+	Player* playerPtr = new Player(map, &tools.ui, pd);
 
 	std::vector<fk::Texture> textures;
 	textures.push_back(tools.textures.get("Selector.png", 1));
 	mousePtr = new Mouse(map, textures);
 
-	font = tools.fonts.get("Fonts/eldermagic.ttf");
+	font = tools.fonts.get("eldermagic.ttf");
 
 	HudDef hd;
 	hd.playerPtr = playerPtr;
@@ -383,17 +384,16 @@ void AITester::edit(fk::Tools& tools, int downFrames, int bind, int info) {
 	  case ACTOR_GRUNT:
 		if (downFrames == 1) {
 			ad.position = mousePtr->position;
-			ad.textures.push_back(tools.textures.get("Circle.png", 1));
-			ad.textures.push_back(tools.textures.get("Swipe.png", 1));
-			ad.textures.push_back(tools.textures.get("Swipe.png", 1));
-			new Grunt(map, ad);
+			ad.body = tools.textures.get("Circle.png", 1);
+			GruntDef gd;
+			gd.ad = ad;
+			gd.swipe = tools.textures.get("Swipe.png", 1);
+			new Grunt(map, gd);
 		}
 	  break;
 	  case ACTOR_SPEAR:
 		if (downFrames == 1) {
-			ad.position = mousePtr->position;
-			ad.textures.push_back(tools.textures.get("Circle.png", 1));
-			ad.textures.push_back(tools.textures.get("Stab.png", 1));
+			
 		}
 	  break;
 	  case BEHAVIOR:

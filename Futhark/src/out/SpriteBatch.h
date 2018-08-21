@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <map>
 #include "OutUtility.h"
 #include "Texture.h"
 namespace fk {
@@ -79,7 +80,8 @@ class SpriteBatch {
 	< The new sprite's ID.
 	[t3chma] */
 	int makeSprite(const Texture& texture);
-	// Allows the retrieval of a sprite using its ID.
+	/* Allows the retrieval of a sprite using its ID.
+	[t3chma] */
 	Sprite& operator [] (int spriteID);
 	/* Removes a sprite from the sprite batch.
 	(spriteID) The ID of the sprite to kill.
@@ -111,6 +113,29 @@ class SpriteBatch {
 	std::vector<Canvas> m_vertexBuffer;
 	// If the local static buffer needs to be sent to the GPU.
 	bool m_bufferStatic{ false };
+};
+
+/* Allows you to access sprites in a sprite batch using a given nick name.
+[t3chma] */
+struct Sprites {
+	/* Constructor
+	(spriteBatch) The sprite batch this will manage.
+	[t3chma] */
+	Sprites(SpriteBatch& spriteBatch) : batch(spriteBatch) {};
+	Sprites() = delete;
+	/* Allows the retrieval of a given sprite using a nick name.
+	(nickname) The nickname of the sprite.
+	< Pointer to the assiciated sprite if it exists.
+	[t3chma] */
+	SpriteBatch::Sprite* get(const std::string& nickname);
+	/* Adds a sprite to the batch and associates its ID to a nickname.
+	(nickname) The nickname to assiciated.
+	(texture) The texture to add to the sprite batch.
+	< The sprite id.
+	[t3chma] */
+	int add(const std::string& nickname, const Texture& texture);
+	SpriteBatch& batch;
+	std::multimap<std::string, int> ids;
 };
 
 }
