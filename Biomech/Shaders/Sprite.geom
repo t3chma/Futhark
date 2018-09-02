@@ -37,7 +37,7 @@ void main() {
     for (int i = 0; i < gl_in.length(); ++i) {
         
         color = inData[i].color;
-        corner.x = gl_in[i].gl_Position.x - inData[i].halfDimensions.x;
+		corner.x = gl_in[i].gl_Position.x - inData[i].halfDimensions.x;
         corner.y = gl_in[i].gl_Position.y - inData[i].halfDimensions.y;
         gl_Position = perspective * vec4(
             rotate(corner, inData[i].rotationAngle, inData[i].rotationAxis),
@@ -72,7 +72,7 @@ void main() {
         EmitVertex();
 
         color = inData[i].color;
-        corner.x = gl_in[i].gl_Position.x + inData[i].halfDimensions.x;
+		corner.x = gl_in[i].gl_Position.x + inData[i].halfDimensions.x;
         corner.y = gl_in[i].gl_Position.y + inData[i].halfDimensions.y;
         gl_Position = perspective * vec4(
             rotate(corner, inData[i].rotationAngle, inData[i].rotationAxis),

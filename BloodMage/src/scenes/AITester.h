@@ -10,6 +10,7 @@
 #include "../Mouse.h"
 #include "out/TTFont.h"
 #include "../Hud.h"
+#include "out\WireRenderer.h"
 
 class AITester : public fk::Scene {
   public:
@@ -23,6 +24,7 @@ class AITester : public fk::Scene {
 		ACTOR_NONE, ACTOR_GRUNT, ACTOR_SPEAR,
 		BEHAVIOR
 	};
+	fk::WireRenderer wireRenderer;
 	int rightBind{ 0 };
 	int rightInfo{ 0 };
 	int leftBind{ 0 };

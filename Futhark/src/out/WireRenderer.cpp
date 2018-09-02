@@ -1,18 +1,15 @@
-#include "SpriteRenderer.h"
+#include "WireRenderer.h"
 #include "Error.h"
 namespace fk {
 
 
-void SpriteRenderer::setShaders(std::vector<Shader>& shaders) {
+void WireRenderer::setShaders(std::vector<Shader>& shaders) {
 	if (m_id) { TRY_GL(glDeleteProgram(m_id)); }
 	TRY_GL(m_id = glCreateProgram());
-	TRY_GL(glBindAttribLocation(m_id, 0, "windowPosition"));
-	TRY_GL(glBindAttribLocation(m_id, 1, "dimensions"));
-	TRY_GL(glBindAttribLocation(m_id, 2, "texturePosition"));
-	TRY_GL(glBindAttribLocation(m_id, 3, "textureDimensions"));
-	TRY_GL(glBindAttribLocation(m_id, 4, "position"));
-	TRY_GL(glBindAttribLocation(m_id, 5, "rotationAngle"));
-	TRY_GL(glBindAttribLocation(m_id, 6, "color"));
+	TRY_GL(glBindAttribLocation(m_id, 0, "offset"));
+	TRY_GL(glBindAttribLocation(m_id, 1, "color"));
+	TRY_GL(glBindAttribLocation(m_id, 2, "position"));
+	TRY_GL(glBindAttribLocation(m_id, 3, "rotationAngle"));
 	// Get shaders
 	for (auto&& shader : shaders) { TRY_GL(glAttachShader(m_id, shader.id)); }
 	// Link the shaders
@@ -31,15 +28,13 @@ void SpriteRenderer::setShaders(std::vector<Shader>& shaders) {
 		m_id = 0;
 	}
 	for (auto&& shader : shaders) { glDetachShader(m_id, shader.id); }
-	TRY_GL(glActiveTexture(GL_TEXTURE0));
-	TRY_GL(m_textureLocation = glGetUniformLocation(m_id, "baseTexture"));
 	TRY_GL(m_camLocation = glGetUniformLocation(m_id, "perspective"));
 }
-void SpriteRenderer::render(SpriteBatch& batch, glm::mat4& perspective) {
+void WireRenderer::render(World& world, glm::mat4& perspective, const float WIRE_WIDTH) {
 	TRY_GL(glUseProgram(m_id));
-	TRY_GL(glUniform1i(m_textureLocation, 0));
 	TRY_GL(glUniformMatrix4fv(m_camLocation, 1, GL_FALSE, &perspective[0][0]));
-	batch.m_render();
+	TRY_GL(glLineWidth(WIRE_WIDTH));
+	world.m_render();
 	TRY_GL(glUseProgram(0));
 }
 

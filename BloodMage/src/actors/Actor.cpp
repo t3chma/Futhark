@@ -15,7 +15,7 @@ Actor::Actor(Map& map, ActorDef& ad, State& startState, Actor::AgroState* agroSt
 	category = "actor";
 	sprites.add("body", ad.body);
 	sprites.get("body")->setDimensions(ad.size, ad.size);
-	sprites.get("body")->setPosition(ad.position);
+	sprites.get("body")->setPosition(ad.position.x, ad.position.y);
 	b2CircleShape shape1;
 	shape1.m_radius = ad.size / 2;
 	b2FixtureDef fixtureDef1;
@@ -26,6 +26,7 @@ Actor::Actor(Map& map, ActorDef& ad, State& startState, Actor::AgroState* agroSt
 	fixtureDef1.filter.categoryBits = 2;
 	b2BodyPtr->SetLinearDamping(10);
 	b2BodyPtr->SetAngularDamping(5);
+	this->addCircleLimb(ad.size / 2);
 	b2BodyPtr->CreateFixture(&fixtureDef1);
 }
 Actor::~Actor() {

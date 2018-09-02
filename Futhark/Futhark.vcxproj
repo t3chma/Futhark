@@ -38,6 +38,7 @@
     <ClInclude Include="src\out\OutUtility.h" />
     <ClInclude Include="src\up\World.h" />
     <ClInclude Include="src\out\TTFont.h" />
+    <ClInclude Include="src\out\WireRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\up\Body.cpp" />
@@ -54,6 +55,7 @@
     <ClCompile Include="src\out\OutUtility.cpp" />
     <ClCompile Include="src\up\World.cpp" />
     <ClCompile Include="src\out\TTFont.cpp" />
+    <ClCompile Include="src\out\WireRenderer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

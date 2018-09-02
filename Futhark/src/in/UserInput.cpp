@@ -18,14 +18,14 @@ GameState UserInput::poll() {
 	for (auto&& key : m_downKeys) {
 		KeyInfo& ki = m_keyStates[key];
 		if (++ki.downFrames == 1) {
-			ki.pressPos = m_mouseHistory.front().position;
+			ki.pressPos = m_mouseHistory.front().windowPosition;
 		}
 	}
 	// Handle unpressed key/butts.
 	for (auto&& key : m_unpressedKeys) {
 		KeyInfo& ki = m_keyStates[key];
 		ki.downFrames = 0;
-		ki.unpressPos = m_mouseHistory.front().position;
+		ki.unpressPos = m_mouseHistory.front().windowPosition;
 	}
 	// Clear unpressed lists.
 	m_unpressedKeys.clear();
@@ -65,8 +65,8 @@ GameState UserInput::m_pollSDL() {
 			m_keyEvent(false, sdlEvent.button.button, false);
 		  break;
 		  case SDL_MOUSEMOTION:
-			mouseInfo.position.x = sdlEvent.motion.x;
-			mouseInfo.position.y = sdlEvent.motion.y;
+			mouseInfo.windowPosition.x = sdlEvent.motion.x;
+			mouseInfo.windowPosition.y = sdlEvent.motion.y;
 			mouseInfo.windowID = sdlEvent.motion.windowID;
 		  break;
 		  case SDL_MOUSEWHEEL:

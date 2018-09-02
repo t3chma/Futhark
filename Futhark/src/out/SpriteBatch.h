@@ -38,7 +38,6 @@ class SpriteBatch {
 		void move(const glm::vec2& translation);
 		void move(const float x, const float y);
 		glm::vec2 getPosition() const;
-		void setPosition(const glm::vec2& position);
 		void setPosition(const float x, const float y);
 		void setDimensions(const float width, const float height);
 		void setRotationAxis(const float x, const float y);
@@ -103,7 +102,7 @@ class SpriteBatch {
 	GLuint m_vertexArrayObjectID{ 0 };
 	// Stores all sprites contiguously.
 	std::vector<Sprite> m_spriteBuffer;
-	// Any dead indices in the buffer.
+	// Any dead indices in the sprite buffer.
 	std::vector<int> m_deadBufferIndices;
 	// Stores sprite pointers
 	std::vector<Sprite*> m_spritePtrs;
@@ -115,14 +114,51 @@ class SpriteBatch {
 	bool m_bufferStatic{ false };
 };
 
+class Sprite {
+  private:
+	int m_id;
+	SpriteBatch& m_spriteBatch;
+  public:
+	Sprite(SpriteBatch& spriteBatch, const Texture& texture);
+	~Sprite();
+	SpriteBatch::Canvas& getCanvasRef();
+	void move(const glm::vec2& translation);
+	void move(const float x, const float y);
+	glm::vec2 getPosition() const;
+	void setPosition(const glm::vec2& position);
+	void setPosition(const float x, const float y);
+	void setDimensions(const glm::vec2& position);
+	void setDimensions(const float width, const float height);
+	void setRotationAxis(const glm::vec2& position);
+	void setRotationAxis(const float x, const float y);
+	void setColor(const char r, const char g, const char b, const char a);
+	void setTexturePosition(const glm::vec2& position);
+	void setTexturePosition(const float x, const float y);
+	void setTextureDimensions(const glm::vec2& position);
+	void setTextureDimensions(const float width, const float height);
+	void setFrame(const int frame);
+	/* Swaps the texture for this sprite.
+	(texture) The texture to associate to the sprite.
+	(frames) How many animation frames this sprite's texture has.
+	[t3chma] */
+	void setTexture(const Texture& texture);
+	/* Transforms this sprite into a line.
+	The top of the texture will be at the A end and bottom of the texture at the B end.
+	(b) The position of the B end.
+	(a) The position of the A end.
+	(thickness) The thickness of the line.
+	[t3chma] */
+	void makeLine(glm::vec2& b, glm::vec2& a, float thickness);
+};
+
 /* Allows you to access sprites in a sprite batch using a given nick name.
 [t3chma] */
-struct Sprites {
+struct SpriteMap {
 	/* Constructor
 	(spriteBatch) The sprite batch this will manage.
 	[t3chma] */
-	Sprites(SpriteBatch& spriteBatch) : batch(spriteBatch) {};
-	Sprites() = delete;
+	SpriteMap(SpriteBatch& spriteBatch) : batch(spriteBatch) {};
+	SpriteMap() = delete;
 	/* Allows the retrieval of a given sprite using a nick name.
 	(nickname) The nickname of the sprite.
 	< Pointer to the assiciated sprite if it exists.

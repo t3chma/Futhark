@@ -9,8 +9,13 @@ void AITester::create(fk::Tools& tools) {
 		tools.shaders.get("Sprite.frag"),
 		tools.shaders.get("Sprite.geom")
 	};
-	textBatchPtr = new fk::SpriteBatch(true);
 	map.spriteRenderer.setShaders(shaders);
+	std::vector<fk::Shader> wireShaders{
+		tools.shaders.get("Wire.vert"),
+		tools.shaders.get("Wire.frag")
+	};
+	wireRenderer.setShaders(wireShaders);
+	textBatchPtr = new fk::SpriteBatch(true);
 	cam.setDimensions(tools.windowPtr->getDimensions());
 	cam.setZoom(70);
 
@@ -76,6 +81,7 @@ void AITester::create(fk::Tools& tools) {
 	ts.setPosition(glm::vec2(251, 249.5));
 	ts = font.generateCharSprites("s", *textBatchPtr, glm::vec2(1.0));
 	ts.setPosition(glm::vec2(250, 249));
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 }
 void AITester::destroy(fk::Tools& tools) {
 
@@ -95,9 +101,11 @@ void AITester::update(fk::Tools& tools) {
 	map.spriteRenderer.render(hudPtr->backBatch, cam.getBaseMatrix());
 	map.spriteRenderer.render(hudPtr->frontBatch, cam.getBaseMatrix());
 	map.spriteRenderer.render(hudPtr->textBatch, cam.getBaseMatrix());
+	auto matrix = cam.getTransScaledMatrix();
+	wireRenderer.render(map.world, matrix);
 	map.update(cam);
 	hudPtr->update();
-	mousePtr->position = cam.getWorldCoordinates(tools.ui.getMouseInfo(0).position);
+	mousePtr->position = cam.getWorldCoordinates(tools.ui.getMouseInfo(0).windowPosition);
 	mousePtr->updateBody();
 	mousePtr->updateSprite();
 	if (tools.ui.getKeyInfo(fk::Key::APOSTROPHE).downFrames == 1) { getCommandLine(tools); }

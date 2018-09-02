@@ -1,5 +1,5 @@
 #version 330
-in vec3 position;
+in vec3 windowPosition;
 in vec2 dimensions;
 in vec2 texturePosition;
 in vec2 textureDimensions;
@@ -17,8 +17,8 @@ out VertexData {
 } outData;
 
 void main() {
-    gl_Position.z = position.z;
-    gl_Position.xy = position.xy;
+    gl_Position.z = windowPosition.z;
+    gl_Position.xy = windowPosition.xy;
     gl_Position.w = 1.0;
 
     outData.halfDimensions = dimensions/2;

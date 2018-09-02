@@ -11,7 +11,7 @@ Prop::Prop(Map& map, PropDef& pd)
 	map.propPtrs.push_back(this);
 	sprites.add("", pd.texture);
 	sprites.get("")->setDimensions(pd.size + 0.01, pd.size + 0.01);
-	sprites.get("")->setPosition(pd.position);
+	sprites.get("")->setPosition(pd.position.x, pd.position.y);
 	b2BodyPtr->SetLinearDamping(10);
 	b2BodyPtr->SetAngularDamping(5);
 	b2FixtureDef fixtureDef1;

@@ -67,7 +67,7 @@ class UserInput {
 		// ID of the window the mouse is in.
 		int windowID{ 0 };
 		// Window position of the mouse.
-		glm::ivec2 position{ 0 };
+		glm::ivec2 windowPosition{ 0 };
 		// Direction of mouse wheel scroll. Pos for up and neg for down.
 		int wheel;
 	};

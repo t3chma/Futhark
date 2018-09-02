@@ -39,6 +39,7 @@ namespace fk {
 		++numberOfLimbs;
 
 		shapes.push_back('c');
+		opens.push_back(false);
 	}
 	void Body::addPolygonLimb(std::vector<glm::vec2>& offsets) {
 		if (offsets.size() > 8) { return; }
@@ -62,6 +63,7 @@ namespace fk {
 		++numberOfLimbs;
 
 		shapes.push_back('p');
+		opens.push_back(false);
 
 		delete bOffsets;
 	}
@@ -100,6 +102,7 @@ namespace fk {
 		++numberOfLimbs;
 
 		shapes.push_back('p');
+		opens.push_back(false);
 	}
 	void Body::addCapsuleLimbs(
 		float halfWidth, float halfHeight,
@@ -130,6 +133,7 @@ namespace fk {
 		++numberOfLimbs;
 
 		shapes.push_back('c');
+		opens.push_back(false);
 
 		// Circle 2
 
@@ -151,6 +155,7 @@ namespace fk {
 		++numberOfLimbs;
 
 		shapes.push_back('c');
+		opens.push_back(false);
 	}
 	void Body::addEquilateralLimb(
 		float radius, char sides,
@@ -185,6 +190,7 @@ namespace fk {
 		++numberOfLimbs;
 
 		shapes.push_back('p');
+		opens.push_back(false);
 
 		delete offsetsArray;
 	}
@@ -203,6 +209,7 @@ namespace fk {
 			opens.push_back(true);
 		} else {
 			shape.CreateLoop(bOffsets, offsets.size());
+			opens.push_back(false);
 		}
 
 		b2FixtureDef fixtureDef;
@@ -216,65 +223,5 @@ namespace fk {
 
 		delete bOffsets;
 	}
-	//void Body::addToWireBatch(Futhark::Color* colorPtr, bool orientation) {
-	//	 Futhark::Color color;
-	//	 switch (p_bodyPtr->GetType()) {
-	//	 case b2_dynamicBody:
-	//	 	color = Futhark::PresetColors::ORANGE;
-	//	 	break;
-	//	 case b2_kinematicBody:
-	//	 	color = Futhark::PresetColors::COBALT;
-	//	 	break;
-	//	 case b2_staticBody:
-	//	 	color = Futhark::PresetColors::CREAM_GREEN;
-	//	 	break;
-	//	 }
-	//	 if (colorPtr != nullptr) {
-	//	 	color = *colorPtr;
-	//	 }
-	//	 for (int i = 0; i < p_shapes.size(); ++i) {
-	//	 	switch (p_shapes[i]) {
-	//	 	case 'c':
-	//	 		Futhark::WireBatch::addCircle(
-	//	 			glm::vec2(p_bodyPtr->GetPosition().x, p_bodyPtr->GetPosition().y),
-	//	 			p_limbPtrs[i]->GetShape()->m_radius,
-	//	 			p_offsets[i][0],
-	//	 			p_bodyPtr->GetAngle(),
-	//	 			color,
-	//	 			orientation
-	//	 		);
-	//	 		break;
-	//	 	case 'p':
-	//	 		Futhark::WireBatch::addPolygon(
-	//	 			glm::vec2(p_bodyPtr->GetPosition().x, p_bodyPtr->GetPosition().y),
-	//	 			p_offsets[i],
-	//	 			p_bodyPtr->GetAngle(),
-	//	 			color,
-	//	 			orientation
-	//	 		);
-	//	 		break;
-	//	 	case 'l':
-	//	 		if (p_opens[i]) {
-	//	 			Futhark::WireBatch::addLine(
-	//	 				glm::vec2(p_bodyPtr->GetPosition().x, p_bodyPtr->GetPosition().y),
-	//	 				p_offsets[i],
-	//	 				p_bodyPtr->GetAngle(),
-	//	 				color,
-	//	 				orientation
-	//	 			);
-	//	 		}
-	//	 		else {
-	//	 			Futhark::WireBatch::addPolygon(
-	//	 				glm::vec2(p_bodyPtr->GetPosition().x, p_bodyPtr->GetPosition().y),
-	//	 				p_offsets[i],
-	//	 				p_bodyPtr->GetAngle(),
-	//	 				color,
-	//	 				orientation
-	//	 			);
-	//	 		}
-	//	 		break;
-	//	 	}
-	//	 }
-	//}
 
 }

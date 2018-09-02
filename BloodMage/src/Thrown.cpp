@@ -8,11 +8,11 @@ Thrown::Thrown(Map& map, PropDef pd, glm::vec2& direction) :
 	category = "thrown";
 	sprites.add("body", pd.texture);
 	sprites.get("body")->setDimensions(pd.size, pd.size);
-	sprites.get("body")->setPosition(pd.position);
+	sprites.get("body")->setPosition(pd.position.x, pd.position.y);
 	sprites.add("blood", pd.texture);
 	sprites.get("blood")->setColor(0, 0, 0, 0);
 	sprites.get("blood")->setDimensions(pd.size, pd.size);
-	sprites.get("blood")->setPosition(pd.position);
+	sprites.get("blood")->setPosition(pd.position.x, pd.position.y);
 	b2CircleShape shape1;
 	shape1.m_radius = pd.size / 2;
 	b2FixtureDef fixtureDef1;
@@ -43,7 +43,7 @@ void Thrown::updateBody() {
 void Thrown::updateSprite() {
 	Prop::updateSprite();
 	if (m_hitPtr) {
-		sprites.get("blood")->setPosition(m_hitPtr->getPosition());
+		sprites.get("blood")->setPosition(m_hitPtr->getPosition().x, m_hitPtr->getPosition().y);
 	}
 }
 void Thrown::p_beginCollision(b2Fixture * collisionFixturePtr, b2Fixture * myFixturePtr, b2Contact * contactPtr) {

@@ -238,7 +238,7 @@ TextSprite TTFont::generateCharSprites(
 			int glyphIndex = c - m_asciiStart;
 			if (glyphIndex < 0 || glyphIndex >= m_asciiRange) { glyphIndex = m_asciiRange; }
 			textSprite.m_spriteIds.push_back(spriteBatch.makeSprite(m_textureID));
-			spriteBatch[textSprite.m_spriteIds.back()].setPosition(textPosition);
+			spriteBatch[textSprite.m_spriteIds.back()].setPosition(textPosition.x, textPosition.y);
 			spriteBatch[textSprite.m_spriteIds.back()].setDimensions(
 				m_GlyphsPtr[glyphIndex].dimentions.x * scaling.x,
 				m_GlyphsPtr[glyphIndex].dimentions.y * scaling.y

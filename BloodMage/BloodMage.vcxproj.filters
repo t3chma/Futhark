@@ -195,5 +195,7 @@
     <None Include="Shaders\Sprite.frag" />
     <None Include="Shaders\Sprite.geom" />
     <None Include="Shaders\Sprite.vert" />
+    <None Include="Shaders\Wire.frag" />
+    <None Include="Shaders\Wire.vert" />
   </ItemGroup>
 </Project>

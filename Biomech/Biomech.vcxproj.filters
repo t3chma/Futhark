@@ -116,6 +116,8 @@
     <None Include="Shaders\Sprite.frag" />
     <None Include="Shaders\Sprite.geom" />
     <None Include="Shaders\Sprite.vert" />
+    <None Include="Shaders\Wire.frag" />
+    <None Include="Shaders\Wire.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -124,9 +126,15 @@
     <ClCompile Include="src\scenes\GameWorld.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Actor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scenes\GameWorld.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Actor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

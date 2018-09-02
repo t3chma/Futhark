@@ -102,7 +102,7 @@ void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	// Timers
 	if (m_dodgeTimer > 0) { --m_dodgeTimer; }
 	// Mouse.
-	m_mousePos = camPtr->getWorldCoordinates(m_uiPtr->getMouseInfo(0).position);
+	m_mousePos = camPtr->getWorldCoordinates(m_uiPtr->getMouseInfo(0).windowPosition);
 	// States.
 	if (health < 1) { setState(new Dead(*this)); }
 	states.currentPtr->think(actorPtrs, camPtr);

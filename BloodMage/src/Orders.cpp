@@ -11,7 +11,7 @@ Order::Order(Map& map, std::vector<fk::Texture>& textures, glm::vec2& position, 
 {
 	sprites.add("", textures[0]);
 	sprites.get("")->setDimensions(0.6, 0.6);
-	sprites.get("")->setPosition(position);
+	sprites.get("")->setPosition(position.x, position.y);
 	arrowTexture = textures[1];
 	if (prevOwner) {
 		sprites.add("arrow", arrowTexture);

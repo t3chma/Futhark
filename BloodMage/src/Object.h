@@ -21,7 +21,7 @@ public:
 	virtual glm::vec2 getPosition();
 	virtual void updateBody() {};
 	virtual void updateSprite();
-	fk::Sprites sprites;
+	fk::SpriteMap sprites;
 	int health{ 100 };
 	bool hit{ false };
 	bool despawn{ false };

@@ -3,6 +3,7 @@
 #include <Box2D/Box2D.h>
 #include <vector>
 #include <list>
+#include "../out/OutUtility.h"
 namespace fk {
 
 
@@ -10,21 +11,33 @@ namespace fk {
 	^ http://www.iforce2d.net/b2dtut/worlds
 	[t3chma] */
 	class World {
-	public:
+	  public:
+		friend class WireRenderer;
 		// A pointer to the actual b2 world object.
 		b2World* b2WorldPtr{ nullptr };
 		World();
 		~World();
 		/* Set the gravity of the world.
 		[t3chma] */
-		void gravity(const float& xGravity, const float& yGravity);
+		void setGravity(const float& xGravity, const float& yGravity);
 		/* Updates the world.
 		(timestep) Length of time passed to simulate in seconds.
 		(velocityIterations) How strongly to correct velocity.
 		(positionIterations) How strongly to correct position.
 		[t3chma] */
 		void update(const float& timestep, const int& velocityIterations, const int& positionIterations);
-	private:
+		// Information for drawing a point to the screen.
+		struct Point {
+			// Offset from position. 8
+			Vec2 offset{ 0, 0 };
+			// Hue of the point. 12
+			Color color{ 255, 255, 255, 255 };
+			// Axis of rotation for this point. 20
+			Vec2 position{ 0, 0 };
+			// Amount of rotation around the rotation axis. 24
+			GLfloat rotationAngle{ 0.0 };
+		};
+	  private:
 		/* A custom contact listener for handling collisions for this class.
 		^ http://www.iforce2d.net/b2dtut/collision-callbacks
 		[t3chma] */
@@ -41,10 +54,26 @@ namespace fk {
 			/* Called when contact ends
 			[t3chma] */
 			virtual void EndContact(b2Contact* contact) override;
-		};
-		// Used for handling collisions between Futhark Bodies.
-		// ^ Futhark::Body
-		M_ContactListener m_contactListener;
+		} m_contactListener;
+		/* Setup the local vertex and index buffer using all the current bodies in the world.
+		[t3chma] */
+		void m_setupBuffers();
+		/* Start the render pipeline.
+		You probably should not even be calling this unless you are the renderer class.
+		[t3chma] */
+		void m_render();
+		// Vertex buffer ID.
+		GLuint m_vertexBufferObjectID{ 0 };
+		// Array buffer ID.
+		GLuint m_vertexArrayObjectID{ 0 };
+		// Index buffer ID.
+		GLuint m_indexBufferObjectID{ 0 };
+		// The local vertex buffer to be sent to the GPU.
+		std::vector<Point> m_vertexBuffer;
+		// The local vertex buffer to be sent to the GPU.
+		std::vector<GLuint> m_indexBuffer;
+		// Circle definition
+		Vec2 m_circleWireVectors[32];
 	};
 
 }

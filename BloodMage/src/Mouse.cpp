@@ -24,9 +24,9 @@ void Mouse::updateBody() {
 
 void Mouse::updateSprite() {
 	if (orderEditPtr) {
-		sprites.get("cursor")->setPosition(orderEditPtr->getPosition());
+		sprites.get("cursor")->setPosition(orderEditPtr->getPosition().x, orderEditPtr->getPosition().y);
 	} else if (acotrEditPtr) {
-		sprites.get("cursor")->setPosition(acotrEditPtr->getPosition());
+		sprites.get("cursor")->setPosition(acotrEditPtr->getPosition().x, acotrEditPtr->getPosition().y);
 	}
 }
 
