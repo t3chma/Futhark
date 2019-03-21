@@ -9,7 +9,7 @@ class Mouse : public Object {
   public:
 	Actor* acotrEditPtr{ nullptr };
 	Order* orderEditPtr{ nullptr };
-	Mouse(Map& map, std::vector<fk::Texture>& textures);
+	Mouse(Map& map, fk::Texture& texture);
 	~Mouse() = default;
 	void updateBody() override;
 	void updateSprite() override;

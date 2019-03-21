@@ -7,54 +7,41 @@ Player::Player(
 	fk::UserInput* uiPtr,
 	PlayerDef& pd
 ) : Actor(map, pd.ad, *(new M_Control(*this)), nullptr), m_uiPtr(uiPtr) {
+	// Misc
 	health = 5000;
 	movement.speed = 1;
 	type = "player";
 	enchants.melee.resize(4);
-	sprites.add("leftSword", pd.sword);
-	sprites.get("leftSword")->setColor(255, 255, 255, 0);
-	sprites.get("leftSword")->setDimensions(pd.ad.size, pd.ad.size);
-	sprites.add("rightSword", pd.sword);
-	sprites.get("rightSword")->setColor(255, 255, 255, 0);
-	sprites.get("rightSword")->setDimensions(pd.ad.size, pd.ad.size);
-	sprites.get("rightSword")->setTextureDimensions(-1, 1);
-	sprites.get("rightSword")->setTexturePosition(1, 0);
-	sprites.add("leftSwipe", pd.swipe);
-	sprites.get("leftSwipe")->setColor(255, 255, 255, 0);
-	sprites.get("leftSwipe")->setDimensions(pd.ad.size * 2, pd.ad.size * 3);
-	sprites.add("rightSwipe", pd.swipe);
-	sprites.get("rightSwipe")->setColor(255, 255, 255, 0);
-	sprites.get("rightSwipe")->setDimensions(pd.ad.size * 2, pd.ad.size * 3);
-	sprites.get("rightSwipe")->setTextureDimensions(-1, 1);
-	sprites.get("rightSwipe")->setTexturePosition(1, 0);
-	sprites.add("leftThrown", pd.thrown);
-	sprites.get("leftThrown")->setColor(255, 255, 255, 0);
-	sprites.get("leftThrown")->setDimensions(pd.ad.size, pd.ad.size);
-	sprites.add("rightThrown", pd.thrown);
-	sprites.get("rightThrown")->setColor(255, 255, 255, 0);
-	sprites.get("rightThrown")->setDimensions(pd.ad.size, pd.ad.size);
-	sprites.get("rightThrown")->setTextureDimensions(-1, 1);
-	sprites.get("rightThrown")->setTexturePosition(1, 0);
-	sprites.get("body")->canvas.position.z = 1;
+	// Graphics
+	sprites.front().getCanvasRef().position.z = 1;
+	sprites.emplace_back(map.dynamicObjectSprites, pd.sword);
+	spritePtrs.leftSword = &sprites.back();
+	sprites.emplace_back(map.dynamicObjectSprites, pd.sword);
+	spritePtrs.rightSword = &sprites.back();
+	sprites.emplace_back(map.dynamicObjectSprites, pd.swipe);
+	spritePtrs.leftSwipe = &sprites.back();
+	sprites.emplace_back(map.dynamicObjectSprites, pd.swipe);
+	spritePtrs.rightSwipe = &sprites.back();
+	sprites.emplace_back(map.dynamicObjectSprites, pd.ad.body);
+	sprites.back().setColor(255, 255, 255, 0);
+	sprites.back().setDimensions(0.1, 0.1);
+	spritePtrs.leftSword->setColor(255, 255, 255, 0);
+	spritePtrs.leftSword->setDimensions(pd.ad.size, pd.ad.size);
+	spritePtrs.rightSword->setColor(255, 255, 255, 0);
+	spritePtrs.rightSword->setDimensions(pd.ad.size, pd.ad.size);
+	spritePtrs.rightSword->setTextureDimensions(-1, 1);
+	spritePtrs.rightSword->setTexturePosition(1, 0);
+	spritePtrs.leftSwipe->setColor(255, 255, 255, 0);
+	spritePtrs.leftSwipe->setDimensions(pd.ad.size * 2, pd.ad.size * 3);
+	spritePtrs.rightSwipe->setColor(255, 255, 255, 0);
+	spritePtrs.rightSwipe->setDimensions(pd.ad.size * 2, pd.ad.size * 3);
+	spritePtrs.rightSwipe->setTextureDimensions(-1, 1);
+	spritePtrs.rightSwipe->setTexturePosition(1, 0);
+	// Physics
 	b2FixtureDef fixtureDef;
 	fixtureDef.isSensor = true;
 	// AOE attack
-	b2CircleShape circle;
-	circle.m_radius = 1.5;
-	fixtureDef.shape = &circle;
-	fixtureDef.userData = (void*)'S';
-	b2BodyPtr->CreateFixture(&fixtureDef);
-	// Swipe attack
-	b2PolygonShape box;
-	box.SetAsBox(.5, pd.ad.size/2, b2Vec2(0, .5), 0);
-	fixtureDef.shape = &box;
-	fixtureDef.userData = (void*)'f';
-	b2BodyPtr->CreateFixture(&fixtureDef);
-	circle.m_radius = pd.ad.size/2;
-	circle.m_p.y = 1;
-	fixtureDef.shape = &circle;
-	fixtureDef.userData = (void*)'s';
-	b2BodyPtr->CreateFixture(&fixtureDef);
+	addCircleLimb(1, 0, 0, &fixtureDef).category = "S";
 }
 Player::~Player() {
 
@@ -113,26 +100,8 @@ void Player::p_beginCollision(
 	b2Fixture* myFixturePtr,
 	b2Contact* contactPtr
 ) {
-	if (!collisionFixturePtr->IsSensor() && myFixturePtr->GetUserData() != nullptr) {
-		switch ((char)myFixturePtr->GetUserData()) {
-		  case 'S':
-			m_aoePtrs.insert(static_cast<Object*>(
-				collisionFixturePtr->GetBody()->GetUserData())
-			);
-		  break;
-		  case 's':
-			m_swipeSPtrs.insert(static_cast<Object*>(
-				collisionFixturePtr->GetBody()->GetUserData())
-			);
-		  break;
-		  case 'f':
-			m_swipeFPtrs.insert(static_cast<Object*>(
-				collisionFixturePtr->GetBody()->GetUserData())
-			);
-		  break;
-		  default:
-		  break;
-		}
+	if (!collisionFixturePtr->IsSensor()) {
+		m_aoePtrs.insert(static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData()));
 	}
 }
 void Player::p_endCollision(
@@ -140,37 +109,19 @@ void Player::p_endCollision(
 	b2Fixture* myFixturePtr,
 	b2Contact* contactPtr
 ) {
-	if (!collisionFixturePtr->IsSensor() && myFixturePtr->GetUserData() != nullptr) {
-		switch ((char)myFixturePtr->GetUserData()) {
-		  case 'S':
-			m_aoePtrs.erase(
-				static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData())
-			);
-		  break;
-		  case 's':
-			m_swipeSPtrs.erase(
-				static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData())
-			);
-		  break;
-		  case 'f':
-			m_swipeFPtrs.erase(
-				static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData())
-			);
-		  break;
-		  default:
-		  break;
-		}
+	if (!collisionFixturePtr->IsSensor()) {
+		m_aoePtrs.erase(static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData()));
 	}
 }
 void Player::updateSprite() {
-	int bodyAlpha = sprites.get("body")->canvas.color.a;
+	int bodyAlpha = sprites.front().getCanvasRef().color.a;
 	int alpha;
-	for (auto&& id : sprites.ids) {
-		alpha = sprites.batch[id.second].canvas.color.a - 50;
+	for (auto&& sprite : sprites) {
+		alpha = sprite.getCanvasRef().color.a - 50;
 		if (alpha < 0) { alpha = 0; }
-		sprites.batch[id.second].canvas.color.a = alpha;
+		sprite.getCanvasRef().color.a = alpha;
 	}
-	sprites.get("body")->canvas.color.a = bodyAlpha;
+	sprites.front().getCanvasRef().color.a = bodyAlpha;
 	Actor::updateSprite();
 }
 float32 Player::ReportFixture(
@@ -179,16 +130,15 @@ float32 Player::ReportFixture(
 	const b2Vec2& normal,
 	float32 fraction
 ) {
-	if (static_cast<Object*>(fixturePtr->GetBody()->GetUserData())->category == "actor") {
-		targetInfo.ptr = static_cast<Actor*>(fixturePtr->GetBody()->GetUserData());
-	}
+	p_raycast.target = static_cast<Object*>(fixturePtr->GetBody()->GetUserData());
+	p_raycast.fraction = fraction;
 	return fraction;
 }
 
 
 void Player::M_Control::enter() {
 	Player& player = *static_cast<Player*>(actorPtr);
-	actorPtr->sprites.get("body")->setColor(255, 255, 255, 255);
+	actorPtr->sprites.front().setColor(255, 255, 255, 255);
 	for (int i = 0; i < 2; ++i) { // For each weapon
 		player.m_weapons[i].selfClick = false;
 		player.m_weapons[i].oldCharge = 0;
@@ -200,6 +150,7 @@ void Player::M_Control::enter() {
 }
 void Player::M_Control::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	Player& player = *static_cast<Player*>(actorPtr);
+	b2Vec2 test;
 	// Timers
 	for (auto&& weapon : player.m_weapons) {
 		if (weapon.swipeTimer == -30) { weapon.swipes = 0; }
@@ -209,7 +160,6 @@ void Player::M_Control::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr
 	if (player.m_mousePos != player.getPosition()) {
 		player.los.faceDirection = glm::normalize(player.getPosition() - player.m_mousePos);
 	}
-	// Attack
 	float chargingMoveDampen = 0;
 	int charge[2] = {
 		player.m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames,
@@ -217,105 +167,142 @@ void Player::M_Control::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr
 	};
 	bool needSpinState{ false };
 	for (int i = 0; i < 2; ++i) { // For each weapon
-		player.m_weapons[i].swipe = false;
-		player.m_weapons[i].charged =
-			player.m_weapons[i].oldCharge > player.m_weapons[i].chargeTime;
-		if (!charge[i]) { // Unclicked
-			if (
-				charge[i] < player.m_weapons[i].oldCharge && // Mouse button just unclicked
-				player.m_weapons[i].swipeTimer <= 0 && // No attack rest time left
-				player.m_weapons[i].swipes < player.m_weapons[i].maxSwipes // Limit not met
-			) {
-				if (player.m_weapons[i].selfClick) { // Last click was on self
-					if (
-						player.m_weapons[i].charged // Charged
-						&& glm::length(player.m_mousePos - player.getPosition())
-							<= player.getRadius() // Unclick on self
-					) {
-						// Spin
-						needSpinState = true;
-					} else {
-						// Throw
-						player.m_weapons[i].thrown = true;
-						player.m_weapons[i].target = player.m_mousePos;
-					}
-				} else { // Last click not on self
-					float bloodPlus = 0.025;
-					float knockback = 10;
-					if (player.m_weapons[i].charged) {
-						// Heavy attack
-						bloodPlus = 0.035;
-						knockback = 15;
-					} else {
-						// Light attack
-					}
-					player.m_weapons[i].swipe = true;
-					// Merge the swipe ptr lists for
-					std::set<Object*> m_swipePtrs;
-					for (auto&& ptr : player.m_swipeSPtrs) { m_swipePtrs.insert(ptr); }
-					for (auto&& ptr : player.m_swipeFPtrs) { m_swipePtrs.insert(ptr); }
-					// Process them
-					for (auto&& hitBodyPtr : m_swipePtrs) {
-						if (
-							static_cast<Object*>(hitBodyPtr)->category != "actor" || // Actor
-							!static_cast<Actor*>(hitBodyPtr)->movement.dodging // Not dodging
-						) {
-							static_cast<Object*>(hitBodyPtr)->health -=
-								player.m_weapons[i].charged ? 2 : 1;
-							static_cast<Object*>(hitBodyPtr)->hit = true;
-							hitBodyPtr->b2BodyPtr->ApplyLinearImpulse(
-								b2Vec2(
-									-actorPtr->los.faceDirection.x * knockback,
-									-actorPtr->los.faceDirection.y * knockback
-								),
-								hitBodyPtr->b2BodyPtr->GetPosition(),
-								true
-							);
-							for (auto&& bloodPtr : player.bloodPtrs) {
-								if ((*bloodPtr += bloodPlus) >= 7) { *bloodPtr = 6.99; }
-							}
-						}
-					}
-					player.m_weapons[i].swipeTimer = player.m_weapons[i].swipeRest;
-					++player.m_weapons[i].swipes;
-				}
+		bool mouseOnSelf = glm::length(player.m_mousePos - player.getPosition()) <= player.getRadius();
+		if (charge[i] < player.m_weapons[i].oldCharge) { // Unclicked
+			if (player.m_weapons[i].selfClick && !mouseOnSelf) {
+				// Throw
+				player.m_weapons[i].thrown = true;
+				player.m_weapons[i].target = player.m_mousePos;
+				auto weaponOffset = i ? -player.p_radius - .1 : player.p_radius + .1;
+				auto rotatedDirection = fk::rotatePoint(player.los.faceDirection, -fk::TAU / 4);
+				auto raycastOrigin = player.getPosition() + glm::vec2(
+					rotatedDirection.x * weaponOffset,
+					rotatedDirection.y * weaponOffset
+				);
+				PropDef pd;
+				pd.position = raycastOrigin;
+				pd.linearDamping = 8;
+				pd.angularDamping = 8;
+				pd.bullet = true;
+				pd.density = 10;
+				player.m_weapons[i].thrownBodyPtr = new WarNeedle(
+					player.map,
+					pd,
+					fk::rotatePoint(
+						glm::vec2(
+							-player.los.faceDirection.x * 700,
+							-player.los.faceDirection.y * 700
+						),
+						i ? fk::TAU / 200 : -fk::TAU / 200
+					),
+					actorPtr
+				);
 			}
 			player.m_weapons[i].selfClick = false;
 		} else if (charge[i] == 1) { // Clicked
-			if (player.m_weapons[i].thrown) {
+			if (player.m_weapons[i].thrown) { // Call back swords
 				player.m_weapons[i].thrown = false;
-			} else if (
-				glm::length(player.m_mousePos - player.getPosition()) <= player.getRadius()
-			) {
-				player.m_weapons[i].selfClick = true;
+				delete player.m_weapons[i].thrownBodyPtr;
 			}
-		} else { // Charging
-			chargingMoveDampen = 0.75;
+			if (mouseOnSelf) { player.m_weapons[i].selfClick = true; } // toggle self click
+		}
+		player.m_weapons[i].swipe = false;
+		player.m_weapons[i].charged = player.m_weapons[i].oldCharge > player.m_weapons[i].chargeTime;
+		bool commited = player.m_weapons[i].oldCharge > player.m_weapons[i].commitTime
+			&& !player.m_weapons[i].charged;
+		if (commited) { charge[i] = player.m_weapons[i].oldCharge + 1; } // Enforce commitment
+		if (charge[i]) { chargingMoveDampen = 0.75; } // Commited or mouse down
+		if (
+			charge[i] < player.m_weapons[i].oldCharge && // Unclick or commitment done
+			!player.m_weapons[i].thrown && // weapon not thrown
+			player.m_weapons[i].swipeTimer <= 0 && // Attack rest over
+			player.m_weapons[i].swipes < player.m_weapons[i].maxSwipes // Attacks are left
+		) {
+			if (mouseOnSelf) { if (player.m_weapons[i].charged) { needSpinState = true; } } // Spin
+			else {
+				// Attack
+				float bloodPlus = 0.025;
+				float knockback = 15;
+				if (player.m_weapons[i].charged) {
+					// Heavy attack
+					bloodPlus = 0.035;
+					knockback = 25;
+				}
+				player.m_weapons[i].swipe = true;
+				auto weaponOffset = i ? -player.p_radius : player.p_radius;
+				auto rotatedDirection = fk::rotatePoint(player.los.faceDirection, -fk::TAU / 4);
+				auto raycastOrigin = player.getPosition() + glm::vec2(
+					rotatedDirection.x * weaponOffset,
+					rotatedDirection.y * weaponOffset
+				);
+				auto raycastTarget = glm::vec2(
+					raycastOrigin.x + player.los.faceDirection.x * -1.5,
+					raycastOrigin.y + player.los.faceDirection.y * -1.5
+				);
+				player.rayCast(
+					raycastOrigin,
+					raycastTarget
+				);
+				// Process them
+				if (
+					player.p_raycast.target && (
+						player.p_raycast.target->category != "actor" || // Actor
+						!static_cast<Actor*>(player.p_raycast.target)->movement.dodging // Not dodging
+					)
+				) {
+					player.p_raycast.target->health -=
+						player.m_weapons[i].charged ? 2 : 1;
+					player.p_raycast.target->hit = true;
+					player.p_raycast.target->b2Ptr->ApplyLinearImpulse(
+						b2Vec2(
+							-actorPtr->los.faceDirection.x * knockback,
+							-actorPtr->los.faceDirection.y * knockback
+						),
+						b2Vec2(
+							raycastOrigin.x +
+							((raycastTarget.x - raycastOrigin.x) * player.p_raycast.fraction),
+							raycastOrigin.y +
+							((raycastTarget.y - raycastOrigin.y) * player.p_raycast.fraction)
+						),
+						true
+					);
+					for (auto&& blood : player.blood) {
+						if ((blood += bloodPlus) >= 7) { blood = 6.99; }
+					}
+				}
+				player.p_raycast.target = nullptr;
+				player.m_weapons[i].swipeTimer = player.m_weapons[i].swipeRest;
+				++player.m_weapons[i].swipes;
+			}
 		}
 		player.m_weapons[i].oldCharge = charge[i];
 	}
 	// Move direction
-	player.movement.vector.x = 0;
-	player.movement.vector.y = 0;
-	if (player.m_uiPtr->getKeyInfo(fk::Key::W).downFrames > 0) { player.movement.vector.y += 1; }
-	if (player.m_uiPtr->getKeyInfo(fk::Key::S).downFrames > 0) { player.movement.vector.y -= 1; }
-	if (player.m_uiPtr->getKeyInfo(fk::Key::D).downFrames > 0) { player.movement.vector.x += 1; }
-	if (player.m_uiPtr->getKeyInfo(fk::Key::A).downFrames > 0) { player.movement.vector.x -= 1; }
+	player.movement.direction.x = 0;
+	player.movement.direction.y = 0;
+	if (player.m_uiPtr->getKeyInfo(fk::Key::W).downFrames > 0) { player.movement.direction.y += 1; }
+	if (player.m_uiPtr->getKeyInfo(fk::Key::S).downFrames > 0) { player.movement.direction.y -= 1; }
+	if (player.m_uiPtr->getKeyInfo(fk::Key::D).downFrames > 0) { player.movement.direction.x += 1; }
+	if (player.m_uiPtr->getKeyInfo(fk::Key::A).downFrames > 0) { player.movement.direction.x -= 1; }
 	int shiftFrames = player.m_uiPtr->getKeyInfo(fk::Key::SHIFT_L).downFrames;
-	if (player.movement.vector.x || player.movement.vector.y) {
+	if (player.movement.direction.x || player.movement.direction.y) {
 		float boost{ 0 };
 		if (shiftFrames > 0) { boost = { 0.75 }; }
-		player.movement.vector = (
+		player.movement.direction = (
 			player.movement.speed + boost - chargingMoveDampen
-		) * glm::normalize(player.movement.vector);
+		) * glm::normalize(player.movement.direction);
 	}
 	// State change
-	if (player.m_uiPtr->getKeyInfo(fk::Key::ALT_L).downFrames == 1 && !player.m_dodgeTimer) {
+	if (
+		player.m_uiPtr->getKeyInfo(fk::Key::ALT_L).downFrames == 1 &&
+		!player.m_dodgeTimer &&
+		!charge[0] && !charge[1]
+	) {
 		if (shiftFrames > 0) { player.setState(new M_StunDash(*actorPtr)); }
 		else { player.setState(new M_Dodge(*actorPtr)); }
 	} else if (needSpinState) {
 		// TODO: player.setState(new M_Spin(*actorPtr));
-	} else if (player.m_uiPtr->getKeyInfo(fk::Key::SPACE).downFrames) {
+	} else if (player.m_uiPtr->getKeyInfo(fk::Key::SPACE).downFrames && !charge[0] && !charge[1]) {
 		player.setState(new M_Enchant(*actorPtr));
 	}
 }
@@ -324,92 +311,90 @@ void Player::M_Control::updateBody() {
 }
 void Player::M_Control::updateSprite() {
 	Player& player = *static_cast<Player*>(actorPtr);
-	if (player.m_uiPtr->getKeyInfo(fk::Key::MOUSE_LEFT).downFrames) {
+	if (player.m_weapons[0].oldCharge > player.m_weapons[0].commitTime) {
 		int color = player.m_weapons[0].charged ? 0 : 255;
-		player.sprites.get("leftSword")->setPosition(
-			player.b2BodyPtr->GetPosition().x,
-			player.b2BodyPtr->GetPosition().y
+		player.spritePtrs.leftSword->setPosition(
+			player.b2Ptr->GetPosition().x,
+			player.b2Ptr->GetPosition().y
 		);
-		player.sprites.get("leftSword")->setRotationAxis(
-			player.sprites.get("leftSword")->getPosition().x,
-			player.sprites.get("leftSword")->getPosition().y
+		player.spritePtrs.leftSword->setRotationAxis(
+			player.spritePtrs.leftSword->getPosition().x,
+			player.spritePtrs.leftSword->getPosition().y
 		);
-		player.sprites.get("leftSword")->canvas.rotationAngle =
-			player.b2BodyPtr->GetAngle();
-		player.sprites.get("leftSword")->setColor(color, color, color, 255);
+		player.spritePtrs.leftSword->setRotationAngle(player.b2Ptr->GetAngle());
+		player.spritePtrs.leftSword->setColor(color, color, color, 255);
 	}
-	if (player.m_uiPtr->getKeyInfo(fk::Key::MOUSE_RIGHT).downFrames) {
+	if (player.m_weapons[1].oldCharge > player.m_weapons[1].commitTime) {
 		int color = player.m_weapons[1].charged ? 0 : 255;
-		player.sprites.get("rightSword")->setPosition(
-			player.b2BodyPtr->GetPosition().x,
-			player.b2BodyPtr->GetPosition().y
+		player.spritePtrs.rightSword->setPosition(
+			player.b2Ptr->GetPosition().x,
+			player.b2Ptr->GetPosition().y
 		);
-		player.sprites.get("rightSword")->setRotationAxis(
-			player.sprites.get("rightSword")->getPosition().x,
-			player.sprites.get("rightSword")->getPosition().y
+		player.spritePtrs.rightSword->setRotationAxis(
+			player.spritePtrs.rightSword->getPosition().x,
+			player.spritePtrs.rightSword->getPosition().y
 		);
-		player.sprites.get("rightSword")->canvas.rotationAngle =
-			player.b2BodyPtr->GetAngle();
-		player.sprites.get("rightSword")->setColor(color, color, color, 255);
+		player.spritePtrs.rightSword->setRotationAngle(player.b2Ptr->GetAngle());
+		player.spritePtrs.rightSword->setColor(color, color, color, 255);
 	}
 	if (player.m_weapons[0].swipe) {
 		int color = player.m_weapons[0].charged ? 0 : 255;
-		player.sprites.get("rightSwipe")->setPosition(
-			player.b2BodyPtr->GetPosition().x - player.los.faceDirection.x * .5f,
-			player.b2BodyPtr->GetPosition().y - player.los.faceDirection.y * .5f
+		player.spritePtrs.rightSwipe->setPosition(
+			player.b2Ptr->GetPosition().x - player.los.faceDirection.x * .5f,
+			player.b2Ptr->GetPosition().y - player.los.faceDirection.y * .5f
 		);
-		player.sprites.get("rightSwipe")->setRotationAxis(
-			player.sprites.get("rightSwipe")->getPosition().x,
-			player.sprites.get("rightSwipe")->getPosition().y
+		player.spritePtrs.rightSwipe->setRotationAxis(
+			player.spritePtrs.rightSwipe->getPosition().x,
+			player.spritePtrs.rightSwipe->getPosition().y
 		);
-		player.sprites.get("rightSwipe")->canvas.rotationAngle =
-			player.b2BodyPtr->GetAngle();
-		player.sprites.get("rightSwipe")->setColor(color, color, color, 255);
+		player.spritePtrs.rightSwipe->setRotationAngle(
+		player.b2Ptr->GetAngle());
+		player.spritePtrs.rightSwipe->setColor(color, color, color, 255);
 	}
 	if (player.m_weapons[1].swipe) {
 		int color = player.m_weapons[1].charged ? 0 : 255;
-		player.sprites.get("leftSwipe")->setPosition(
-			player.b2BodyPtr->GetPosition().x - player.los.faceDirection.x * .5f,
-			player.b2BodyPtr->GetPosition().y - player.los.faceDirection.y * .5f
+		player.spritePtrs.leftSwipe->setPosition(
+			player.b2Ptr->GetPosition().x - player.los.faceDirection.x * .5f,
+			player.b2Ptr->GetPosition().y - player.los.faceDirection.y * .5f
 		);
-		player.sprites.get("leftSwipe")->setRotationAxis(
-			player.sprites.get("leftSwipe")->getPosition().x,
-			player.sprites.get("leftSwipe")->getPosition().y
+		player.spritePtrs.leftSwipe->setRotationAxis(
+			player.spritePtrs.leftSwipe->getPosition().x,
+			player.spritePtrs.leftSwipe->getPosition().y
 		);
-		player.sprites.get("leftSwipe")->canvas.rotationAngle =
-			player.b2BodyPtr->GetAngle();
-		player.sprites.get("leftSwipe")->setColor(color, color, color, 255);
+		player.spritePtrs.leftSwipe->setRotationAngle(player.b2Ptr->GetAngle());
+		player.spritePtrs.leftSwipe->setColor(color, color, color, 255);
 	}
+	player.sprites.back().setColor(255, 255, 255, 255);
 }
 
 
 void Player::M_StunDash::enter() {
 	Player& player = *static_cast<Player*>(actorPtr);
 	player.movement.dodging = true;
-	player.movement.vector = player.m_mousePos - player.getPosition();
-	if (player.movement.vector.x || player.movement.vector.y) {
-		player.movement.vector = glm::normalize(player.movement.vector);
+	player.movement.direction = player.m_mousePos - player.getPosition();
+	if (player.movement.direction.x || player.movement.direction.y) {
+		player.movement.direction = glm::normalize(player.movement.direction);
 	}
-	b2Filter filter = player.b2BodyPtr->GetFixtureList()->GetNext()->GetFilterData();
+	b2Filter filter = player.b2Ptr->GetFixtureList()->GetNext()->GetFilterData();
 	filter.maskBits = 1;
-	player.b2BodyPtr->GetFixtureList()->GetNext()->SetFilterData(filter);
+	player.b2Ptr->GetFixtureList()->GetNext()->SetFilterData(filter);
 	player.m_dodgeTimer = 40;
-	player.sprites.get("body")->setColor(100, 100, 255, 255);
+	player.sprites.front().setColor(100, 100, 255, 255);
 }
 void Player::M_StunDash::think(std::vector<Actor*>& actorPtrs, fk::Camera * camPtr) {
 	if (!iFrames--) {
 		actorPtr->movement.dodging = false;
-		b2Filter filter = actorPtr->b2BodyPtr->GetFixtureList()->GetNext()->GetFilterData();
+		b2Filter filter = actorPtr->b2Ptr->GetFixtureList()->GetNext()->GetFilterData();
 		filter.maskBits = 0b1111111111111111;
-		actorPtr->b2BodyPtr->GetFixtureList()->GetNext()->SetFilterData(filter);
+		actorPtr->b2Ptr->GetFixtureList()->GetNext()->SetFilterData(filter);
 		actorPtr->setState(new M_Control(*actorPtr));
 	}
 }
 void Player::M_StunDash::updateBody() {
 	if (iFrames > 10) {
-		actorPtr->b2BodyPtr->ApplyLinearImpulse(
-			b2Vec2(actorPtr->movement.vector.x * 16, actorPtr->movement.vector.y * 16),
-			actorPtr->b2BodyPtr->GetWorldCenter(),
+		actorPtr->b2Ptr->ApplyLinearImpulse(
+			b2Vec2(actorPtr->movement.direction.x * 16, actorPtr->movement.direction.y * 16),
+			actorPtr->b2Ptr->GetWorldCenter(),
 			true
 		);
 	}
@@ -418,29 +403,29 @@ void Player::M_StunDash::updateBody() {
 
 void Player::M_Dodge::enter() {
 	Player& player = *static_cast<Player*>(actorPtr);
-	player.movement.vector.x = 0;
-	player.movement.vector.y = 0;
+	player.movement.direction.x = 0;
+	player.movement.direction.y = 0;
 	player.movement.dodging = true;
 	player.m_dodgeTimer = 25;
-	b2Filter filter = player.b2BodyPtr->GetFixtureList()->GetNext()->GetFilterData();
+	b2Filter filter = player.b2Ptr->GetFixtureList()->GetNext()->GetFilterData();
 	filter.maskBits = 1;
-	player.b2BodyPtr->GetFixtureList()->GetNext()->SetFilterData(filter);
-	player.sprites.get("body")->setColor(100, 100, 255, 255);
+	player.b2Ptr->GetFixtureList()->GetNext()->SetFilterData(filter);
+	player.sprites.front().setColor(100, 100, 255, 255);
 }
 void Player::M_Dodge::think(std::vector<Actor*>& actorPtrs, fk::Camera * camPtr) {
 	if (!iFrames--) {
 		actorPtr->movement.dodging = false;
-		b2Filter filter = actorPtr->b2BodyPtr->GetFixtureList()->GetNext()->GetFilterData();
+		b2Filter filter = actorPtr->b2Ptr->GetFixtureList()->GetNext()->GetFilterData();
 		filter.maskBits = 0b1111111111111111;
-		actorPtr->b2BodyPtr->GetFixtureList()->GetNext()->SetFilterData(filter);
+		actorPtr->b2Ptr->GetFixtureList()->GetNext()->SetFilterData(filter);
 		actorPtr->setState(new M_Control(*actorPtr));
 	}
 }
 void Player::M_Dodge::updateBody() {
 	if (iFrames > 12) {
-		actorPtr->b2BodyPtr->ApplyLinearImpulse(
+		actorPtr->b2Ptr->ApplyLinearImpulse(
 			b2Vec2(actorPtr->los.faceDirection.x * 8, actorPtr->los.faceDirection.y * 8),
-			actorPtr->b2BodyPtr->GetWorldCenter(),
+			actorPtr->b2Ptr->GetWorldCenter(),
 			true
 		);
 	}
@@ -448,9 +433,9 @@ void Player::M_Dodge::updateBody() {
 
 
 void Player::M_Enchant::enter() {
-	actorPtr->movement.vector.x = 0;
-	actorPtr->movement.vector.y = 0;
-	actorPtr->sprites.get("body")->setColor(255, 255, 255, 255);
+	actorPtr->movement.direction.x = 0;
+	actorPtr->movement.direction.y = 0;
+	actorPtr->sprites.front().setColor(255, 255, 255, 255);
 }
 void Player::M_Enchant::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	Player& player = *static_cast<Player*>(actorPtr);

@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="fk::Body">
+    <Position X="0.5" Y="0.5" Width="9.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="fk::Body::Limb">
+        <TypeIdentifier>
+          <NewMemberFileName>src\up\Body.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAQAAAgAAAAADCBgAAABAQAAAAQAACIAABAIAAAAEAA=</HashCode>
+      <FileName>src\up\Body.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="b2Ptr" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="fk::SpriteBatch">
+    <Position X="10.5" Y="0.5" Width="4.75" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="fk::SpriteBatch::Sprite">
+        <TypeIdentifier>
+          <NewMemberFileName>src\out\SpriteBatch.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="fk::SpriteBatch::Canvas">
+        <TypeIdentifier>
+          <NewMemberFileName>src\out\SpriteBatch.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="fk::SpriteBatch::SpriteTray">
+        <TypeIdentifier>
+          <NewMemberFileName>src\out\SpriteBatch.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>gAAAgAAAAQAAIAAEAAAAAAAAiCEAAQBAQAAAAAYAEAA=</HashCode>
+      <FileName>src\out\SpriteBatch.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="fk::Sprite">
+    <Position X="15.75" Y="0.5" Width="4.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAQAAGAAAAIAAACAAhEAARyAAAAEAAIAAI=</HashCode>
+      <FileName>src\out\SpriteBatch.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="b2Body">
+    <Position X="3.25" Y="7.75" Width="6.75" />
+    <NestedTypes>
+      <Enum Name="b2Body::__unnamed_enum_0071_1" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>c:\Users\T3chma\Documents\Visual Studio 2017\Projects\Futhark\deps\include\Box2D\Dynamics\b2Body.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>YSACMQ4YAuSADgDBFxJVgcAWcgIBAVsQEg0BAJRwMIM=</HashCode>
+      <FileName>c:\Users\T3chma\Documents\Visual Studio 2017\Projects\Futhark\deps\include\Box2D\Dynamics\b2Body.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

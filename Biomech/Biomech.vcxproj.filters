@@ -126,7 +126,16 @@
     <ClCompile Include="src\scenes\GameWorld.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Actor.cpp">
+    <ClCompile Include="src\actors\Actor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\actors\Macro.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\actors\Player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\actors\Boid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -134,7 +143,16 @@
     <ClInclude Include="src\scenes\GameWorld.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Actor.h">
+    <ClInclude Include="src\actors\Actor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\actors\Macro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\actors\Player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\actors\Boid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

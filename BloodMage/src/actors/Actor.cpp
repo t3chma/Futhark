@@ -4,36 +4,45 @@ int Actor::advances{ 0 };
 
 
 Actor::Actor(Map& map, ActorDef& ad, State& startState, Actor::AgroState* agroStatePtr) :
-	Object(map.dynamicObjectSprites, map.world, b2_dynamicBody, ad.position.x, ad.position.y),
-	map(map),
+	Object(
+		map,
+		b2_dynamicBody,
+		ad.position.x,
+		ad.position.y,
+		ad.angularDamping,
+		ad.linearDamping
+	),
 	p_radius(ad.size / 2)
 {
+	// Update
 	map.actorPtrs.push_back(this);
+	// AI
 	states.currentPtr = &startState;
 	states.agroStatePtr = agroStatePtr;
+	// Misc
 	movement.speed = ad.speed;
 	category = "actor";
-	sprites.add("body", ad.body);
-	sprites.get("body")->setDimensions(ad.size, ad.size);
-	sprites.get("body")->setPosition(ad.position.x, ad.position.y);
-	b2CircleShape shape1;
-	shape1.m_radius = ad.size / 2;
+	// Graphics
+	sprites.emplace_back(map.dynamicObjectSprites, ad.body);
+	sprites.back().setDimensions(ad.size, ad.size);
+	sprites.back().setPosition(ad.position.x, ad.position.y);
+	// Physics
 	b2FixtureDef fixtureDef1;
-	fixtureDef1.shape = &shape1;
-	fixtureDef1.userData = nullptr;
-	fixtureDef1.density = 10.0f;
-	fixtureDef1.friction = 0.3f;
+	fixtureDef1.density = ad.density;
+	fixtureDef1.friction = ad.friction;
 	fixtureDef1.filter.categoryBits = 2;
-	b2BodyPtr->SetLinearDamping(10);
-	b2BodyPtr->SetAngularDamping(5);
-	this->addCircleLimb(ad.size / 2);
-	b2BodyPtr->CreateFixture(&fixtureDef1);
+	addCircleLimb(ad.size / 2, 0, 0, &fixtureDef1);
 }
 Actor::~Actor() {
-	for (auto&& id : sprites.ids) { sprites.batch.destroySprite(id.second); }
 	delete states.currentPtr;
 	delete states.prevPtr;
 	delete states.agroStatePtr;
+	for (auto&& actorPtr : map.actorPtrs) {
+		if (actorPtr == this) {
+			actorPtr = map.actorPtrs.back();
+			map.actorPtrs.pop_back();
+		}
+	};
 }
 bool Actor::inLOS(Actor* targetPtr, float awareness, std::string ignoreCategory) {
 	glm::vec2 targetVec = targetPtr->getPosition() - getPosition();
@@ -47,11 +56,7 @@ bool Actor::inLOS(Actor* targetPtr, float awareness, std::string ignoreCategory)
 	targetInfo.ptr = nullptr;
 	p_raycast.ignore = ignoreCategory;
 	if (length < awareness || length < los.distance && halfAngle < los.halfAngle) {
-		b2BodyPtr->GetWorld()->RayCast(
-			this,
-			b2Vec2(getPosition().x, getPosition().y),
-			b2Vec2(targetPtr->getPosition().x, targetPtr->getPosition().y)
-		);
+		rayCast(targetPtr->getPosition());
 	}
 	p_raycast.target = nullptr;
 	p_raycast.ignore = "";
@@ -67,7 +72,7 @@ bool Actor::inLOS(glm::vec2 target, float awareness, std::string ignoreCategory)
 	targetInfo.obstructionPtr = nullptr;
 	p_raycast.ignore = ignoreCategory;
 	if (length < awareness || length < los.distance && halfAngle < los.halfAngle) {
-		b2BodyPtr->GetWorld()->RayCast(
+		b2Ptr->GetWorld()->RayCast(
 			this,
 			b2Vec2(getPosition().x, getPosition().y),
 			b2Vec2(target.x, target.y)
@@ -195,7 +200,7 @@ void Actor::advanceAStar() {
 }
 glm::vec2 Actor::getNextPathPointDirection(glm::vec2 targetPos) {
 	// Get tile position
-	glm::vec2 pos(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
+	glm::vec2 pos(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
 	pos.x = round(pos.x);
 	pos.y = round(pos.y);
 	// If on the next tile in the path remove that tile.
@@ -210,8 +215,8 @@ void Actor::markPathStale() {
 	p_pathFindingData.staleData = true;
 }
 const Actor::P_PathFindingData& Actor::getPathFindingData() { return p_pathFindingData; }
-void Actor::addOrder(std::vector<fk::Texture>& textures, glm::vec2& position) {
-	orders.all.push_back(new Order(map, textures, position, this, true));
+void Actor::addOrder(fk::Texture& node, fk::Texture& arrow, glm::vec2& position) {
+	orders.all.push_back(new Order(map, node, arrow, position, this, true));
 }
 void Actor::showNodes() { for (auto&& node : orders.all) { node->show(); } }
 void Actor::hideNodes() { for (auto&& node : orders.all) { node->hide(); } }
@@ -234,15 +239,25 @@ float32 Actor::ReportFixture(
 	}
 	return fraction;
 }
+void Actor::rayCast(glm::vec2 target) {
+	rayCast(getPosition(), target);
+}
+void Actor::rayCast(glm::vec2 origin, glm::vec2 target) {
+	b2Ptr->GetWorld()->RayCast(
+		this,
+		b2Vec2(origin.x, origin.y),
+		b2Vec2(target.x, target.y)
+	);
+}
 void Actor::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	if (health < 1) { setState(new Dead(*this)); }
 	states.currentPtr->think(actorPtrs, camPtr);
 }
 void Actor::updateBody() { states.currentPtr->updateBody(); }
 void Actor::updateSprite() {
-	sprites.get("body")->canvas.rotationAngle = b2BodyPtr->GetAngle();
-	sprites.get("body")->setPosition(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
-	sprites.get("body")->setRotationAxis(b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y);
+	sprites.front().setRotationAngle(b2Ptr->GetAngle());
+	sprites.front().setPosition(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
+	sprites.front().setRotationAxis(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
 	states.currentPtr->updateSprite();
 }
 void Actor::setState(State* newStatePtr) {
@@ -252,7 +267,7 @@ void Actor::setState(State* newStatePtr) {
 	newStatePtr->enter();
 }
 void Actor::look(glm::vec2 targetVector) {
-	b2BodyPtr->SetTransform(b2BodyPtr->GetWorldCenter(), fk::makeAngle(targetVector) + fk::TAU / 4);
+	b2Ptr->SetTransform(b2Ptr->GetWorldCenter(), fk::makeAngle(targetVector) + fk::TAU / 4);
 }
 void Actor::returnToPrevState() {
 	std::swap(states.currentPtr, states.prevPtr);
@@ -261,9 +276,12 @@ void Actor::returnToPrevState() {
 
 
 void Actor::State::updateBody() {
-	actorPtr->b2BodyPtr->ApplyLinearImpulse(
-		b2Vec2(actorPtr->movement.vector.x, actorPtr->movement.vector.y),
-		actorPtr->b2BodyPtr->GetWorldCenter(),
+	actorPtr->b2Ptr->ApplyLinearImpulse(
+		b2Vec2(
+			actorPtr->movement.direction.x * actorPtr->movement.speed,
+			actorPtr->movement.direction.y * actorPtr->movement.speed
+		),
+		actorPtr->b2Ptr->GetWorldCenter(),
 		true
 	);
 	actorPtr->look(actorPtr->los.faceDirection);
@@ -271,19 +289,17 @@ void Actor::State::updateBody() {
 
 
 void Actor::Dead::enter() {
-	actorPtr->movement.vector.x = 0;
-	actorPtr->movement.vector.y = 0;
-	for (auto&& spriteID : actorPtr->sprites.ids) {
-		actorPtr->sprites.batch[spriteID.second].canvas.color.a = 0;
-	}
-	actorPtr->sprites.get("body")->canvas.color.a = 100;
+	actorPtr->movement.direction.x = 0;
+	actorPtr->movement.direction.y = 0;
+	for (auto&& sprite : actorPtr->sprites) { sprite.getCanvasRef().color.a = 0; }
+	actorPtr->sprites.front().getCanvasRef().color.a = 100;
 }
 
 
 void Actor::Idle::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	// TODO: follow orders
-	actorPtr->movement.vector.x = 0;
-	actorPtr->movement.vector.y = 0;
+	actorPtr->movement.direction.x = 0;
+	actorPtr->movement.direction.y = 0;
 	if (actorPtr->inLOS(actorPtrs[0], 1)) { actorPtr->setState(actorPtr->states.agroStatePtr->copy()); }
 	///if (actorPtr->hit) { actorPtr->setState(new P_Stun(actorPtr)); }
 }

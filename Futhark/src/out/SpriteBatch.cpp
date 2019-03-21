@@ -60,6 +60,7 @@ SpriteBatch::Sprite& SpriteBatch::operator [] (int spriteID) {
 	return m_spriteBuffer[spriteID - 1];
 }
 void SpriteBatch::destroySprite(int spriteID) {
+	if (spriteID < 0) { return; }
 	if (!m_dynamic) { m_bufferStatic = true; }
 	int spriteIndex = spriteID - 1;
 	m_deadBufferIndices.push_back(spriteIndex);
@@ -210,80 +211,74 @@ void SpriteBatch::Sprite::makeLine(glm::vec2& b, glm::vec2& a, float thickness) 
 }
 
 void Sprite::move(const glm::vec2& translation) {
-	m_spriteBatch[m_id].move(translation.x, translation.y);
+	(*m_spriteBatchPtr)[m_id].move(translation.x, translation.y);
 }
 void Sprite::move(const float x, const float y) {
-	m_spriteBatch[m_id].move(x, y);
+	(*m_spriteBatchPtr)[m_id].move(x, y);
 }
 glm::vec2 Sprite::getPosition() const {
-	return m_spriteBatch[m_id].getPosition();
+	return (*m_spriteBatchPtr)[m_id].getPosition();
 }
 void Sprite::setPosition(const glm::vec2& position) {
-	m_spriteBatch[m_id].setPosition(position.x, position.y);
+	(*m_spriteBatchPtr)[m_id].setPosition(position.x, position.y);
 }
 void Sprite::setPosition(const float x, const float y) {
-	m_spriteBatch[m_id].setPosition(x, y);
+	(*m_spriteBatchPtr)[m_id].setPosition(x, y);
 }
 void Sprite::setDimensions(const glm::vec2& position) {
-	m_spriteBatch[m_id].setDimensions(position.x, position.y);
+	(*m_spriteBatchPtr)[m_id].setDimensions(position.x, position.y);
 }
 void Sprite::setDimensions(const float width, const float height) {
-	m_spriteBatch[m_id].setDimensions(width, height);
+	(*m_spriteBatchPtr)[m_id].setDimensions(width, height);
 }
 void Sprite::setRotationAxis(const glm::vec2& position) {
-	m_spriteBatch[m_id].setRotationAxis(position.x, position.y);
+	(*m_spriteBatchPtr)[m_id].setRotationAxis(position.x, position.y);
 }
 void Sprite::setRotationAxis(const float x, const float y) {
-	m_spriteBatch[m_id].setRotationAxis(x, y);
+	(*m_spriteBatchPtr)[m_id].setRotationAxis(x, y);
+}
+void Sprite::setRotationAngle(const float r) {
+	(*m_spriteBatchPtr)[m_id].canvas.rotationAngle = r;
 }
 void Sprite::setColor(const char r, const char g, const char b, const char a) {
-	m_spriteBatch[m_id].setColor(r, g, b, a);
+	(*m_spriteBatchPtr)[m_id].setColor(r, g, b, a);
 }
 void Sprite::setTexturePosition(const glm::vec2& position) {
-	m_spriteBatch[m_id].setTexturePosition(position.x, position.y);
+	(*m_spriteBatchPtr)[m_id].setTexturePosition(position.x, position.y);
 }
 void Sprite::setTexturePosition(const float x, const float y) {
-	m_spriteBatch[m_id].setTexturePosition(x, y);
+	(*m_spriteBatchPtr)[m_id].setTexturePosition(x, y);
 }
 void Sprite::setTextureDimensions(const glm::vec2& position) {
-	m_spriteBatch[m_id].setTextureDimensions(position.x, position.y);
+	(*m_spriteBatchPtr)[m_id].setTextureDimensions(position.x, position.y);
 }
 void Sprite::setTextureDimensions(const float width, const float height) {
-	m_spriteBatch[m_id].setTextureDimensions(width, height);
+	(*m_spriteBatchPtr)[m_id].setTextureDimensions(width, height);
 }
 void Sprite::setFrame(const int frame) {
-	m_spriteBatch[m_id].setFrame(frame);
+	(*m_spriteBatchPtr)[m_id].setFrame(frame);
 }
 void Sprite::setTexture(const Texture& texture) {
-	m_spriteBatch[m_id].setTexture(texture);
+	(*m_spriteBatchPtr)[m_id].setTexture(texture);
 }
 void Sprite::makeLine(glm::vec2& b, glm::vec2& a, float thickness) {
-	m_spriteBatch[m_id].makeLine(b, a, thickness);
+	(*m_spriteBatchPtr)[m_id].makeLine(b, a, thickness);
 }
-
 Sprite::Sprite(SpriteBatch& spriteBatch, const Texture& texture)
-	: m_spriteBatch(spriteBatch) {
+	: m_spriteBatchPtr(&spriteBatch) {
 	m_id = spriteBatch.makeSprite(texture);
 }
 Sprite::~Sprite() {
-	m_spriteBatch.destroySprite(m_id);
+	(*m_spriteBatchPtr).destroySprite(m_id);
 }
 SpriteBatch::Canvas& Sprite::getCanvasRef() {
-	return m_spriteBatch[m_id].canvas;
+	return (*m_spriteBatchPtr)[m_id].canvas;
+}
+SpriteBatch& Sprite::getSpriteBatchRef() {
+	return (*m_spriteBatchPtr);
 }
 
 SpriteBatch::SpriteTray::SpriteTray(GLuint textureID, float depth, int offset)
 	: textureID(textureID), depth(depth), offset(offset) {}
-
-SpriteBatch::Sprite* fk::SpriteMap::get(const std::string& nickname) {
-	auto it = ids.find(nickname);
-	if (it == ids.end()) { return nullptr; }
-	else { return &batch[it->second]; }
-}
-int SpriteMap::add(const std::string& nickname, const Texture& texture) {
-	int id = batch.makeSprite(texture);
-	ids.insert(std::make_pair(nickname, id));
-	return id;
-}
 
 }

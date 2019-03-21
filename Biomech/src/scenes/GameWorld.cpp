@@ -1,7 +1,7 @@
 #include "GameWorld.h"
 #include "base\Utility.h"
 #include <iostream>
-#include "../Actor.h"
+#include "../actors/Actor.h"
 
 void GameWorld::create(fk::Tools& tools) {
 	textBatchPtr = new fk::SpriteBatch(true);

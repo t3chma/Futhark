@@ -1,31 +1,39 @@
 #include "Object.h"
-
+#include "Map.h"
 
 Object::Object(
-	fk::SpriteBatch& spriteBatch,
-	fk::World& world,
+	Map& map,
 	b2BodyType type,
 	float xPosition,
 	float yPosition,
+	float linearDamping,
+	float angularDamping,
 	float angle,
 	bool fixedRotation,
 	bool bullet
-) : sprites(spriteBatch), Body(world, type, xPosition, yPosition, angle, fixedRotation, bullet) {
-
+) : map(map),
+	Body(
+		map.world,
+		type,
+		xPosition,
+		yPosition,
+		angle,
+		fixedRotation,
+		bullet,
+		linearDamping,
+		angularDamping
+	)
+{
 }
 glm::vec2 Object::getPosition() {
-	b2Vec2 vec = b2BodyPtr->GetPosition();
+	b2Vec2 vec = b2Ptr->GetPosition();
 	return glm::vec2(vec.x, vec.y);
 }
-void Object::updateSprite() {
-	for (auto&& spriteID : sprites.ids) {
-		sprites.batch[spriteID.second].canvas.rotationAngle = b2BodyPtr->GetAngle();
-		sprites.batch[spriteID.second].setPosition(
-			b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y
-		);
-		sprites.batch[spriteID.second].setRotationAxis(
-			b2BodyPtr->GetPosition().x, b2BodyPtr->GetPosition().y
-		);
+void Object::updateSprites() {
+	for (auto&& sprite : sprites) {
+		sprite.setRotationAngle(b2Ptr->GetAngle());
+		sprite.setPosition(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
+		sprite.setRotationAxis(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
 	}
 }
 

@@ -172,6 +172,7 @@
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\props\Box.cpp" />
     <ClCompile Include="src\Hud.cpp" />
     <ClCompile Include="src\SpellCatalog.cpp" />
     <ClCompile Include="src\Orders.cpp" />
@@ -184,7 +185,7 @@
     <ClCompile Include="src\Object.cpp" />
     <ClCompile Include="src\scenes\AITester.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Thrown.cpp" />
+    <ClCompile Include="src\props\WarNeedle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Futhark\Futhark.vcxproj">
@@ -192,6 +193,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\props\Box.h" />
     <ClInclude Include="src\Hud.h" />
     <ClInclude Include="src\SpellCatalog.h" />
     <ClInclude Include="src\Orders.h" />
@@ -203,7 +205,7 @@
     <ClInclude Include="src\actors\Player.h" />
     <ClInclude Include="src\actors\Grunt.h" />
     <ClInclude Include="src\scenes\AITester.h" />
-    <ClInclude Include="src\Thrown.h" />
+    <ClInclude Include="src\props\WarNeedle.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\Arrow.png" />

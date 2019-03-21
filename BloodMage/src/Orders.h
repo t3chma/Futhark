@@ -43,10 +43,11 @@ public:
 	// Arrow texture
 	fk::Texture arrowTexture;
 	// Map
-	Map* mapPtr;
+	Map& map;
 	Order(
 		Map& map,
-		std::vector<fk::Texture>& textures,
+		fk::Texture& node,
+		fk::Texture& arrow,
 		glm::vec2& position,
 		Actor* actorPtr,
 		bool prevOwner = false
@@ -56,5 +57,5 @@ public:
 	bool checkConditions() { return true; };
 	void show();
 	void hide();
-	void addNext(std::vector<fk::Texture>& textures, glm::vec2& position);
+	void addNext(fk::Texture& node, fk::Texture& arrow, glm::vec2& position);
 };

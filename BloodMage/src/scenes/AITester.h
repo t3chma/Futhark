@@ -5,7 +5,7 @@
 #include "Box2D/Box2D.h"
 #include "../actors/Grunt.h"
 #include "../actors/Player.h"
-#include "../props/Prop.h"
+#include "../props/Box.h"
 #include "../Map.h"
 #include "../Mouse.h"
 #include "out/TTFont.h"

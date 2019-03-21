@@ -116,12 +116,13 @@ class SpriteBatch {
 
 class Sprite {
   private:
-	int m_id;
-	SpriteBatch& m_spriteBatch;
+	int m_id{ -1 };
+	SpriteBatch* m_spriteBatchPtr{ nullptr };
   public:
 	Sprite(SpriteBatch& spriteBatch, const Texture& texture);
 	~Sprite();
 	SpriteBatch::Canvas& getCanvasRef();
+	SpriteBatch& getSpriteBatchRef();
 	void move(const glm::vec2& translation);
 	void move(const float x, const float y);
 	glm::vec2 getPosition() const;
@@ -131,6 +132,7 @@ class Sprite {
 	void setDimensions(const float width, const float height);
 	void setRotationAxis(const glm::vec2& position);
 	void setRotationAxis(const float x, const float y);
+	void setRotationAngle(const float r);
 	void setColor(const char r, const char g, const char b, const char a);
 	void setTexturePosition(const glm::vec2& position);
 	void setTexturePosition(const float x, const float y);
@@ -149,29 +151,6 @@ class Sprite {
 	(thickness) The thickness of the line.
 	[t3chma] */
 	void makeLine(glm::vec2& b, glm::vec2& a, float thickness);
-};
-
-/* Allows you to access sprites in a sprite batch using a given nick name.
-[t3chma] */
-struct SpriteMap {
-	/* Constructor
-	(spriteBatch) The sprite batch this will manage.
-	[t3chma] */
-	SpriteMap(SpriteBatch& spriteBatch) : batch(spriteBatch) {};
-	SpriteMap() = delete;
-	/* Allows the retrieval of a given sprite using a nick name.
-	(nickname) The nickname of the sprite.
-	< Pointer to the assiciated sprite if it exists.
-	[t3chma] */
-	SpriteBatch::Sprite* get(const std::string& nickname);
-	/* Adds a sprite to the batch and associates its ID to a nickname.
-	(nickname) The nickname to assiciated.
-	(texture) The texture to add to the sprite batch.
-	< The sprite id.
-	[t3chma] */
-	int add(const std::string& nickname, const Texture& texture);
-	SpriteBatch& batch;
-	std::multimap<std::string, int> ids;
 };
 
 }

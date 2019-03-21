@@ -2,29 +2,28 @@
 
 Prop::Prop(Map& map, PropDef& pd)
 	: Object(
-		map.dynamicObjectSprites,
-		map.world,
+		map,
 		pd.physics ? b2_dynamicBody : b2_kinematicBody,
 		pd.position.x,
-		pd.position.y
-) {
+		pd.position.y,
+		pd.angularDamping,
+		pd.linearDamping,
+		0,
+		false,
+		pd.bullet
+	) {
+	// Updating
 	map.propPtrs.push_back(this);
-	sprites.add("", pd.texture);
-	sprites.get("")->setDimensions(pd.size + 0.01, pd.size + 0.01);
-	sprites.get("")->setPosition(pd.position.x, pd.position.y);
-	b2BodyPtr->SetLinearDamping(10);
-	b2BodyPtr->SetAngularDamping(5);
-	b2FixtureDef fixtureDef1;
-	b2PolygonShape shape1;
-	fixtureDef1.shape = &shape1;
-	shape1.SetAsBox(pd.size / 2, pd.size / 2);
-	fixtureDef1.userData = nullptr;
-	fixtureDef1.density = 1.0f;
-	fixtureDef1.friction = 0.3f;
-	fixtureDef1.filter.categoryBits = 4;
-	b2BodyPtr->CreateFixture(&fixtureDef1);
-	category = "prop";
+	// Graphics
+	sprites.emplace_back(map.dynamicObjectSprites, pd.texture);
+	sprites.back().setDimensions(pd.size + 0.01, pd.size + 0.01);
+	sprites.back().setPosition(pd.position.x, pd.position.y);
 }
 Prop::~Prop() {
-
+	for (auto&& propPtr : map.propPtrs) {
+		if (propPtr == this) {
+			propPtr = map.propPtrs.back();
+			map.propPtrs.pop_back();
+		}
+	};
 }

@@ -199,12 +199,18 @@
     <None Include="Shaders\Wire.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Actor.cpp" />
+    <ClCompile Include="src\actors\Boid.cpp" />
+    <ClCompile Include="src\actors\Macro.cpp" />
+    <ClCompile Include="src\actors\Actor.cpp" />
+    <ClCompile Include="src\actors\Player.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\scenes\GameWorld.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Actor.h" />
+    <ClInclude Include="src\actors\Boid.h" />
+    <ClInclude Include="src\actors\Macro.h" />
+    <ClInclude Include="src\actors\Actor.h" />
+    <ClInclude Include="src\actors\Player.h" />
     <ClInclude Include="src\scenes\GameWorld.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

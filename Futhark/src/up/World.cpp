@@ -5,8 +5,8 @@ namespace fk {
 
 
 	World::World() {
-		b2WorldPtr = new b2World(b2Vec2(0, 0));
-		b2WorldPtr->SetContactListener(&m_contactListener);
+		b2Ptr = new b2World(b2Vec2(0, 0));
+		b2Ptr->SetContactListener(&m_contactListener);
 		TRY_GL(glGenVertexArrays(1, &m_vertexArrayObjectID));
 		TRY_GL(glBindVertexArray(m_vertexArrayObjectID));
 		TRY_GL(glGenBuffers(1, &m_vertexBufferObjectID));
@@ -38,87 +38,63 @@ namespace fk {
 		}
 	}
 	World::~World() {
-		delete b2WorldPtr;
+		delete b2Ptr;
 	}
 	void World::setGravity(const float& xGravity, const float& yGravity) {
-		b2WorldPtr->SetGravity(b2Vec2(xGravity, yGravity));
+		b2Ptr->SetGravity(b2Vec2(xGravity, yGravity));
 	}
 	void World::update(const float& timestep, const int& velocityIterations, const int& positionIterations) {
-		b2WorldPtr->Step(timestep, velocityIterations, positionIterations);
+		b2Ptr->Step(timestep, velocityIterations, positionIterations);
 	}
 	void World::M_ContactListener::BeginContact(b2Contact* contactPtr) {
 		// Check if fixture A and B was a Futhark body
-		if (
-			contactPtr->GetFixtureA()->GetBody()->GetUserData()
-			&& contactPtr->GetFixtureB()->GetBody()->GetUserData()
-		) {
-			Body* bodyPtr1 = static_cast<Body*>(contactPtr->GetFixtureA()->GetBody()->GetUserData());
-			Body* bodyPtr2 = static_cast<Body*>(contactPtr->GetFixtureB()->GetBody()->GetUserData());
-			bodyPtr1->p_beginCollision(contactPtr->GetFixtureB(), contactPtr->GetFixtureA(), contactPtr);
-			bodyPtr2->p_beginCollision(contactPtr->GetFixtureA(), contactPtr->GetFixtureB(), contactPtr);
+		auto bodyA = static_cast<Body*>(contactPtr->GetFixtureA()->GetBody()->GetUserData());
+		auto bodyB = static_cast<Body*>(contactPtr->GetFixtureB()->GetBody()->GetUserData());
+		if (bodyA && bodyB) {
+			bodyA->p_beginCollision(contactPtr->GetFixtureB(), contactPtr->GetFixtureA(), contactPtr);
+			bodyB->p_beginCollision(contactPtr->GetFixtureA(), contactPtr->GetFixtureB(), contactPtr);
 		};
 	}
 	void World::M_ContactListener::PreSolve(b2Contact* contactPtr, const b2Manifold* oldManifoldPtr) {
 		// Check if fixture A and B was a Futhark body
-		if (
-			contactPtr->GetFixtureA()->GetBody()->GetUserData()
-			&& contactPtr->GetFixtureB()->GetBody()->GetUserData()
-		) {
-			Body* bodyPtr1 = static_cast<Body*>(contactPtr->GetFixtureA()->GetBody()->GetUserData());
-			Body* bodyPtr2 = static_cast<Body*>(contactPtr->GetFixtureB()->GetBody()->GetUserData());
-			bodyPtr1->p_preCollisionAdjusting(
-				contactPtr->GetFixtureB(),
-				contactPtr->GetFixtureA(),
-				contactPtr,
-				oldManifoldPtr
+		auto bodyA = static_cast<Body*>(contactPtr->GetFixtureA()->GetBody()->GetUserData());
+		auto bodyB = static_cast<Body*>(contactPtr->GetFixtureB()->GetBody()->GetUserData());
+		if (bodyA && bodyB) {
+			bodyA->p_preCollisionAdjusting(
+				contactPtr->GetFixtureB(), contactPtr->GetFixtureA(), contactPtr, oldManifoldPtr
 			);
-			bodyPtr2->p_preCollisionAdjusting(
-				contactPtr->GetFixtureA(),
-				contactPtr->GetFixtureB(),
-				contactPtr,
-				oldManifoldPtr
+			bodyB->p_preCollisionAdjusting(
+				contactPtr->GetFixtureA(), contactPtr->GetFixtureB(), contactPtr, oldManifoldPtr
 			);
 		};
 	}
 	void World::M_ContactListener::PostSolve(b2Contact* contactPtr, const b2ContactImpulse* impulsePtr) {
 		// Check if fixture A and B was a Futhark body
-		if (
-			contactPtr->GetFixtureA()->GetBody()->GetUserData()
-			&& contactPtr->GetFixtureB()->GetBody()->GetUserData()
-		) {
-			Body* bodyPtr1 = static_cast<Body*>(contactPtr->GetFixtureA()->GetBody()->GetUserData());
-			Body* bodyPtr2 = static_cast<Body*>(contactPtr->GetFixtureB()->GetBody()->GetUserData());
-			bodyPtr1->p_postCollisionAdjusting(
-				contactPtr->GetFixtureB(),
-				contactPtr->GetFixtureA(),
-				contactPtr,
-				impulsePtr
+		auto bodyA = static_cast<Body*>(contactPtr->GetFixtureA()->GetBody()->GetUserData());
+		auto bodyB = static_cast<Body*>(contactPtr->GetFixtureB()->GetBody()->GetUserData());
+		if (bodyA && bodyB) {
+			bodyA->p_postCollisionAdjusting(
+				contactPtr->GetFixtureB(), contactPtr->GetFixtureA(), contactPtr, impulsePtr
 			);
-			bodyPtr2->p_postCollisionAdjusting(
-				contactPtr->GetFixtureA(),
-				contactPtr->GetFixtureB(),
-				contactPtr,
-				impulsePtr
+			bodyB->p_postCollisionAdjusting(
+				contactPtr->GetFixtureA(), contactPtr->GetFixtureB(), contactPtr, impulsePtr
 			);
 		};
 	}
 	void World::M_ContactListener::EndContact(b2Contact* contactPtr) {
 		//check if fixture A and B was a Futhark body
-		if (
-			contactPtr->GetFixtureA()->GetBody()->GetUserData()
-			&& contactPtr->GetFixtureB()->GetBody()->GetUserData()
-		) {
-			Body* bodyPtr1 = static_cast<Body*>(contactPtr->GetFixtureA()->GetBody()->GetUserData());
-			Body* bodyPtr2 = static_cast<Body*>(contactPtr->GetFixtureB()->GetBody()->GetUserData());
-			bodyPtr1->p_endCollision(contactPtr->GetFixtureB(), contactPtr->GetFixtureA(), contactPtr);
-			bodyPtr2->p_endCollision(contactPtr->GetFixtureA(), contactPtr->GetFixtureB(), contactPtr);
+		auto bodyA = static_cast<Body*>(contactPtr->GetFixtureA()->GetBody()->GetUserData());
+		auto bodyB = static_cast<Body*>(contactPtr->GetFixtureB()->GetBody()->GetUserData());
+		if (bodyA && bodyB) {
+			bodyA->p_endCollision(contactPtr->GetFixtureB(), contactPtr->GetFixtureA(), contactPtr);
+			bodyB->p_endCollision(contactPtr->GetFixtureA(), contactPtr->GetFixtureB(), contactPtr);
 		};
 	}
 	void World::m_setupBuffers() {
-		for (b2Body* bodyPtr = b2WorldPtr->GetBodyList(); bodyPtr; bodyPtr = bodyPtr->GetNext()) {
-			fk::Body& body = *static_cast<fk::Body*>(bodyPtr->GetUserData());
+		for (b2Body* b2BodyPtr = b2Ptr->GetBodyList(); b2BodyPtr; b2BodyPtr = b2BodyPtr->GetNext()) {
+			fk::Body& body = *static_cast<fk::Body*>(b2BodyPtr->GetUserData());
 			fk::Color color;
-			switch (bodyPtr->GetType()) {
+			switch (b2BodyPtr->GetType()) {
 			  case b2_dynamicBody: color = fk::PresetColors::ORANGE;
 			  break;
 			  case b2_kinematicBody: color = fk::PresetColors::COBALT;
@@ -126,45 +102,45 @@ namespace fk {
 			  case b2_staticBody: color = fk::PresetColors::CREAM_GREEN;
 			  break;
 			}
-			if (body.opens.empty()) { continue; }
-			b2Fixture* fixturePtr = body.b2BodyPtr->GetFixtureList();
-			for (int i = 0; i < body.shapes.size(); ++i, fixturePtr = fixturePtr->GetNext()) {
-				if (!fixturePtr) { break; }
+			if (body.limbs.empty()) { continue; }
+			for (auto&& limb : body.limbs) {
 				unsigned int numberOfOffsets{ 0 };
 				unsigned int verticesSize{ m_vertexBuffer.size() };
 				// If circle
-				if (body.shapes[i] == 'c') {
+				if (limb == b2Shape::e_circle) {
 					// Add space for new verticies
 					numberOfOffsets = 32;
 					m_vertexBuffer.resize(verticesSize + numberOfOffsets + 1);
 					// Polulate
-					for (int j = 0; j < numberOfOffsets; ++j) {
-						m_vertexBuffer[verticesSize + j].offset.x =
-							m_circleWireVectors[j].x * fixturePtr->GetShape()->m_radius;
-						m_vertexBuffer[verticesSize + j].offset.y =
-							m_circleWireVectors[j].y * fixturePtr->GetShape()->m_radius;
-						m_vertexBuffer[verticesSize + j].position.x =
-							body.b2BodyPtr->GetPosition().x;
-						m_vertexBuffer[verticesSize + j].position.y =
-							body.b2BodyPtr->GetPosition().y;
-						m_vertexBuffer[verticesSize + j].rotationAngle = body.b2BodyPtr->GetAngle();
-						m_vertexBuffer[verticesSize + j].color = color;
+					for (int i = 0; i < numberOfOffsets; ++i) {
+						m_vertexBuffer[verticesSize + i].offset.x =
+							m_circleWireVectors[i].x * limb.b2Ptr->GetShape()->m_radius +
+							limb.offsets[0].x;
+						m_vertexBuffer[verticesSize + i].offset.y =
+							m_circleWireVectors[i].y * limb.b2Ptr->GetShape()->m_radius +
+							limb.offsets[0].y;
+						m_vertexBuffer[verticesSize + i].position.x =
+							body.b2Ptr->GetPosition().x;
+						m_vertexBuffer[verticesSize + i].position.y =
+							body.b2Ptr->GetPosition().y;
+						m_vertexBuffer[verticesSize + i].rotationAngle = body.b2Ptr->GetAngle();
+						m_vertexBuffer[verticesSize + i].color = color;
 					}
 				// If not circle
 				} else {
 					// Add space for new verticies
-					numberOfOffsets = body.offsets.size();
+					numberOfOffsets = limb.offsets.size();
 					m_vertexBuffer.resize(verticesSize + numberOfOffsets + 1);
 					// Populate
-					for (int j = 0; j < numberOfOffsets; ++j) {
-						m_vertexBuffer[verticesSize + j].offset.x = body.offsets[i][j].x;
-						m_vertexBuffer[verticesSize + j].offset.y = body.offsets[i][j].y;
-						m_vertexBuffer[verticesSize + j].position.x =
-							body.b2BodyPtr->GetPosition().x;
-						m_vertexBuffer[verticesSize + j].position.y =
-							body.b2BodyPtr->GetPosition().y;
-						m_vertexBuffer[verticesSize + j].rotationAngle = body.b2BodyPtr->GetAngle();
-						m_vertexBuffer[verticesSize + j].color = color;
+					for (int i = 0; i < numberOfOffsets; ++i) {
+						m_vertexBuffer[verticesSize + i].offset.x = limb.offsets[i].x;
+						m_vertexBuffer[verticesSize + i].offset.y = limb.offsets[i].y;
+						m_vertexBuffer[verticesSize + i].position.x =
+							body.b2Ptr->GetPosition().x;
+						m_vertexBuffer[verticesSize + i].position.y =
+							body.b2Ptr->GetPosition().y;
+						m_vertexBuffer[verticesSize + i].rotationAngle = body.b2Ptr->GetAngle();
+						m_vertexBuffer[verticesSize + i].color = color;
 					}
 				}
 				// Set up indices for indexed drawing
@@ -175,20 +151,20 @@ namespace fk {
 					m_indexBuffer.push_back(verticesSize + i + 1);
 				}
 				// Close the shape if it isn't open
-				if (!body.opens[i]) {
+				if (!limb.opens) {
 					m_indexBuffer.push_back(verticesSize + numberOfOffsets - 1);
 					m_indexBuffer.push_back(verticesSize);
 				}
 				// Show orienttion
 				m_vertexBuffer[verticesSize + numberOfOffsets].offset.x =
-					body.b2BodyPtr->GetPosition().x;
+					body.b2Ptr->GetPosition().x;
 				m_vertexBuffer[verticesSize + numberOfOffsets].offset.y =
-					body.b2BodyPtr->GetPosition().y;
+					body.b2Ptr->GetPosition().y;
 				m_vertexBuffer[verticesSize + numberOfOffsets].position.x = 0;
 				m_vertexBuffer[verticesSize + numberOfOffsets].position.y = 0;
 				m_vertexBuffer[verticesSize + numberOfOffsets].rotationAngle = 0;
 				m_vertexBuffer[verticesSize + numberOfOffsets].color.a =
-					body.shapes[i] == 'l' ? 0 : 255; // If this is a line fade out the orientation line
+					limb.opens ? 0 : 255; // If this is a line fade out the orientation line
 				m_indexBuffer.push_back(verticesSize + numberOfOffsets);
 				m_indexBuffer.push_back(verticesSize);
 			}
@@ -198,8 +174,6 @@ namespace fk {
 		m_setupBuffers();
 		// Buffer data in GPU.
 		TRY_GL(glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObjectID));
-		// Describe data and throw out old data (orphaning) for speed
-		// https://www.opengl.org/sdk/docs/man/html/glBufferData.xhtml
 		TRY_GL(
 			glBufferData(
 				GL_ARRAY_BUFFER,

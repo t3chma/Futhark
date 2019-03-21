@@ -7,7 +7,8 @@ namespace fk {
 	Body::Body(
 		World& world, b2BodyType type,
 		float xPosition, float yPosition, float angle,
-		bool fixedRotaion, bool bullet
+		bool fixedRotaion, bool bullet,
+		float angularDamping, float linearDamping
 	) {
 		b2BodyDef bodyDef;
 		bodyDef.type = type;
@@ -15,36 +16,43 @@ namespace fk {
 		bodyDef.bullet = bullet;
 		bodyDef.position.Set(xPosition, yPosition);
 		bodyDef.angle = angle;
+		bodyDef.angularDamping = angularDamping;
+		bodyDef.linearDamping = linearDamping;
 
-		b2BodyPtr = world.b2WorldPtr->CreateBody(&bodyDef);
-		b2BodyPtr->SetUserData(this);
+		b2Ptr = world.b2Ptr->CreateBody(&bodyDef);
+		b2Ptr->SetUserData(this);
 	}
 	Body::~Body() {
-		b2BodyPtr->GetWorld()->DestroyBody(b2BodyPtr);
+		b2Ptr->GetWorld()->DestroyBody(b2Ptr);
 	}
-	void Body::addCircleLimb(float radius, float xOffset, float yOffset) {
+	Body::Limb& Body::addCircleLimb(
+		float radius,
+		float xOffset, float yOffset,
+		b2FixtureDef* fixtureDefPtr
+	) {
+		bool destroyFixture = false;
+		if (!fixtureDefPtr) { fixtureDefPtr = new b2FixtureDef(); destroyFixture = true; }
 		std::vector<glm::vec2> offsets;
 		offsets.emplace_back(xOffset, yOffset);
-		this->offsets.push_back(offsets);
 
 		b2CircleShape shape;
 		shape.m_radius = radius;
-		shape.m_p = b2Vec2(xOffset, yOffset);
+		shape.m_p.Set(xOffset, yOffset);
 
-		b2FixtureDef fixtureDef;
-		fixtureDef.shape = &shape;
-		fixtureDef.density = 1.0f;
-		fixtureDef.friction = 0.3f;
-		fixtureDef.userData = nullptr;
-		++numberOfLimbs;
+		fixtureDefPtr->shape = &shape;
 
-		shapes.push_back('c');
-		opens.push_back(false);
+		limbs.emplace_back(b2Ptr->CreateFixture(fixtureDefPtr), offsets);
+		limbs.back().b2Ptr->SetUserData(&limbs.back());
+		if (destroyFixture) { delete fixtureDefPtr; }
+		return limbs.back();
 	}
-	void Body::addPolygonLimb(std::vector<glm::vec2>& offsets) {
-		if (offsets.size() > 8) { return; }
-
-		this->offsets.push_back(offsets);
+	Body::Limb& Body::addPolygonLimb(
+		std::vector<glm::vec2>& offsets,
+		b2FixtureDef* fixtureDefPtr
+	) {
+		if (offsets.size() > 8) { __debugbreak(); assert(false); }
+		bool destroyFixture = false;
+		if (!fixtureDefPtr) { fixtureDefPtr = new b2FixtureDef(); destroyFixture = true; }
 
 		b2Vec2* bOffsets = new b2Vec2[offsets.size()];
 		for (int i = 0; i < offsets.size(); ++i) {
@@ -55,23 +63,24 @@ namespace fk {
 		b2PolygonShape shape;
 		shape.Set(bOffsets, offsets.size());
 
-		b2FixtureDef fixtureDef;
-		fixtureDef.shape = &shape;
-		fixtureDef.density = 1.0f;
-		fixtureDef.friction = 0.3f;
-		fixtureDef.userData = nullptr;
-		++numberOfLimbs;
+		fixtureDefPtr->shape = &shape;
 
-		shapes.push_back('p');
-		opens.push_back(false);
+		limbs.emplace_back(b2Ptr->CreateFixture(fixtureDefPtr), offsets);
+		limbs.back().b2Ptr->SetUserData(&limbs.back());
 
 		delete bOffsets;
+		if (destroyFixture) { delete fixtureDefPtr; }
+		return limbs.back();
 	}
-	void Body::addRectangleLimb(
+	Body::Limb& Body::addRectangleLimb(
 		float halfWidth, float halfHeight,
 		float xOffset, float yOffset,
-		float angle
+		float angle,
+		b2FixtureDef* fixtureDefPtr
 	) {
+		bool destroyFixture = false;
+		if (!fixtureDefPtr) { fixtureDefPtr = new b2FixtureDef(); destroyFixture = true; }
+
 		// Calculate corners
 		std::vector<glm::vec2> offsets;
 		offsets.resize(4);
@@ -89,28 +98,29 @@ namespace fk {
 		offsets[1] = rotatePoint(offsets[1], angle);
 		offsets[2] = rotatePoint(offsets[2], angle);
 		offsets[3] = rotatePoint(offsets[3], angle);
-		this->offsets.push_back(offsets);
 
 		b2PolygonShape shape;
 		shape.SetAsBox(halfWidth, halfHeight, b2Vec2(xOffset, yOffset), angle);
 
-		b2FixtureDef fixtureDef;
-		fixtureDef.shape = &shape;
-		fixtureDef.density = 1.0f;
-		fixtureDef.friction = 0.3f;
-		fixtureDef.userData = nullptr;
-		++numberOfLimbs;
+		fixtureDefPtr->shape = &shape;
 
-		shapes.push_back('p');
-		opens.push_back(false);
+		limbs.emplace_back(b2Ptr->CreateFixture(fixtureDefPtr), offsets);
+		limbs.back().b2Ptr->SetUserData(&limbs.back());
+		if (destroyFixture) { delete fixtureDefPtr; }
+		return limbs.back();
 	}
 	void Body::addCapsuleLimbs(
 		float halfWidth, float halfHeight,
-		float xOffset, float yOffset, float angle
+		float xOffset, float yOffset,
+		float angle,
+		b2FixtureDef* fixtureDefPtr
 	) {
+		bool destroyFixture = false;
+		if (!fixtureDefPtr) { fixtureDefPtr = new b2FixtureDef(); destroyFixture = true; }
+
 		// Rectangle
 
-		addRectangleLimb(halfWidth, halfHeight, xOffset, yOffset, angle);
+		addRectangleLimb(halfWidth, halfHeight, xOffset, yOffset, angle, fixtureDefPtr);
 
 		// Cirlce 1
 
@@ -119,21 +129,14 @@ namespace fk {
 		center1 = rotatePoint(center1, angle);
 		std::vector<glm::vec2> offsets1;
 		offsets1.push_back(center1);
-		this->offsets.push_back(offsets1);
 
 		b2CircleShape shape1;
 		shape1.m_radius = halfWidth;
-		shape1.m_p = b2Vec2(center1.x, center1.y);
+		shape1.m_p.Set(center1.x, center1.y);
 
-		b2FixtureDef fixtureDef1;
-		fixtureDef1.shape = &shape1;
-		fixtureDef1.density = 1.0f;
-		fixtureDef1.friction = 0.3f;
-		fixtureDef1.userData = nullptr;
-		++numberOfLimbs;
+		fixtureDefPtr->shape = &shape1;
 
-		shapes.push_back('c');
-		opens.push_back(false);
+		limbs.emplace_back(b2Ptr->CreateFixture(fixtureDefPtr), offsets1);
 
 		// Circle 2
 
@@ -142,27 +145,25 @@ namespace fk {
 		center2 = rotatePoint(center2, angle);
 		std::vector<glm::vec2> offsets2;
 		offsets2.push_back(center2);
-		this->offsets.push_back(offsets2);
 
 		b2CircleShape shape2;
 		shape2.m_radius = halfWidth;
-		shape2.m_p = b2Vec2(center2.x, center2.y);
+		shape2.m_p.Set(center2.x, center2.y);
 
-		b2FixtureDef fixtureDef2;
-		fixtureDef2.shape = &shape2;
-		fixtureDef2.density = 1.0f;
-		fixtureDef2.friction = 0.3f;
-		++numberOfLimbs;
+		fixtureDefPtr->shape = &shape2;
 
-		shapes.push_back('c');
-		opens.push_back(false);
+		limbs.emplace_back(b2Ptr->CreateFixture(fixtureDefPtr), offsets1);
+		if (destroyFixture) { delete fixtureDefPtr; }
 	}
-	void Body::addEquilateralLimb(
+	Body::Limb& Body::addEquilateralLimb(
 		float radius, char sides,
 		float xOffset, float yOffset,
-		float angle
+		float angle,
+		b2FixtureDef* fixtureDefPtr
 	) {
-		if (sides > 8) { return; }
+		if (sides > 8) { __debugbreak(); assert(false); }
+		bool destroyFixture = false;
+		if (!fixtureDefPtr) { fixtureDefPtr = new b2FixtureDef(); destroyFixture = true; }
 
 		std::vector<glm::vec2> offsets;
 		offsets.resize(sides);
@@ -171,7 +172,6 @@ namespace fk {
 			offsets[i].x = cos(pointAngle) + xOffset;
 			offsets[i].y = sin(pointAngle) + yOffset;
 		}
-		this->offsets.push_back(offsets);
 
 		b2Vec2* offsetsArray = new b2Vec2[offsets.size()];
 		for (int i = 0; i < offsets.size(); ++i) {
@@ -182,20 +182,21 @@ namespace fk {
 		b2PolygonShape shape;
 		shape.Set(offsetsArray, offsets.size());
 
-		b2FixtureDef fixtureDef;
-		fixtureDef.shape = &shape;
-		fixtureDef.density = 1.0f;
-		fixtureDef.friction = 0.3f;
-		fixtureDef.userData = nullptr;
-		++numberOfLimbs;
+		fixtureDefPtr->shape = &shape;
 
-		shapes.push_back('p');
-		opens.push_back(false);
+		limbs.emplace_back(b2Ptr->CreateFixture(fixtureDefPtr), offsets);
 
 		delete offsetsArray;
+		if (destroyFixture) { delete fixtureDefPtr; }
+		return limbs.back();
 	}
-	void Body::addLineLimb(std::vector<glm::vec2>& offsets, bool open) {
-		this->offsets.push_back(offsets);
+	Body::Limb& Body::addLineLimb(
+		std::vector<glm::vec2>& offsets,
+		bool open,
+		b2FixtureDef* fixtureDefPtr
+	) {
+		bool destroyFixture = false;
+		if (!fixtureDefPtr) { fixtureDefPtr = new b2FixtureDef(); destroyFixture = true; }
 
 		b2Vec2* bOffsets = new b2Vec2[offsets.size()];
 		for (int i = 0; i < offsets.size(); ++i) {
@@ -204,24 +205,23 @@ namespace fk {
 		}
 
 		b2ChainShape shape;
-		if (open) {
-			shape.CreateChain(bOffsets, offsets.size());
-			opens.push_back(true);
-		} else {
-			shape.CreateLoop(bOffsets, offsets.size());
-			opens.push_back(false);
-		}
+		if (open) { shape.CreateChain(bOffsets, offsets.size()); }
+		else { shape.CreateLoop(bOffsets, offsets.size()); }
 
-		b2FixtureDef fixtureDef;
-		fixtureDef.shape = &shape;
-		fixtureDef.density = 1.0f;
-		fixtureDef.friction = 0.3f;
-		fixtureDef.userData = nullptr;
-		++numberOfLimbs;
+		fixtureDefPtr->shape = &shape;
 
-		shapes.push_back('l');
-
+		limbs.emplace_back(b2Ptr->CreateFixture(fixtureDefPtr), offsets, open);
+		if (destroyFixture) { delete fixtureDefPtr; }
 		delete bOffsets;
+		return limbs.back();
+	}
+
+	Body::Limb::Limb(b2Fixture* b2Ptr, std::vector<glm::vec2> offsets, bool opens) :
+		b2Ptr(b2Ptr),
+		offsets(offsets),
+		opens(opens)
+	{
+		b2Ptr->SetUserData(this);
 	}
 
 }

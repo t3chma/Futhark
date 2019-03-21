@@ -3,33 +3,28 @@
 
 
 Grunt::Grunt(Map& map, GruntDef& gd) : Actor(map, gd.ad, *(new Idle(*this)), new Grunt::Agro(*this)) {
+	// Misc
 	movement.speed = 1.8;
 	health = 5;
 	type = "grunt";
-	sprites.get("body")->setColor(255, 255, 0, 255);
-	sprites.add("swipe", gd.swipe);
-	sprites.get("swipe")->setDimensions(0.8, 1.6);
-	sprites.get("swipe")->setColor(255, 255, 0, 255);
-	b2Vec2 points1[]{
-		b2Vec2(-gd.ad.size / 4, 0), b2Vec2(-gd.ad.size / 4, gd.ad.size * 2),
-		b2Vec2(gd.ad.size / 4, gd.ad.size * 2), b2Vec2(gd.ad.size / 4, 0)
-	};
-	b2PolygonShape box;
-	box.Set(points1, 4);
+	// Graphics
+	sprites.front().setColor(255, 255, 0, 255);
+	sprites.emplace_back(map.dynamicObjectSprites, gd.swipe);
+	sprites.back().setDimensions(0.8, 1.6);
+	sprites.back().setColor(255, 255, 0, 255);
+	// Physics
 	b2FixtureDef fixtureDef;
-	fixtureDef.shape = &box;
 	fixtureDef.isSensor = true;
-	fixtureDef.userData = (void*)'S';
-	b2BodyPtr->CreateFixture(&fixtureDef);
+	addRectangleLimb(gd.ad.size / 4, gd.ad.size, 0, gd.ad.size, 0, &fixtureDef).category = "Attack";
 }
 Grunt::~Grunt() {
 	
 }
 void Grunt::updateSprite() {
 	int alpha;
-	alpha = sprites.get("swipe")->canvas.color.a - 10;
+	alpha = sprites.back().getCanvasRef().color.a - 10;
 	if (alpha < 0) { alpha = 0; }
-	sprites.get("swipe")->setColor(255, 255, 255, alpha);
+	sprites.back().setColor(255, 255, 255, alpha);
 	Actor::updateSprite();
 }
 void Grunt::p_beginCollision(
@@ -38,18 +33,8 @@ void Grunt::p_beginCollision(
 	b2Contact* contactPtr
 ) {
 	if (collisionFixturePtr->IsSensor()) {
-	} else {
-		if (myFixturePtr->GetUserData() != nullptr) {
-			switch ((char)myFixturePtr->GetUserData()) {
-			  case 'S':
-				m_swipePtrs.insert(static_cast<Object*>(
-					collisionFixturePtr->GetBody()->GetUserData())
-				);
-			  break;
-			  default:
-			  break;
-			}
-		}
+	} else if (static_cast<Limb*>(myFixturePtr->GetUserData())->category == "Attack") {
+		m_swipePtrs.insert(static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData()));
 	}
 }
 void Grunt::p_endCollision(
@@ -58,22 +43,14 @@ void Grunt::p_endCollision(
 	b2Contact* contactPtr
 ) {
 	if (collisionFixturePtr->IsSensor()) {
-	} else {
-		if (myFixturePtr->GetUserData() != nullptr) {
-			switch ((char)myFixturePtr->GetUserData()) {
-			  case 'S':
-				m_swipePtrs.erase(static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData()));
-			  break;
-			  default:
-			  break;
-			}
-		}
+	} else if (static_cast<Limb*>(myFixturePtr->GetUserData())->category == "Attack") {
+		m_swipePtrs.erase(static_cast<Object*>(collisionFixturePtr->GetBody()->GetUserData()));
 	}
 }
 
 
 void Grunt::Agro::enter() {
-	actorPtr->sprites.get("body")->setColor(255, 255, 255, 255);
+	actorPtr->sprites.front().setColor(255, 255, 255, 255);
 }
 void Grunt::Agro::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	bool canSee = actorPtr->inLOS(actorPtrs[0], 4, "actor");
@@ -84,7 +61,7 @@ void Grunt::Agro::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	if (targetVec.x || targetVec.y) { actorPtr->los.faceDirection = glm::normalize(targetVec); }
 
 	if (!actorPtr->getPathFindingData().staleData) {
-		actorPtr->movement.vector = actorPtr->movement.speed * actorPtr->getNextPathPointDirection(
+		actorPtr->movement.direction = actorPtr->movement.speed * actorPtr->getNextPathPointDirection(
 			actorPtr->targetInfo.lastKnownPos
 		);
 		if (actorPtr->getPathFindingData().done) {
@@ -135,7 +112,7 @@ void Grunt::Agro::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 			actorPtr->startAStar(actorPtr->targetInfo.lastKnownPos);
 		}
 		else { actorPtr->advanceAStar(); }
-		actorPtr->movement.vector = glm::vec2(0);
+		actorPtr->movement.direction = glm::vec2(0);
 	}
 	justEntered = false;
 
@@ -149,7 +126,7 @@ void Grunt::Agro::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 
 
 void Grunt::Charge::enter() {
-	actorPtr->sprites.get("body")->setColor(255, 200, 200, 255);
+	actorPtr->sprites.front().setColor(255, 200, 200, 255);
 }
 void Grunt::Charge::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	bool canSee = actorPtr->inLOS(actorPtrs[0], 4, "actor");
@@ -160,7 +137,7 @@ void Grunt::Charge::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	if (targetVec.x || targetVec.y) { actorPtr->los.faceDirection = glm::normalize(targetVec); }
 
 	if (!actorPtr->getPathFindingData().staleData) {
-		actorPtr->movement.vector = actorPtr->movement.speed * actorPtr->getNextPathPointDirection(
+		actorPtr->movement.direction = actorPtr->movement.speed * actorPtr->getNextPathPointDirection(
 			actorPtr->targetInfo.lastKnownPos
 		);
 		if (actorPtr->getPathFindingData().done) {
@@ -172,7 +149,7 @@ void Grunt::Charge::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 			actorPtr->startAStar(actorPtr->targetInfo.lastKnownPos);
 		}
 		else { actorPtr->advanceAStar(); }
-		actorPtr->movement.vector = glm::vec2(0);
+		actorPtr->movement.direction = glm::vec2(0);
 	}
 	justEntered = false;
 
@@ -185,24 +162,24 @@ void Grunt::Charge::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 
 
 void Grunt::Attack::enter() {
-	actorPtr->sprites.get("body")->setColor(255, 100, 100, 255);
-	actorPtr->sprites.get("swipe")->setColor(255, 0, 0, 255);
-	actorPtr->sprites.get("swipe")->setPosition(
-		actorPtr->b2BodyPtr->GetPosition().x, actorPtr->b2BodyPtr->GetPosition().y
+	actorPtr->sprites.front().setColor(255, 100, 100, 255);
+	actorPtr->sprites.back().setColor(255, 0, 0, 255);
+	actorPtr->sprites.back().setPosition(
+		actorPtr->b2Ptr->GetPosition().x, actorPtr->b2Ptr->GetPosition().y
 	);
-	actorPtr->sprites.get("swipe")->setRotationAxis(
-		actorPtr->b2BodyPtr->GetPosition().x, actorPtr->b2BodyPtr->GetPosition().y
+	actorPtr->sprites.back().setRotationAxis(
+		actorPtr->b2Ptr->GetPosition().x, actorPtr->b2Ptr->GetPosition().y
 	);
-	actorPtr->sprites.get("swipe")->canvas.rotationAngle = fk::makeAngle(
+	actorPtr->sprites.back().getCanvasRef().rotationAngle = fk::makeAngle(
 		actorPtr->los.faceDirection
 	);
 }
 void Grunt::Attack::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	actorPtr->look(actorPtr->los.faceDirection);
 	for (auto&& hitBodyPtr : static_cast<Grunt*>(actorPtr)->m_swipePtrs) {
-		hitBodyPtr->b2BodyPtr->ApplyLinearImpulse(
+		hitBodyPtr->b2Ptr->ApplyLinearImpulse(
 			b2Vec2(-actorPtr->los.faceDirection.x * 10, -actorPtr->los.faceDirection.y * 10),
-			hitBodyPtr->b2BodyPtr->GetPosition(),
+			hitBodyPtr->b2Ptr->GetPosition(),
 			true
 		);
 		if (

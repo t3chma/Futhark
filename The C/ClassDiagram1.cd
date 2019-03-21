@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="Object">
+    <Position X="0.5" Y="0.5" Width="9.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAIAgAAAAAACAAAABAAEAAAAAAACAAAg=</HashCode>
+      <FileName>src\Object.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Player">
+    <Position X="18.25" Y="0.5" Width="6.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="Player::__unnamed_struct_07e2_1">
+        <TypeIdentifier>
+          <NewMemberFileName>src\actors\Player.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="Player::M_Control">
+        <TypeIdentifier>
+          <NewMemberFileName>src\actors\Player.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAABAAgAAAACACIEAAgABAAAAAAAQAAADI=</HashCode>
+      <FileName>src\actors\Player.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Actor">
+    <Position X="11" Y="0.5" Width="6.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="Actor::__unnamed_struct_07e0_1">
+        <TypeIdentifier>
+          <NewMemberFileName>src\actors\Actor.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="Actor::__unnamed_struct_07e0_2">
+        <TypeIdentifier>
+          <NewMemberFileName>src\actors\Actor.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="Actor::__unnamed_struct_07e0_3">
+        <TypeIdentifier>
+          <NewMemberFileName>src\actors\Actor.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="Actor::__unnamed_struct_07e0_4">
+        <TypeIdentifier>
+          <NewMemberFileName>src\actors\Actor.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="Actor::__unnamed_struct_07e0_5">
+        <TypeIdentifier>
+          <NewMemberFileName>src\actors\Actor.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>IAAAQAAAEAAEgAAEAAAACACIAAIgAAEECAABACAAACQ=</HashCode>
+      <FileName>src\actors\Actor.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Mouse">
+    <Position X="2.25" Y="4.25" Width="6.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAABAAgQAAgIACAAAAAAAEAAAAAAAAAAgA=</HashCode>
+      <FileName>src\Mouse.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AITester">
+    <Position X="29.75" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AIIAFgAAABAAACAAACCAAkEEAAAIAAAAAJBCAGAEAAA=</HashCode>
+      <FileName>src\scenes\AITester.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="State">
+    <Position X="37.75" Y="0.5" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAYAAEABAAABAAAACA=</HashCode>
+      <FileName>src\actors\States.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Search">
+    <Position X="33.25" Y="0.5" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgACA=</HashCode>
+      <FileName>src\actors\States.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="PlayerDef">
+    <Position X="25.5" Y="6" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAA=</HashCode>
+      <FileName>src\actors\Player.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Idle">
+    <Position X="33.25" Y="2.5" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACA=</HashCode>
+      <FileName>src\actors\States.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Flee">
+    <Position X="37.75" Y="3.75" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAACA=</HashCode>
+      <FileName>src\actors\States.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Dead">
+    <Position X="42.25" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEABAAACAAAAAA=</HashCode>
+      <FileName>src\actors\States.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="AgroState">
+    <Position X="42.25" Y="2.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAA=</HashCode>
+      <FileName>src\actors\States.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="ActorDef">
+    <Position X="25.5" Y="0.5" Width="3.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="ActorDef::Sprite">
+        <TypeIdentifier>
+          <NewMemberFileName>src\actors\Actor.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIEAMAAAAQAAAQAAAAAAAACAAAA=</HashCode>
+      <FileName>src\actors\Actor.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

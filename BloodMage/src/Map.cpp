@@ -13,7 +13,7 @@ Static::Static(
 	int y ,
 	int health
 )
-	: Object(map.staticObjectSprites, map.world, b2_staticBody, x, y),
+	: Object(map, b2_staticBody, x, y),
 	m_terrain(terrain),
 	m_tile(tile)
 {
@@ -22,26 +22,22 @@ Static::Static(
 	}
 	tile.staticObjectPtr = this;
 	if (texture.id) {
-		sprites.add("", texture);
-		sprites.get("")->setPosition(x, y);
-		sprites.get("")->setDimensions(1.0, 1.0);
+		sprites.emplace_back(map.staticObjectSprites, texture);
+		sprites.back().setPosition(x, y);
+		sprites.back().setDimensions(1.0, 1.0);
 		this->health = health;
 	} else {
 		this->health = -1;
 	}
 	m_terrain.object = Terrain::Object::DEV;
+	// Physics
 	b2FixtureDef fixtureDef1;
-	b2PolygonShape shape1;
-	fixtureDef1.shape = &shape1;
-	shape1.SetAsBox(0.49, 0.49);
-	fixtureDef1.userData = nullptr;
 	fixtureDef1.friction = 0.3f;
 	fixtureDef1.filter.categoryBits = 1;
-	b2BodyPtr->CreateFixture(&fixtureDef1);
+	addRectangleLimb(0.49, 0.49, 0, 0, 0, &fixtureDef1);
 	category = "static";
 }
 Static::~Static() {
-	for (auto&& id : sprites.ids) { sprites.batch.destroySprite(id.second); }
 }
 
 void Static::operator=(const Static staticObject) {
@@ -52,7 +48,7 @@ void Static::update() {
 	m_terrain.health = health;
 	if (health < 1) { despawn = true; }
 }
-void Static::updateSprite() {
+void Static::updateSprites() {
 
 }
 
@@ -145,7 +141,7 @@ void Map::update(fk::Camera& cam) {
 	for (auto&& propPtr : propPtrs) { propPtr->updateBody(); }
 	for (auto&& actorPtr : actorPtrs) { actorPtr->updateBody(); }
 	world.update(1.0f / 60.0f, 4, 2);
-	for (auto&& propPtr : propPtrs) { propPtr->updateSprite(); }
+	for (auto&& propPtr : propPtrs) { propPtr->updateSprites(); }
 	for (auto&& actorPtr : actorPtrs) { actorPtr->updateSprite(); }
 }
 void Map::setFloorTexture(Terrain::Floor floor, fk::Texture& texture) {

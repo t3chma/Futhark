@@ -51,7 +51,10 @@
     <ClCompile Include="src\SpellCatalog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Thrown.cpp">
+    <ClCompile Include="src\props\WarNeedle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\props\Box.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,7 +92,10 @@
     <ClInclude Include="src\SpellCatalog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Thrown.h">
+    <ClInclude Include="src\props\WarNeedle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\props\Box.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

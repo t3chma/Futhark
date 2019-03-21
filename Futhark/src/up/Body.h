@@ -16,21 +16,29 @@ See Box2D documentation for more information.
 class Body {
   public:
 	friend World;
-	// The bodies currently being collided with.
-	std::list<Body*> collisionBodies;
 	// The Box2D object this class is built around.
 	// ^ http://www.iforce2d.net/b2dtut/
-	b2Body* b2BodyPtr{ nullptr };
+	b2Body* b2Ptr{ nullptr };
 	// Used for things like conditional collision events between certain categories of bodies.
-	std::string category{ "default" };
-	// A list of the offsets for each limb of this body.
-	std::vector<std::vector<glm::vec2>> offsets;
-	// Used to keep track of the type of shape for rendering purposes.
-	std::vector<char> shapes;
-	// Used to keep track of the type of shape for rendering purposes.
-	std::vector<bool> opens;
-	// Used to keep track of the number of limbs.
-	unsigned int numberOfLimbs{ 0 };
+	std::string category{ "body" };
+	// Used to keep track of limbs.
+	struct Limb {
+		Limb(b2Fixture* b2Ptr, std::vector<glm::vec2> offsets, bool opens = false);
+		// Used for things like conditional collision events between certain categories of bodies.
+		std::string category{ "limb" };
+		// Used to keep track of the b2Fixture pointer.
+		b2Fixture* b2Ptr;
+		// A list of the offsets for this limb.
+		std::vector<glm::vec2> offsets;
+		// Used to keep track of the type of line for rendering purposes.
+		bool opens;
+		// Convenient overload.
+		bool operator == (const b2Shape::Type shape) const {
+			return b2Ptr->GetType() == shape;
+		}
+	};
+	// Used to keep track of limbs.
+	std::list<Limb> limbs;
 	Body() = delete;
 	/* Constructor
 	^ http://www.iforce2d.net/b2dtut/
@@ -45,7 +53,8 @@ class Body {
 	Body(
 		World& world, b2BodyType type,
 		float xPosition = 0.0f, float yPosition = 0.0f,
-		float angle = 0.0f, bool fixedRotation = false, bool bullet = false
+		float angle = 0.0f, bool fixedRotation = false, bool bullet = false,
+		float angularDamping = 10, float linearDamping = 10
 	);
 	/* Destructor
 	[t3chma] */
@@ -54,24 +63,38 @@ class Body {
 	(radius) The radius of the circle.
 	(xOffset) Horizontal position relative to the body position.
 	(yOffset) Vertical position relative to the body position.
+	(fixtureDefPtr) Any additional (optional) info for the created limb.
+	< The added limb.
 	[t3chma] */
-	virtual void addCircleLimb(float radius, float xOffset = 0.0f, float yOffset = 0.0f) final;
+	virtual Limb& addCircleLimb(
+		float radius,
+		float xOffset = 0.0f, float yOffset = 0.0f,
+		b2FixtureDef* fixtureDefPtr = nullptr
+	) final;
 	/* Appends a concave polygon to the body.
 	IMPORTANT: Your polygon must be concave.
 	(offsets) 8 or less of the polygon's corners specified in counter-clockwise order.
+	(fixtureDefPtr) Any additional (optional) info for the created limb.
+	< The added limb.
 	[t3chma] */
-	virtual void addPolygonLimb(std::vector<glm::vec2>& offsets) final;
+	virtual Limb& addPolygonLimb(
+		std::vector<glm::vec2>& offsets,
+		b2FixtureDef* fixtureDefPtr = nullptr
+	) final;
 	/* Appends a rectangle to the body.
 	(halfWidth) The distance from the center of the rectangle to the sides.
 	(halfHeight) The distance from the center of the rectangle to the top or bottom.
 	(xOffset) Horizontal position relative to the body position.
 	(yOffset) Vertical position relative to the body position.
 	(angle) Rotational offset relative to the body angle.
+	(fixtureDefPtr) Any additional (optional) info for the created limb.
+	< The added limb.
 	[t3chma] */
-	virtual void addRectangleLimb(
+	virtual Limb& addRectangleLimb(
 		float halfWidth, float halfHeight,
 		float xOffset = 0.0f, float yOffset = 0.0f,
-		float angle = 0.0f
+		float angle = 0.0f,
+		b2FixtureDef* fixtureDefPtr = nullptr
 	) final;
 	/* Appends a vertically oriented, composite capsule to the body.
 	The capsule is made of 2 circles and a rectangle.
@@ -80,11 +103,14 @@ class Body {
 	(xOffset) Horizontal position relative to the body position.
 	(yOffset) Vertical position relative to the body position.
 	(angle) Rotational offset relative to the body angle.
+	(fixtureDefPtr) Any additional (optional) info for the created limb.
+	< The added limb.
 	[t3chma] */
 	virtual void addCapsuleLimbs(
 		float halfWidth, float halfHeight,
 		float xOffset = 0.0f, float yOffset = 0.0f,
-		float angle = 0.0f
+		float angle = 0.0f,
+		b2FixtureDef* fixtureDefPtr = nullptr
 	) final;
 	/* Appends a equilateral to the body.
 	(radius) The distance from the center of the equilateral to each of the corners.
@@ -92,18 +118,27 @@ class Body {
 	(xOffset) Horizontal position relative to the body position.
 	(yOffset) Vertical position relative to the body position.
 	(angle) Rotational offset relative to the body angle.
+	(fixtureDefPtr) Any additional (optional) info for the created limb.
+	< The added limb.
 	[t3chma] */
-	virtual void addEquilateralLimb(
+	virtual Limb& addEquilateralLimb(
 		float radius, char sides,
 		float xOffset, float yOffset,
-		float angle
+		float angle,
+		b2FixtureDef* fixtureDefPtr = nullptr
 	) final;
 	/* Appends a line to the body.
 	IMPORTANT: No lines can collide with other lines.
 	(offsets) The points which make up a line.
 	(open) If the end of the line should connect back to the front.
+	(fixtureDefPtr) Any additional (optional) info for the created limb.
+	< The added limb.
 	[t3chma] */
-	virtual void addLineLimb(std::vector<glm::vec2>& offsets, bool open) final;
+	virtual Limb& addLineLimb(
+		std::vector<glm::vec2>& offsets,
+		bool open,
+		b2FixtureDef* fixtureDefPtr = nullptr
+	) final;
   protected:
 	/* Adds this to the wire batch.
 	[t3chma] */
@@ -138,6 +173,10 @@ class Body {
 		b2Fixture* myFixturePtr,
 		b2Contact* contactPtr
 	) {};
+	// Convenient overload.
+	bool operator == (const b2BodyType type) const {
+		return b2Ptr->GetType() == type;
+	}
 };
 
 }

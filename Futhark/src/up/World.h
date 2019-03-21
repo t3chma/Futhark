@@ -14,7 +14,7 @@ namespace fk {
 	  public:
 		friend class WireRenderer;
 		// A pointer to the actual b2 world object.
-		b2World* b2WorldPtr{ nullptr };
+		b2World* b2Ptr{ nullptr };
 		World();
 		~World();
 		/* Set the gravity of the world.

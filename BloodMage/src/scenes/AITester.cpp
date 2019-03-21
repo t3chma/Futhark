@@ -49,9 +49,7 @@ void AITester::create(fk::Tools& tools) {
 	pd.thrown = tools.textures.get("Thrown.png", 1);
 	Player* playerPtr = new Player(map, &tools.ui, pd);
 
-	std::vector<fk::Texture> textures;
-	textures.push_back(tools.textures.get("Selector.png", 1));
-	mousePtr = new Mouse(map, textures);
+	mousePtr = new Mouse(map, tools.textures.get("Selector.png", 1));
 
 	font = tools.fonts.get("eldermagic.ttf");
 
@@ -379,9 +377,10 @@ void AITester::edit(fk::Tools& tools, int downFrames, int bind, int info) {
 	  break;
 	  case PROP_BOX:
 		if (downFrames == 1) {
+			pd.position = mousePtr->position;
 			pd.texture = tools.textures.get("Box128.png", 1);
 			pd.physics = true;
-			new Prop(map, pd);
+			new Box(map, pd);
 		}
 	  break;
 	  case ACTOR_NONE:
@@ -417,11 +416,19 @@ void AITester::edit(fk::Tools& tools, int downFrames, int bind, int info) {
 					if (order->ownerPtr == mousePtr->acotrEditPtr) { mousePtr->orderEditPtr = order; }
 				}
 			} else if (mousePtr->acotrEditPtr) {
-				std::vector<fk::Texture> textures;
-				textures.push_back(tools.textures.get("test.png", 1));
-				textures.push_back(tools.textures.get("arrow.png", 1));
-				if (mousePtr->orderEditPtr) { mousePtr->orderEditPtr->addNext(textures, mousePtr->position); }
-				else { mousePtr->acotrEditPtr->addOrder(textures, mousePtr->position); }
+				if (mousePtr->orderEditPtr) {
+					mousePtr->orderEditPtr->addNext(
+						tools.textures.get("test.png", 1),
+						tools.textures.get("arrow.png", 1),
+						mousePtr->position
+					);
+				} else {
+					mousePtr->acotrEditPtr->addOrder(
+						tools.textures.get("test.png", 1),
+						tools.textures.get("arrow.png", 1),
+						mousePtr->position
+					);
+				}
 			}
 		}
 	  break;

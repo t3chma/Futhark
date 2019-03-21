@@ -6,14 +6,10 @@
 #include "out/TTFont.h"
 #include "out/SpriteRenderer.h"
 #include "out\WireRenderer.h"
-#include "../Actor.h"
+#include "../Actors/Actor.h"
 
 class GameWorld : public fk::Scene {
   public:
-	int rightBind{ 0 };
-	int rightInfo{ 0 };
-	int leftBind{ 0 };
-	int leftInfo{ 0 };
 	fk::World world;
 	fk::TTFont font;
 	fk::SpriteBatch* textBatchPtr{ nullptr };

@@ -4,9 +4,14 @@
 
 struct PropDef {
 	float size{ 1 };
-	glm::vec2 position{ 0,0 };
+	glm::vec2 position{ 0, 0 };
 	fk::Texture texture{ 0 };
-	bool physics;
+	bool physics{ true };
+	float angularDamping{ 32.0f };
+	float linearDamping{ 8.0f };
+	float friction{ 0.3f };
+	float density{ 5.0f };
+	bool bullet{ false };
 };
 
 

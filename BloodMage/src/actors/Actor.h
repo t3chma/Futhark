@@ -10,7 +10,11 @@ struct ActorDef {
 	float speed{ 1 };
 	float size{ 0.6f };
 	glm::vec2 position{ 0,0 };
-	fk::Texture body;
+	fk::Texture body{ 0 };
+	float angularDamping{ 5.0f };
+	float linearDamping{ 10.0f };
+	float friction{ 0.3f };
+	float density{ 10.0f };
 };
 
 // Comparable class for A* queue.
@@ -59,8 +63,9 @@ class Actor : public Object, public b2RayCastCallback {
 		float earth{ 0 };
 		float water{ 0 };
 		float air{ 0 };
+		float* begin() { return &fire; }
+		float* end() { return &air; }
 	} blood;
-	float* const bloodPtrs[4]{ &blood.fire, &blood.earth, &blood.water, &blood.air};
 	struct {
 		State* currentPtr{ nullptr };
 		State* prevPtr{ nullptr };
@@ -72,7 +77,7 @@ class Actor : public Object, public b2RayCastCallback {
 	} orders;
 	struct {
 		float speed{ 1 };
-		glm::vec2 vector{ 0,0 };
+		glm::vec2 direction{ 0,0 };
 		bool dodging{ false };
 	} movement;
 	struct {
@@ -90,7 +95,7 @@ class Actor : public Object, public b2RayCastCallback {
 		std::vector<Spell*> melee;
 		std::vector<Spell*> gun;
 	} enchants;
-	struct StatEffect { float buildup{ 0 }; int time{ 0 }; };
+	struct StatEffect { float resistance{1.0}; float buildup{ 0 }; int time{ 0 }; };
 	struct {
 		StatEffect oiled;
 		struct : public StatEffect { float strength{ 0 }; } buffed;
@@ -135,8 +140,9 @@ class Actor : public Object, public b2RayCastCallback {
 		StatEffect mirroring;
 		struct : public StatEffect { glm::vec2 direction; float halfAngle; } shielded;
 		StatEffect stunned;
+		StatEffect* begin() { return &oiled; }
+		StatEffect* end() { return &stunned; }
 	} statEffects;
-	Map& map;
 	static int advances;
 	Actor() = delete;
 	Actor(Map& map, ActorDef& ad, State& startState, Actor::AgroState* agroStatePtr);
@@ -157,9 +163,11 @@ class Actor : public Object, public b2RayCastCallback {
 	void advanceAStar();
 	glm::vec2 getNextPathPointDirection(glm::vec2 targetPos);
 	void markPathStale();
-	struct P_PathFindingData;
+  protected:
+		struct P_PathFindingData;
+  public:
 	const P_PathFindingData& getPathFindingData();
-	void addOrder(std::vector<fk::Texture>& textures, glm::vec2& position);
+	void addOrder(fk::Texture& node, fk::Texture& arrow, glm::vec2& position);
 	void showNodes();
 	void hideNodes();
 	virtual float32 ReportFixture(
@@ -167,11 +175,14 @@ class Actor : public Object, public b2RayCastCallback {
 		const b2Vec2& point,
 		const b2Vec2& normal,
 		float32 fraction
-	);
+	) override;
+	void rayCast(glm::vec2 target);
+	void rayCast(glm::vec2 origin, glm::vec2 target);
   protected:
 	struct {
 		std::string ignore{ "" };
-		Actor* target{ nullptr };
+		Object* target{ nullptr };
+		float fraction{ 0 };
 	} p_raycast;
 	struct P_PathFindingData {
 		// If the current A* data is up to date.
@@ -196,7 +207,7 @@ class Actor : public Object, public b2RayCastCallback {
 		// The tile coords to the target.
 		glm::ivec2 iStart;
 		// The coords of the target.
-		glm::ivec2 fStart;
+		glm::vec2 fStart;
 		// Target data
 		std::list<glm::vec2> path{ 0 };
 	} p_pathFindingData;

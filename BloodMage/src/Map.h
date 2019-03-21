@@ -28,7 +28,7 @@ public:
 	~Static();
 	void operator = (const Static staticObject);
 	void update();
-	virtual void updateSprite() override;
+	virtual void updateSprites() override;
 private:
 	Terrain& m_terrain;
 	Tile& m_tile;
