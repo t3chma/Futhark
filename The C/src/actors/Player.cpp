@@ -35,7 +35,13 @@ void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	m_oldPos[0] = getPosition();
 	for (int i = _TRAIL_ - 1; i > 0; --i) { m_oldAng[i] = m_oldAng[i - 1]; }
 	auto velocity = b2Ptr->GetLinearVelocity();
-	m_oldAng[0] = fk::makeAngle(glm::normalize(glm::vec2(velocity.x, velocity.y))) - fk::TAU/4;
+	auto vel = glm::vec2(velocity.x, velocity.y);
+	if (vel.x || vel.y) {
+		m_oldAng[0] = fk::makeAngle(glm::normalize(vel)) - fk::TAU / 4;
+		m_oldVel = vel;
+	} else {
+		m_oldAng[0] = m_oldAng[1];
+	}
 }
 void Player::p_beginCollision(
 	b2Fixture* collisionFixturePtr,
@@ -62,8 +68,7 @@ void Player::updateSprites() {
 			sprite.setRotationAxis(m_oldPos[i].x, m_oldPos[i].y);
 			sprite.setDimensions(glm::vec2(p_radius) + glm::vec2(0.02 * i));
 			auto velocity = b2Ptr->GetLinearVelocity();
-			sprite.setColor(255, 255, 255, velocity.x || velocity.y ? (100 - i) / 4 : 0
-			);
+			sprite.setColor(255, 255, 255, (100 - i) / 8);
 			++i;
 		}
 	}

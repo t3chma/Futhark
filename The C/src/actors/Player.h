@@ -49,4 +49,5 @@ class Player : public Actor {
 	glm::vec2 m_oldPos[_TRAIL_];
 	float m_oldAng[_TRAIL_];
 	fk::Vec2 m_wakeReset;
+	glm::vec2 m_oldVel{ 0 };
 };
