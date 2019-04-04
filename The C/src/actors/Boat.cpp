@@ -78,22 +78,32 @@ void Boat::updateSprites() {
 	states.currentPtr->updateSprite();
 }
 void Boat::makeBoatFromFile(std::string& boatFile) {
+	// Read in file.
 	fk::IOManager iom;
 	std::vector<std::string> boatData;
 	iom.readTextFileToStringVector("Boats/" + boatFile, boatData);
+	// For keeping track of room positioning.
 	bool hitShip{ false };
 	bool hitDeck{ false };
 	int level{ 0 };
 	int length{ 0 };
 	// For checking text neighbors (up, left, right, down).
-	struct Offsets { int x; int y; char d; };
+	struct Offsets { Offsets(int x, int y) : x(x), y(y) {} int x; int y; };
 	std::vector<Offsets> offsets;
 	offsets.reserve(4);
-	offsets.emplace_back(0, 1, 'u');
-	offsets.emplace_back(-2, 0, 'l');
-	offsets.emplace_back(2, 0, 'r');
-	offsets.emplace_back(0, -1, 'd');
+	offsets.emplace_back(0, 1);
+	offsets.emplace_back(-2, 0);
+	offsets.emplace_back(2, 0);
+	offsets.emplace_back(0, -1);
 	b2FixtureDef roomDef;
+	// For queueing wall generation.
+	struct wallMapKey {
+		roomMapKey(int x, int y) : x(x), y(y) {}
+		bool operator <(const Class1& rhs) const { return x == rhs.x ? y < rhs.y : x < rhs.x; }
+		int x;
+		int y;
+	};
+	std::map<roomMapKey, bool> wallMap;
 	// For each line.
 	for (int y = 0; y < boatData.size(); ++y) {
 		// For each char.
@@ -140,7 +150,7 @@ void Boat::makeBoatFromFile(std::string& boatFile) {
 					// If your neighbor is not the same as you.
 					if (offsetChar != boatData[y][x]) {
 						// Queue wall creation
-						
+						wallMap[roomMapKey(x + offsets[i].x / 2, y + offsets[i].y)] = true;
 					}
 				}
 				break;
