@@ -18,7 +18,16 @@ class IOManager {
 		const std::string& filePath,
 		std::vector<unsigned char>& buffer
 	);
-	/* Reads a binary file into a string.
+	/* Reads a text file into a vector strings where each element is a line.
+	(filePath) The path to the file to load.
+	(fileContents)< The string vector to fill.
+	< If the file read was successful
+	[t3chma] */
+	bool readTextFileToStringVector(
+		const std::string& filePath,
+		std::vector<std::string>& fileContents
+	);
+	/* Reads a text file into a string.
 	(filePath) The path to the file to load.
 	(fileContents)< The string to fill.
 	< If the file read was successful

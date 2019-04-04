@@ -21,7 +21,7 @@ void AITester::create(fk::Tools& tools) {
 	cam.setZoom(64);
 
 	ActorDef ad;
-	ad.sprites.emplace_back(*textBatchPtr, tools.textures.get("Wave.png", 1));
+	ad.sprites.emplace_back(*textBatchPtr, tools.textures.get("Boat.png", 1));
 	for (size_t i = 0; i < 100; ++i) {
 		ad.sprites.emplace_back(*textBatchPtr, tools.textures.get("Wake.png", 1));
 	}
@@ -49,7 +49,7 @@ void AITester::update(fk::Tools& tools) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	spriteRenderer.render(*textBatchPtr, cam.getTransScaledMatrix());
 	auto matrix = cam.getTransScaledMatrix();
-	wireRenderer.render(world, matrix);
+	//wireRenderer.render(world, matrix);
 	mousePtr->position = cam.getWorldCoordinates(tools.ui.getMouseInfo(0).windowPosition);
 	mousePtr->updateBody();
 	mousePtr->updateSprites();
@@ -57,12 +57,6 @@ void AITester::update(fk::Tools& tools) {
 	playerPtr->updateBody();
 	playerPtr->updateSprites();
 	if (tools.ui.getKeyInfo(fk::Key::APOSTROPHE).downFrames == 1) { getCommandLine(tools); }
-	if (tools.ui.getKeyInfo(fk::Key::CTRL_L).downFrames > 1) {
-		int downFrames = tools.ui.getKeyInfo(fk::Key::MOUSE_RIGHT).downFrames;
-		if (downFrames && rightBind) {  }
-		downFrames = tools.ui.getKeyInfo(fk::Key::MOUSE_LEFT).downFrames;
-		if (downFrames && leftBind) {  }
-	}
 	world.update(1.0f / 60.0f, 4, 2);
 }
 

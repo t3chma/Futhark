@@ -1,20 +1,20 @@
-#include "Player.h"
+#include "Boat.h"
 #include "base/Utility.h"
+#include "in/IOManager.h"
 
-Player::Player(
+Boat::Boat(
 	fk::World& world,
 	fk::UserInput* uiPtr,
-	PlayerDef& pd
-) : Actor(world, pd.ad, *(new M_Control(*this)), nullptr), m_uiPtr(uiPtr) {
+	BoatDef& bd
+) : Actor(world, bd.ad, *(new M_Control(*this)), nullptr), m_uiPtr(uiPtr) {
 	// Misc
 	health = 5000;
-	type = "player";
 	// Graphics
-	for (auto&& sprite : sprites) { sprite.setDimensions(pd.ad.size / 2.0f, pd.ad.size / 2.0f); }
-	spritePtrs.body = &sprites.front();
-	spritePtrs.body->getCanvasRef().position.z = 1;
-	spritePtrs.body->setColor(255, 255, 255, 255);
-	spritePtrs.body->setDimensions(pd.ad.size, pd.ad.size);
+	for (auto&& sprite : sprites) { sprite.setDimensions(bd.ad.size / 2.0f, bd.ad.size / 2.0f); }
+	spritePtrs.floor = &sprites.front();
+	spritePtrs.floor->getCanvasRef().position.z = 1;
+	spritePtrs.floor->setColor(255, 255, 255, 255);
+	spritePtrs.floor->setDimensions(bd.ad.size, bd.ad.size);
 
 	// Physics
 	b2FixtureDef fixtureDef;
@@ -22,10 +22,10 @@ Player::Player(
 	// AOE attack
 	addCircleLimb(1, 0, 0, &fixtureDef).category = "S";
 }
-Player::~Player() {
+Boat::~Boat() {
 
 }
-void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
+void Boat::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	// Mouse
 	m_mousePos = camPtr->getWorldCoordinates(m_uiPtr->getMouseInfo(0).windowPosition);
 	// States
@@ -39,30 +39,32 @@ void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	if (vel.x || vel.y) {
 		m_oldAng[0] = fk::makeAngle(glm::normalize(vel)) - fk::TAU / 4;
 		m_oldVel = vel;
-	} else {
+	}
+	else {
 		m_oldAng[0] = m_oldAng[1];
 	}
 }
-void Player::p_beginCollision(
+void Boat::p_beginCollision(
 	b2Fixture* collisionFixturePtr,
 	b2Fixture* myFixturePtr,
 	b2Contact* contactPtr
 ) {
 }
-void Player::p_endCollision(
+void Boat::p_endCollision(
 	b2Fixture* collisionFixturePtr,
 	b2Fixture* myFixturePtr,
 	b2Contact* contactPtr
 ) {
 }
-void Player::updateSprites() {
+void Boat::updateSprites() {
 	int i = 0;
 	for (auto&& sprite : sprites) {
 		if (&sprite == &sprites.front()) {
 			sprite.setRotationAngle(b2Ptr->GetAngle());
 			sprite.setPosition(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
 			sprite.setRotationAxis(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
-		} else {
+		}
+		else {
 			sprite.setRotationAngle(m_oldAng[i]);
 			sprite.setPosition(m_oldPos[i].x, m_oldPos[i].y);
 			sprite.setRotationAxis(m_oldPos[i].x, m_oldPos[i].y);
@@ -74,7 +76,76 @@ void Player::updateSprites() {
 	}
 	states.currentPtr->updateSprite();
 }
-float32 Player::ReportFixture(
+void Boat::makeBoatFromFile(std::string& boatFile) {
+	fk::IOManager iom;
+	std::vector<std::string> boatData;
+	iom.readTextFileToStringVector("Boats/" + boatFile, boatData);
+	bool hitShip{ false };
+	bool hitDeck{ false };
+	int level{ 0 };
+	int length{ 0 };
+	// For checking text neighbors (up, left, right, down).
+	struct Offsets { int x; int y; char d; };
+	std::vector<Offsets> offsets;
+	offsets.reserve(4);
+	offsets.emplace_back(0, 1, 'u');
+	offsets.emplace_back(-2, 0, 'l');
+	offsets.emplace_back(2, 0, 'r');
+	offsets.emplace_back(0, -1, 'd');
+	b2FixtureDef roomDef;
+	// For each line.
+	for (int y = 0; y < boatData.size(); ++y) {
+		// For each char.
+		for (int x = 0; x < boatData[y].size(); ++x) {
+			// Depending on the char.
+			switch (boatData[y][x]) {
+			  case '\n':
+				// Iterate the relative length for the current level.
+				length += 2;
+				break;
+			  case '5':
+			  case '4':
+			  case '3':
+			  case '2':
+			  case '1':
+			  case '0':
+				// Update level and reset relative length for it.
+				hitShip = true;
+				level = (int)boatData[y][x] - 48;
+				if (level == 0) { hitDeck = true; }
+				if (hitDeck) { level *= -1; }
+				length = 0;
+				break;
+			  case 'I':
+			  case 'E':
+			  case 'S':
+			  case 's':
+			  case 'b':
+			  case 'x':
+				// Make the physics object.
+				addRectangleLimb(1, 1, x, y, 0, &roomDef).category = boatData[y][x];
+				// For each neighbor.
+				for (int i = 0; i < offsets.size(); ++i) {
+					// If out of bounds treat it like a space.
+					int yo = y + offsets[i].y;
+					int xo = x + offsets[i].x;
+					char offsetChar =
+						(yo < 0 || yo >= boatData.size()) && (xo < 0 || xo >= boatData[yo].size()) ?
+						' ' :
+						boatData[y + offsets[i].y][x + offsets[i].x];
+					// If your neighbor is not the same as you.
+					if (offsetChar != boatData[y][x]) {
+						// Queue wall creation
+					}
+				}
+				break;
+			  default:
+				break;
+			}
+		}
+	}
+}
+float32 Boat::ReportFixture(
 	b2Fixture* fixturePtr,
 	const b2Vec2& point,
 	const b2Vec2& normal,
@@ -86,12 +157,12 @@ float32 Player::ReportFixture(
 }
 
 
-void Player::M_Control::enter() {
-	Player& player = *static_cast<Player*>(actorPtr);
+void Boat::M_Control::enter() {
+	Boat& player = *static_cast<Boat*>(actorPtr);
 	actorPtr->sprites.front().setColor(255, 255, 255, 255);
 }
-void Player::M_Control::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
-	Player& player = *static_cast<Player*>(actorPtr);
+void Boat::M_Control::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
+	Boat& player = *static_cast<Boat*>(actorPtr);
 	b2Vec2 test;
 	// Move direction
 	if (player.m_uiPtr->getKeyInfo(fk::Key::D).downFrames) {
@@ -109,7 +180,8 @@ void Player::M_Control::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr
 	if (gear && (direction.x || direction.y)) {
 		float boost{ shiftFrames > 0 ? 0.75f : 0 };
 		player.movement.direction = gear * (player.movement.speed + boost) * direction;
-	} else {
+	}
+	else {
 		player.movement.direction = glm::vec2(0);
 	}
 	fk::Random rangen;
@@ -118,9 +190,9 @@ void Player::M_Control::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr
 	player.movement.direction.y += rangen.getFloat(0, 0.1) * i;
 	i = -i;
 }
-void Player::M_Control::updateBody() {
+void Boat::M_Control::updateBody() {
 	State::updateBody();
 }
-void Player::M_Control::updateSprite() {
-	Player& player = *static_cast<Player*>(actorPtr);
+void Boat::M_Control::updateSprite() {
+	Boat& player = *static_cast<Boat*>(actorPtr);
 }

@@ -177,6 +177,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Boats\Basic.boat" />
+    <None Include="Boats\Skiboat.boat" />
+    <None Include="Boats\Theseus.boat" />
+    <None Include="Boats\Torpedo.boat" />
+    <None Include="Boats\Tripod.boat" />
     <None Include="ClassDiagram.cd" />
     <None Include="ClassDiagram1.cd" />
     <None Include="Shaders\Sprite.frag" />
@@ -186,6 +191,7 @@
     <None Include="Shaders\Wire.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\actors\Boat.cpp" />
     <ClCompile Include="src\actors\Actor.cpp" />
     <ClCompile Include="src\actors\Player.cpp" />
     <ClCompile Include="src\actors\States.cpp" />
@@ -195,6 +201,7 @@
     <ClCompile Include="src\scenes\AITester.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\actors\Boat.h" />
     <ClInclude Include="src\actors\Actor.h" />
     <ClInclude Include="src\actors\States.h" />
     <ClInclude Include="src\actors\Player.h" />

@@ -22,6 +22,11 @@
     <None Include="Shaders\Wire.vert" />
     <None Include="ClassDiagram.cd" />
     <None Include="ClassDiagram1.cd" />
+    <None Include="Boats\Basic.boat" />
+    <None Include="Boats\Theseus.boat" />
+    <None Include="Boats\Torpedo.boat" />
+    <None Include="Boats\Tripod.boat" />
+    <None Include="Boats\Skiboat.boat" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\actors\Actor.cpp">
@@ -45,6 +50,9 @@
     <ClCompile Include="src\actors\States.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\actors\Boat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actors\Player.h">
@@ -63,6 +71,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\actors\States.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\actors\Boat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

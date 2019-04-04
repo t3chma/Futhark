@@ -4,7 +4,7 @@ struct State;
 struct AgroState;
 
 struct ActorDef {
-	float speed{ 1 };
+	float speed{ 0.5 };
 	float size{ 1 };
 	glm::vec2 position{ 0,0 };
 	struct Sprite {
