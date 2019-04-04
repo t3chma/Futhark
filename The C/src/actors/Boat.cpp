@@ -1,6 +1,7 @@
 #include "Boat.h"
 #include "base/Utility.h"
 #include "in/IOManager.h"
+#include <map>
 
 Boat::Boat(
 	fk::World& world,
@@ -101,6 +102,7 @@ void Boat::makeBoatFromFile(std::string& boatFile) {
 			switch (boatData[y][x]) {
 			  case '\n':
 				// Iterate the relative length for the current level.
+				// Odd lengths will always be populated with walls.
 				length += 2;
 				break;
 			  case '5':
@@ -122,6 +124,8 @@ void Boat::makeBoatFromFile(std::string& boatFile) {
 			  case 's':
 			  case 'b':
 			  case 'x':
+			  	// Don't process the ship overview.
+			  	if (!hitShip) { break; }
 				// Make the physics object.
 				addRectangleLimb(1, 1, x, y, 0, &roomDef).category = boatData[y][x];
 				// For each neighbor.
@@ -136,6 +140,7 @@ void Boat::makeBoatFromFile(std::string& boatFile) {
 					// If your neighbor is not the same as you.
 					if (offsetChar != boatData[y][x]) {
 						// Queue wall creation
+						
 					}
 				}
 				break;
