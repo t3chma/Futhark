@@ -3,77 +3,9 @@
 #include "in/IOManager.h"
 #include <set>
 
-Boat::Boat(Boat::Def& bd, fk::UserInput* uiPtr) :
-	Actor(bd, *(new M_Control(*this))), m_uiPtr(uiPtr)
-{
-	// Misc
-	health = 5000;
-	// Graphics
-	// Generate from .boat file now.
-	///for (auto&& sprite : sprites) { sprite.setDimensions(bd.ad.size / 2.0f, bd.ad.size / 2.0f); }
-	// Physics
-	b2FixtureDef fixtureDef;
-	fixtureDef.isSensor = true;
-	// AOE attack
-	//addCircleLimb(1, 0, 0, &fixtureDef).category = "S";
-}
-Boat::~Boat() {
-
-}
-void Boat::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
-	// Mouse
-	// TODO: remove this from all boats into a player class or something.
-	m_mousePos = camPtr->getWorldCoordinates(m_uiPtr->getMouseInfo(0).windowPosition);
-	// States
-	if (health < 1) { setState(new Dead(*this)); }
-	states.currentPtr->think(actorPtrs, camPtr);
-	for (int i = _TRAIL_ - 1; i > 0; --i) { m_oldPos[i] = m_oldPos[i - 1]; }
-	m_oldPos[0] = getPosition();
-	for (int i = _TRAIL_ - 1; i > 0; --i) { m_oldAng[i] = m_oldAng[i - 1]; }
-	auto velocity = b2Ptr->GetLinearVelocity();
-	auto vel = glm::vec2(velocity.x, velocity.y);
-	if (vel.x || vel.y) {
-		m_oldAng[0] = fk::makeAngle(glm::normalize(vel)) - fk::TAU / 4;
-		m_oldVel = vel;
-	}
-	else {
-		m_oldAng[0] = m_oldAng[1];
-	}
-}
-void Boat::p_beginCollision(
-	b2Fixture* collisionFixturePtr,
-	b2Fixture* myFixturePtr,
-	b2Contact* contactPtr
-) {
-}
-void Boat::p_endCollision(
-	b2Fixture* collisionFixturePtr,
-	b2Fixture* myFixturePtr,
-	b2Contact* contactPtr
-) {
-}
-void Boat::updateSprites() {
-	int i = 0;
-	for (auto&& sprite : sprites) {
-		// TODO: Make sprites move relative to ship center. This might already work...
-		//if (&sprite == &sprites.front()) {
-		//	sprite.setRotationAngle(b2Ptr->GetAngle());
-		//	sprite.setPosition(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
-		//	sprite.setRotationAxis(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
-		//} else {
-		//	sprite.setRotationAngle(m_oldAng[i]);
-		//	sprite.setPosition(m_oldPos[i].x, m_oldPos[i].y);
-		//	sprite.setRotationAxis(m_oldPos[i].x, m_oldPos[i].y);
-		//	sprite.setDimensions(glm::vec2(p_radius) + glm::vec2(0.02 * i));
-		//	auto velocity = b2Ptr->GetLinearVelocity();
-		//	sprite.setColor(255, 255, 255, (100 - i) / 8);
-		//	++i;
-		//}
-	}
-	states.currentPtr->updateSprite();
-}
-void Boat::makeBoatFromFile(std::string& boatFile) {
-	// Read in file.
+Boat::Boat(Boat::Def& bd) : Actor(bd, *(new M_Control(*this))), m_uiPtr(uiPtr) {
+	health = bd.health;
+	// Make boat from file.
 	fk::IOManager iom;
 	std::vector<std::string> boatData;
 	iom.readTextFileToStringVector("Boats/" + boatFile, boatData);
@@ -164,6 +96,61 @@ void Boat::makeBoatFromFile(std::string& boatFile) {
 		// If the wall is at an odd position it should be horizontal
 		if (position % 2) { sprites.back().setRotation(fk::TAU/4); }
 	}
+}
+Boat::~Boat() {
+
+}
+void Boat::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
+	// Mouse
+	// TODO: remove this from all boats into a player class or something.
+	m_mousePos = camPtr->getWorldCoordinates(m_uiPtr->getMouseInfo(0).windowPosition);
+	// States
+	if (health < 1) { setState(new Dead(*this)); }
+	states.currentPtr->think(actorPtrs, camPtr);
+	for (int i = _TRAIL_ - 1; i > 0; --i) { m_oldPos[i] = m_oldPos[i - 1]; }
+	m_oldPos[0] = getPosition();
+	for (int i = _TRAIL_ - 1; i > 0; --i) { m_oldAng[i] = m_oldAng[i - 1]; }
+	auto velocity = b2Ptr->GetLinearVelocity();
+	auto vel = glm::vec2(velocity.x, velocity.y);
+	if (vel.x || vel.y) {
+		m_oldAng[0] = fk::makeAngle(glm::normalize(vel)) - fk::TAU / 4;
+		m_oldVel = vel;
+	}
+	else {
+		m_oldAng[0] = m_oldAng[1];
+	}
+}
+void Boat::p_beginCollision(
+	b2Fixture* collisionFixturePtr,
+	b2Fixture* myFixturePtr,
+	b2Contact* contactPtr
+) {
+}
+void Boat::p_endCollision(
+	b2Fixture* collisionFixturePtr,
+	b2Fixture* myFixturePtr,
+	b2Contact* contactPtr
+) {
+}
+void Boat::updateSprites() {
+	int i = 0;
+	for (auto&& sprite : sprites) {
+		// TODO: Make sprites move relative to ship center. This might already work...
+		//if (&sprite == &sprites.front()) {
+		//	sprite.setRotationAngle(b2Ptr->GetAngle());
+		//	sprite.setPosition(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
+		//	sprite.setRotationAxis(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
+		//} else {
+		//	sprite.setRotationAngle(m_oldAng[i]);
+		//	sprite.setPosition(m_oldPos[i].x, m_oldPos[i].y);
+		//	sprite.setRotationAxis(m_oldPos[i].x, m_oldPos[i].y);
+		//	sprite.setDimensions(glm::vec2(p_radius) + glm::vec2(0.02 * i));
+		//	auto velocity = b2Ptr->GetLinearVelocity();
+		//	sprite.setColor(255, 255, 255, (100 - i) / 8);
+		//	++i;
+		//}
+	}
+	states.currentPtr->updateSprite();
 }
 float32 Boat::ReportFixture(
 	b2Fixture* fixturePtr,
