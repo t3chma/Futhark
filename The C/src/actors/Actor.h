@@ -6,26 +6,26 @@ struct AgroState;
 class Actor : public Object, public b2RayCastCallback {
   public:
 	struct Def {
-		Def(fk::FileCache& textureCache) : textureCache(textureCache) {}
+		Def(fk::World& world, fk::FileCache& textureCache) : world(world), textureCache(textureCache) {}
+		fk::World& world;
 		float speed{ 0.5 };
 		float size{ 1 };
 		glm::vec2 position{ 0,0 };
 		fk::FileCache& textureCache;
-		struct SpriteConstructor {
-			Sprite() = delete;
-			Sprite(fk::SpriteBatch& batch, std::string& textureFilePath) :
-				texture(texture), batch(batch) {};
-			std::string& textureFilePath;
+		struct SpriteDef {
+			SpriteDef() = delete;
+			SpriteDef(fk::SpriteBatch& batch, std::string& textureFilePath) :
+				textureFilePath(textureFilePath), batch(batch) {};
+			std::string textureFilePath;
 			fk::SpriteBatch& batch;
 		};
-		///std::list<Sprite> sprites;
 		float angularDamping{ 5.0f };
 		float linearDamping{ 2.0f };
 		float friction{ 0.3f };
 		float density{ 10.0f };
 	};
 	Actor() = delete;
-	Actor(fk::World& world, Actor::Def& ad, State& startState, AgroState* agroStatePtr);
+	Actor(Actor::Def& ad, State& startState, AgroState* agroStatePtr = nullptr);
 	~Actor();
 	struct {
 		State* currentPtr{ nullptr };
