@@ -22,6 +22,7 @@ class Boat : public Actor {
 		Actor::Def::SpriteDef wall;
 		Actor::Def::SpriteDef wake;
 		std::string& boatFile{""};
+		int health{ 100 };
 	};
 	struct {
 		fk::Sprite* art{ nullptr };
@@ -29,11 +30,10 @@ class Boat : public Actor {
 		std::vector<fk::Sprite*> walls{ nullptr };
 		std::vector<fk::Sprite*> wakes{ nullptr };
 	} spritePtrs;
-	Boat(Boat::Def& bd, fk::UserInput* uiPtr);
+	Boat(Boat::Def& bd);
 	~Boat();
 	void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr);
 	void updateSprites() override;
-	void makeBoatFromFile(std::string& boatFile);
 	void p_beginCollision(
 		b2Fixture* collisionFixturePtr,
 		b2Fixture* myFixturePtr,
