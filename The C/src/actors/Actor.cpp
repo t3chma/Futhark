@@ -11,7 +11,8 @@ Actor::Actor(Actor::Def& ad, State& startState, AgroState* agroStatePtr) :
 		ad.angularDamping,
 		ad.linearDamping
 	),
-	p_radius(ad.size / 2)
+	p_radius(ad.size / 2),
+	p_uiPtr(ad.uiPtr)
 {
 	// AI
 	states.currentPtr = &startState;
