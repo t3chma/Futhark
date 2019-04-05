@@ -12,6 +12,7 @@ class Actor : public Object, public b2RayCastCallback {
 		float size{ 1 };
 		glm::vec2 position{ 0,0 };
 		fk::FileCache& textureCache;
+		fk::UserInput* uiPtr{ nullptr };
 		struct SpriteDef {
 			SpriteDef() = delete;
 			SpriteDef(fk::SpriteBatch& batch, std::string& textureFilePath) :
@@ -71,5 +72,5 @@ class Actor : public Object, public b2RayCastCallback {
 		Object* target{ nullptr };
 		float fraction{ 0 };
 	} p_raycast;
-	float p_radius;
+	fk::UserInput* p_uiPtr{ nullptr }
 };
