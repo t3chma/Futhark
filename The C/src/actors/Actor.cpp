@@ -2,7 +2,7 @@
 #include "States.h"
 
 
-Actor::Actor(fk::World& world, ActorDef& ad, State& startState, AgroState* agroStatePtr) :
+Actor::Actor(fk::World& world, Actor::Def& ad, State& startState, AgroState* agroStatePtr) :
 	Object(
 		world,
 		b2_dynamicBody,
@@ -19,10 +19,10 @@ Actor::Actor(fk::World& world, ActorDef& ad, State& startState, AgroState* agroS
 	// Misc
 	movement.speed = ad.speed;
 	category = "actor";
-	// Graphics
-	for (auto&& sprite : ad.sprites) { sprites.emplace_back(sprite.batch, sprite.texture); }
-	sprites.front().setDimensions(ad.size, ad.size);
-	sprites.front().setPosition(ad.position.x, ad.position.y);
+	// Graphics. Leave this to children to decide now.
+	///for (auto&& sprite : ad.sprites) { sprites.emplace_back(sprite.batch, sprite.texture); }
+	///sprites.front().setDimensions(ad.size, ad.size);
+	///sprites.front().setPosition(ad.position.x, ad.position.y);
 	// Physics
 	b2FixtureDef fixtureDef1;
 	fixtureDef1.density = ad.density;
@@ -108,9 +108,10 @@ void Actor::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 }
 void Actor::updateBody() { states.currentPtr->updateBody(); }
 void Actor::updateSprites() {
-	sprites.front().setRotationAngle(b2Ptr->GetAngle());
-	sprites.front().setPosition(getPosition().x, getPosition().y);
-	sprites.front().setRotationAxis(getPosition().x, getPosition().y);
+	// Leave this to children to decide now.
+	///sprites.front().setRotationAngle(b2Ptr->GetAngle());
+	///sprites.front().setPosition(getPosition().x, getPosition().y);
+	///sprites.front().setRotationAxis(getPosition().x, getPosition().y);
 	states.currentPtr->updateSprite();
 }
 void Actor::setState(State* newStatePtr) {
