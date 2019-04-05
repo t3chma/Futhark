@@ -5,11 +5,13 @@
 
 Boat::Boat(Boat::Def& bd) : Actor(bd, *(new M_Control(*this))), m_uiPtr(uiPtr) {
 	health = bd.health;
-	// Set wake texture.
-	sprites.emplace_back(bd.wake.batch, bd.wake.textureFilePath);
-	spritePtrs.floors.push_back(&sprites.back());
-	sprites.back().getCanvasRef().position.z = level;
-	sprites.back().setDimensions(bd.size, bd.size);
+	// Make wake textures.
+	for(int i = 0; i < _TRAIL_; ++i) {
+		sprites.emplace_back(bd.wake.batch, bd.wake.textureFilePath);
+		spritePtrs.floors.push_back(&sprites.back());
+		sprites.back().getCanvasRef().position.z = 0;
+		sprites.back().setDimensions(bd.size, bd.size);
+	}
 	// Make boat from file.
 	fk::IOManager iom;
 	std::vector<std::string> boatData;
@@ -19,6 +21,7 @@ Boat::Boat(Boat::Def& bd) : Actor(bd, *(new M_Control(*this))), m_uiPtr(uiPtr) {
 	bool hitDeck{ false };
 	int level{ 0 };
 	int length{ 0 };
+	int width{ 0 };
 	struct Position {
 		Position(int x, int y, int z = 0) : x(x), y(y), z(z) {}
 		bool operator <(const Position& rhs) const { return x == rhs.x ? y < rhs.y : x < rhs.x; }
@@ -45,7 +48,7 @@ Boat::Boat(Boat::Def& bd) : Actor(bd, *(new M_Control(*this))), m_uiPtr(uiPtr) {
 			  case '\n':
 				// Iterate the relative length for the current level.
 				// Odd lengths will always be populated with walls so iterate by 2.
-				length += 2;
+				if (length += 2 > shipDimensions.y) { shipDimensions.y = length; }
 				break;
 			  case '5':
 			  case '4':
@@ -59,6 +62,8 @@ Boat::Boat(Boat::Def& bd) : Actor(bd, *(new M_Control(*this))), m_uiPtr(uiPtr) {
 				if (level == 0) { hitDeck = true; }
 				if (hitDeck) { level *= -1; }
 				length = 0;
+			  case '-':
+				if (++width > shipDimensions.x) { shipDimensions.x = width; }
 				break;
 			  case 'I':
 			  case 'E':
@@ -92,7 +97,7 @@ Boat::Boat(Boat::Def& bd) : Actor(bd, *(new M_Control(*this))), m_uiPtr(uiPtr) {
 			}
 		}
 	}
-	// Generate walls.
+	// Generate wall sprites.
 	for (auto&& position : wallSet) {
 		sprites.emplace_back(bd.wall.batch, bd.wall.textureFilePath);
 		spritePtrs.walls.push_back(&sprites.back());
@@ -107,7 +112,7 @@ Boat::~Boat() {
 }
 void Boat::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	// Mouse
-	// TODO: remove this from all boats into a player class or something.
+	// TODO: Remove this from all boats into a player class or something.
 	m_mousePos = camPtr->getWorldCoordinates(p_uiPtr->getMouseInfo(0).windowPosition);
 	// States
 	if (health < 1) { setState(new Dead(*this)); }
@@ -117,13 +122,8 @@ void Boat::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	for (int i = _TRAIL_ - 1; i > 0; --i) { m_oldAng[i] = m_oldAng[i - 1]; }
 	auto velocity = b2Ptr->GetLinearVelocity();
 	auto vel = glm::vec2(velocity.x, velocity.y);
-	if (vel.x || vel.y) {
-		m_oldAng[0] = fk::makeAngle(glm::normalize(vel)) - fk::TAU / 4;
-		m_oldVel = vel;
-	}
-	else {
-		m_oldAng[0] = m_oldAng[1];
-	}
+	if (vel.x || vel.y) { m_oldAng[0] = fk::makeAngle(glm::normalize(vel)) - fk::TAU / 4; }
+	else { m_oldAng[0] = m_oldAng[1]; }
 }
 void Boat::p_beginCollision(
 	b2Fixture* collisionFixturePtr,
@@ -138,25 +138,29 @@ void Boat::p_endCollision(
 ) {
 }
 void Boat::updateSprites() {
+	// TODO: Make sprites move relative to ship center. Might work already now.
+	// TODO: Support artwork movement.
+	// Move floors.
+	for (auto&& floorPtr : spritePtrs.floors) {
+		floorPtr->move(m_oldPos[0] - m_oldPos[1]);
+		floorPtr->setRotationAngle(b2Ptr->GetAngle());
+		floorPtr->setRotationAxis(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
+	}
+	// Move walls.
+	for (auto&& wallPtr : spritePtrs.walls) {
+		wallPtr->move(m_oldPos[0] - m_oldPos[1]);
+		wallPtr->setRotationAngle(b2Ptr->GetAngle());
+		wallPtr->setRotationAxis(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
+	}
+	// Move wakes.
 	int i = 0;
-	// TODO: Move wake.
-	// TODO: Move floors.
-	// TODO: Move walls.
-	for (auto&& sprite : sprites) {
-		// TODO: Make sprites move relative to ship center. This might already work...
-		//if (&sprite == &sprites.front()) {
-		//	sprite.setRotationAngle(b2Ptr->GetAngle());
-		//	sprite.setPosition(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
-		//	sprite.setRotationAxis(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
-		//} else {
-		//	sprite.setRotationAngle(m_oldAng[i]);
-		//	sprite.setPosition(m_oldPos[i].x, m_oldPos[i].y);
-		//	sprite.setRotationAxis(m_oldPos[i].x, m_oldPos[i].y);
-		//	sprite.setDimensions(glm::vec2(p_radius) + glm::vec2(0.02 * i));
-		//	auto velocity = b2Ptr->GetLinearVelocity();
-		//	sprite.setColor(255, 255, 255, (100 - i) / 8);
-		//	++i;
-		//}
+	for (auto&& wakePtr : spritePtrs.wakes) {
+		wakePtr->setRotationAngle(m_oldAng[i]);
+		wakePtr->setPosition(m_oldPos[i].x, m_oldPos[i].y);
+		wakePtr->setRotationAxis(m_oldPos[i].x, m_oldPos[i].y);
+		wakePtr->setDimensions(glm::vec2(shipDimensions.x) + glm::vec2(0.02 * i));
+		wakePtr->setColor(255, 255, 255, (_TRAIL_ * 2 - i * 2) / 4);
+		++i;
 	}
 	states.currentPtr->updateSprite();
 }
