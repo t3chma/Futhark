@@ -5,20 +5,26 @@
 
 Boat::Boat(Boat::Def& bd) : Actor(bd, *(new M_Control(*this))), m_uiPtr(uiPtr) {
 	health = bd.health;
+	// Set wake texture.
+	sprites.emplace_back(bd.wake.batch, bd.wake.textureFilePath);
+	spritePtrs.floors.push_back(&sprites.back());
+	sprites.back().getCanvasRef().position.z = level;
+	sprites.back().setDimensions(bd.size, bd.size);
 	// Make boat from file.
 	fk::IOManager iom;
 	std::vector<std::string> boatData;
-	iom.readTextFileToStringVector("Boats/" + boatFile, boatData);
+	iom.readTextFileToStringVector("Boats/" + bd.boatFile, boatData);
 	// For keeping track of room positioning.
 	bool hitShip{ false };
 	bool hitDeck{ false };
 	int level{ 0 };
 	int length{ 0 };
 	struct Position {
-		Position(int x, int y) : x(x), y(y) {}
+		Position(int x, int y, int z = 0) : x(x), y(y), z(z) {}
 		bool operator <(const Position& rhs) const { return x == rhs.x ? y < rhs.y : x < rhs.x; }
 		int x;
 		int y;
+		int z{ 0 };
 	};
 	// For checking text neighbors (up, left, right, down).
 	std::vector<Position> offsets;
@@ -64,12 +70,10 @@ Boat::Boat(Boat::Def& bd) : Actor(bd, *(new M_Control(*this))), m_uiPtr(uiPtr) {
 			  	if (!hitShip) { break; }
 				// Make the physics object.
 				addRectangleLimb(1, 1, x, length, 0, &roomDef).category = boatData[y][x];
-				// TODO: factor in level data and add sprite data.
-				sprites.emplace_back(bd.floor.batch, bd.floor.texture);
+				sprites.emplace_back(bd.floor.batch, bd.floor.textureFilePath);
 				spritePtrs.floors.push_back(&sprites.back());
 				sprites.back().getCanvasRef().position.z = level;
 				sprites.back().setDimensions(bd.size, bd.size);
-				///spritePtrs.floor->setColor(255, 255, 255, 255);
 				// For each neighbor.
 				for (int i = 0; i < offsets.size(); ++i) {
 					// If out of bounds treat it like a space.
@@ -78,7 +82,9 @@ Boat::Boat(Boat::Def& bd) : Actor(bd, *(new M_Control(*this))), m_uiPtr(uiPtr) {
 					bool outOfBounds = (yo < 0 || yo >= boatData.size()) && (xo < 0 || xo >= boatData[yo].size());
 					char offsetChar = outOfBounds ? ' ' : boatData[y + offsets[i].y][x + offsets[i].x];
 					// If your neighbor is not the same as you then queue wall creation.
-					if (offsetChar != boatData[y][x]) { wallSet.emplace(x + offsets[i].x / 2, length + offsets[i].y); }
+					if (offsetChar != boatData[y][x]) {
+						wallSet.emplace(x + offsets[i].x / 2, length + offsets[i].y, level);
+					}
 				}
 				break;
 			  default:
@@ -88,13 +94,12 @@ Boat::Boat(Boat::Def& bd) : Actor(bd, *(new M_Control(*this))), m_uiPtr(uiPtr) {
 	}
 	// Generate walls.
 	for (auto&& position : wallSet) {
-		sprites.emplace_back(bd.wall.batch, bd.wall.texture);
+		sprites.emplace_back(bd.wall.batch, bd.wall.textureFilePath);
 		spritePtrs.walls.push_back(&sprites.back());
-		// TODO: factor in level to position.
-		sprites.back().getCanvasRef().position.z = 1;
+		sprites.back().getCanvasRef().position.z = position.z;
 		sprites.back().setDimensions(bd.size/8, bd.size);
 		// If the wall is at an odd position it should be horizontal
-		if (position % 2) { sprites.back().setRotation(fk::TAU/4); }
+		if (position.y % 2) { sprites.back().setRotation(fk::TAU/4); }
 	}
 }
 Boat::~Boat() {
@@ -103,7 +108,7 @@ Boat::~Boat() {
 void Boat::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	// Mouse
 	// TODO: remove this from all boats into a player class or something.
-	m_mousePos = camPtr->getWorldCoordinates(m_uiPtr->getMouseInfo(0).windowPosition);
+	m_mousePos = camPtr->getWorldCoordinates(p_uiPtr->getMouseInfo(0).windowPosition);
 	// States
 	if (health < 1) { setState(new Dead(*this)); }
 	states.currentPtr->think(actorPtrs, camPtr);
@@ -134,6 +139,9 @@ void Boat::p_endCollision(
 }
 void Boat::updateSprites() {
 	int i = 0;
+	// TODO: Move wake.
+	// TODO: Move floors.
+	// TODO: Move walls.
 	for (auto&& sprite : sprites) {
 		// TODO: Make sprites move relative to ship center. This might already work...
 		//if (&sprite == &sprites.front()) {
