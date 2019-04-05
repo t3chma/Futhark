@@ -9,19 +9,27 @@
 
 class Boat : public Actor {
   public:
-	struct Def {
-		Actor::Def ad;
-		Actor::Def::SpriteConstructor floor;
-		Actor::Def::SpriteConstructor wall;
-		Actor::Def::SpriteConstructor wake;
+	struct Def : public Actor::Def {
+		Def(fk::World& world, fk::FileCache& textureCache, fk::SpriteBatch& batch, std::string& boatFile = "") :
+			Actor::Def(world, textureCache),
+			textureCache(textureCache),
+			floor(batch, "deck.png"),
+			wall(batch, "wall.png"),
+			wake(batch, "wake.png"),
+			boatFile(boatFile)
+		{}
+		Actor::Def::SpriteDef floor;
+		Actor::Def::SpriteDef wall;
+		Actor::Def::SpriteDef wake;
 		std::string& boatFile{""};
 	};
 	struct {
+		fk::Sprite* art{ nullptr };
 		std::vector<fk::Sprite*> floors{ nullptr };
 		std::vector<fk::Sprite*> walls{ nullptr };
 		std::vector<fk::Sprite*> wakes{ nullptr };
 	} spritePtrs;
-	Boat(fk::World& world, fk::UserInput* uiPtr, Boat::Def& pd);
+	Boat(Boat::Def& bd, fk::UserInput* uiPtr);
 	~Boat();
 	void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr);
 	void updateSprites() override;
