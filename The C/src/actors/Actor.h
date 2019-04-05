@@ -72,5 +72,6 @@ class Actor : public Object, public b2RayCastCallback {
 		Object* target{ nullptr };
 		float fraction{ 0 };
 	} p_raycast;
-	fk::UserInput* p_uiPtr{ nullptr }
+	fk::UserInput* p_uiPtr{ nullptr };
+	float p_radius{ 1 };
 };
