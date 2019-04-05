@@ -1,27 +1,23 @@
 #include "Boat.h"
 #include "base/Utility.h"
 #include "in/IOManager.h"
-#include <map>
+#include <set>
 
 Boat::Boat(
 	fk::World& world,
 	fk::UserInput* uiPtr,
-	BoatDef& bd
+	Boat::Def& bd
 ) : Actor(world, bd.ad, *(new M_Control(*this)), nullptr), m_uiPtr(uiPtr) {
 	// Misc
 	health = 5000;
 	// Graphics
-	for (auto&& sprite : sprites) { sprite.setDimensions(bd.ad.size / 2.0f, bd.ad.size / 2.0f); }
-	spritePtrs.floor = &sprites.front();
-	spritePtrs.floor->getCanvasRef().position.z = 1;
-	spritePtrs.floor->setColor(255, 255, 255, 255);
-	spritePtrs.floor->setDimensions(bd.ad.size, bd.ad.size);
-
+	// Generate from .boat file now.
+	///for (auto&& sprite : sprites) { sprite.setDimensions(bd.ad.size / 2.0f, bd.ad.size / 2.0f); }
 	// Physics
 	b2FixtureDef fixtureDef;
 	fixtureDef.isSensor = true;
 	// AOE attack
-	addCircleLimb(1, 0, 0, &fixtureDef).category = "S";
+	//addCircleLimb(1, 0, 0, &fixtureDef).category = "S";
 }
 Boat::~Boat() {
 
@@ -60,20 +56,20 @@ void Boat::p_endCollision(
 void Boat::updateSprites() {
 	int i = 0;
 	for (auto&& sprite : sprites) {
-		if (&sprite == &sprites.front()) {
-			sprite.setRotationAngle(b2Ptr->GetAngle());
-			sprite.setPosition(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
-			sprite.setRotationAxis(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
-		}
-		else {
-			sprite.setRotationAngle(m_oldAng[i]);
-			sprite.setPosition(m_oldPos[i].x, m_oldPos[i].y);
-			sprite.setRotationAxis(m_oldPos[i].x, m_oldPos[i].y);
-			sprite.setDimensions(glm::vec2(p_radius) + glm::vec2(0.02 * i));
-			auto velocity = b2Ptr->GetLinearVelocity();
-			sprite.setColor(255, 255, 255, (100 - i) / 8);
-			++i;
-		}
+		// TODO: Make sprites move relative to ship center. This might already work...
+		//if (&sprite == &sprites.front()) {
+		//	sprite.setRotationAngle(b2Ptr->GetAngle());
+		//	sprite.setPosition(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
+		//	sprite.setRotationAxis(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
+		//} else {
+		//	sprite.setRotationAngle(m_oldAng[i]);
+		//	sprite.setPosition(m_oldPos[i].x, m_oldPos[i].y);
+		//	sprite.setRotationAxis(m_oldPos[i].x, m_oldPos[i].y);
+		//	sprite.setDimensions(glm::vec2(p_radius) + glm::vec2(0.02 * i));
+		//	auto velocity = b2Ptr->GetLinearVelocity();
+		//	sprite.setColor(255, 255, 255, (100 - i) / 8);
+		//	++i;
+		//}
 	}
 	states.currentPtr->updateSprite();
 }
@@ -87,9 +83,14 @@ void Boat::makeBoatFromFile(std::string& boatFile) {
 	bool hitDeck{ false };
 	int level{ 0 };
 	int length{ 0 };
+	struct Position {
+		Position(int x, int y) : x(x), y(y) {}
+		bool operator <(const Position& rhs) const { return x == rhs.x ? y < rhs.y : x < rhs.x; }
+		int x;
+		int y;
+	};
 	// For checking text neighbors (up, left, right, down).
-	struct Offsets { Offsets(int x, int y) : x(x), y(y) {} int x; int y; };
-	std::vector<Offsets> offsets;
+	std::vector<Position> offsets;
 	offsets.reserve(4);
 	offsets.emplace_back(0, 1);
 	offsets.emplace_back(-2, 0);
@@ -97,13 +98,7 @@ void Boat::makeBoatFromFile(std::string& boatFile) {
 	offsets.emplace_back(0, -1);
 	b2FixtureDef roomDef;
 	// For queueing wall generation.
-	struct wallMapKey {
-		roomMapKey(int x, int y) : x(x), y(y) {}
-		bool operator <(const Class1& rhs) const { return x == rhs.x ? y < rhs.y : x < rhs.x; }
-		int x;
-		int y;
-	};
-	std::map<roomMapKey, bool> wallMap;
+	std::set<Position> wallSet;
 	// For each line.
 	for (int y = 0; y < boatData.size(); ++y) {
 		// For each char.
@@ -112,7 +107,7 @@ void Boat::makeBoatFromFile(std::string& boatFile) {
 			switch (boatData[y][x]) {
 			  case '\n':
 				// Iterate the relative length for the current level.
-				// Odd lengths will always be populated with walls.
+				// Odd lengths will always be populated with walls so iterate by 2.
 				length += 2;
 				break;
 			  case '5':
@@ -137,26 +132,39 @@ void Boat::makeBoatFromFile(std::string& boatFile) {
 			  	// Don't process the ship overview.
 			  	if (!hitShip) { break; }
 				// Make the physics object.
-				addRectangleLimb(1, 1, x, y, 0, &roomDef).category = boatData[y][x];
+				addRectangleLimb(1, 1, x, length, 0, &roomDef).category = boatData[y][x];
+				// TODO: factor in level data and add sprite data.
+				sprites.emplace_back(bd.floor.batch, bd.floor.texture);
+				spritePtrs.floors.push_back(&sprites.back());
+				sprites.back().getCanvasRef().position.z = level;
+				sprites.back().setDimensions(bd.ad.size, bd.ad.size);
+				///spritePtrs.floor->setColor(255, 255, 255, 255);
 				// For each neighbor.
 				for (int i = 0; i < offsets.size(); ++i) {
 					// If out of bounds treat it like a space.
 					int yo = y + offsets[i].y;
 					int xo = x + offsets[i].x;
-					char offsetChar =
-						(yo < 0 || yo >= boatData.size()) && (xo < 0 || xo >= boatData[yo].size()) ?
-						' ' :
-						boatData[y + offsets[i].y][x + offsets[i].x];
-					// If your neighbor is not the same as you.
-					if (offsetChar != boatData[y][x]) {
-						// Queue wall creation
-						wallMap[roomMapKey(x + offsets[i].x / 2, y + offsets[i].y)] = true;
-					}
+					bool outOfBounds = (yo < 0 || yo >= boatData.size()) && (xo < 0 || xo >= boatData[yo].size());
+					char offsetChar = outOfBounds ? ' ' : boatData[y + offsets[i].y][x + offsets[i].x];
+					// If your neighbor is not the same as you then queue wall creation.
+					if (offsetChar != boatData[y][x]) { wallSet.emplace(x + offsets[i].x / 2, length + offsets[i].y); }
 				}
 				break;
 			  default:
 				break;
 			}
+		}
+	}
+	// Generate walls.
+	for (auto&& position : wallSet) {
+		sprites.emplace_back(bd.wall.batch, bd.wall.texture);
+		spritePtrs.walls.push_back(&sprites.back());
+		// TODO: factor in level to position.
+		sprites.back().getCanvasRef().position.z = 1;
+		sprites.back().setDimensions(bd.ad.size/8, bd.ad.size);
+		// If the wall is at an odd position it should be horizontal
+		if (position % 2) {
+			sprites.back().setRotation(fk::TAU/4);
 		}
 	}
 }
