@@ -10,7 +10,7 @@
 class Boat : public Actor {
   public:
 	struct Def : public Actor::Def {
-		Def(fk::World& world, fk::FileCache& textureCache, fk::SpriteBatch& batch, std::string& boatFile = "") :
+		Def(fk::World& world, fk::FileCache& textureCache, fk::SpriteBatch& batch, std::string& boatFile) :
 			Actor::Def(world, textureCache),
 			textureCache(textureCache),
 			floor(batch, "deck.png"),
