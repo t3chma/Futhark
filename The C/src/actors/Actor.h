@@ -3,28 +3,29 @@
 struct State;
 struct AgroState;
 
-struct ActorDef {
-	float speed{ 0.5 };
-	float size{ 1 };
-	glm::vec2 position{ 0,0 };
-	struct Sprite {
-		Sprite() = delete;
-		Sprite(fk::SpriteBatch& batch, fk::Texture& texture) :
-			texture(texture), batch(batch) {};
-		fk::Texture& texture;
-		fk::SpriteBatch& batch;
-	};
-	std::list<Sprite> sprites;
-	float angularDamping{ 5.0f };
-	float linearDamping{ 2.0f };
-	float friction{ 0.3f };
-	float density{ 10.0f };
-};
-
 class Actor : public Object, public b2RayCastCallback {
   public:
+	struct Def {
+		Def(fk::FileCache& textureCache) : textureCache(textureCache) {}
+		float speed{ 0.5 };
+		float size{ 1 };
+		glm::vec2 position{ 0,0 };
+		fk::FileCache& textureCache;
+		struct SpriteConstructor {
+			Sprite() = delete;
+			Sprite(fk::SpriteBatch& batch, std::string& textureFilePath) :
+				texture(texture), batch(batch) {};
+			std::string& textureFilePath;
+			fk::SpriteBatch& batch;
+		};
+		///std::list<Sprite> sprites;
+		float angularDamping{ 5.0f };
+		float linearDamping{ 2.0f };
+		float friction{ 0.3f };
+		float density{ 10.0f };
+	};
 	Actor() = delete;
-	Actor(fk::World& world, ActorDef& ad, State& startState, AgroState* agroStatePtr);
+	Actor(fk::World& world, Actor::Def& ad, State& startState, AgroState* agroStatePtr);
 	~Actor();
 	struct {
 		State* currentPtr{ nullptr };
