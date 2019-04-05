@@ -3,11 +3,9 @@
 #include "in/IOManager.h"
 #include <set>
 
-Boat::Boat(
-	fk::World& world,
-	fk::UserInput* uiPtr,
-	Boat::Def& bd
-) : Actor(world, bd.ad, *(new M_Control(*this)), nullptr), m_uiPtr(uiPtr) {
+Boat::Boat(Boat::Def& bd, fk::UserInput* uiPtr) :
+	Actor(bd, *(new M_Control(*this))), m_uiPtr(uiPtr)
+{
 	// Misc
 	health = 5000;
 	// Graphics
@@ -24,6 +22,7 @@ Boat::~Boat() {
 }
 void Boat::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	// Mouse
+	// TODO: remove this from all boats into a player class or something.
 	m_mousePos = camPtr->getWorldCoordinates(m_uiPtr->getMouseInfo(0).windowPosition);
 	// States
 	if (health < 1) { setState(new Dead(*this)); }
@@ -137,7 +136,7 @@ void Boat::makeBoatFromFile(std::string& boatFile) {
 				sprites.emplace_back(bd.floor.batch, bd.floor.texture);
 				spritePtrs.floors.push_back(&sprites.back());
 				sprites.back().getCanvasRef().position.z = level;
-				sprites.back().setDimensions(bd.ad.size, bd.ad.size);
+				sprites.back().setDimensions(bd.size, bd.size);
 				///spritePtrs.floor->setColor(255, 255, 255, 255);
 				// For each neighbor.
 				for (int i = 0; i < offsets.size(); ++i) {
@@ -161,11 +160,9 @@ void Boat::makeBoatFromFile(std::string& boatFile) {
 		spritePtrs.walls.push_back(&sprites.back());
 		// TODO: factor in level to position.
 		sprites.back().getCanvasRef().position.z = 1;
-		sprites.back().setDimensions(bd.ad.size/8, bd.ad.size);
+		sprites.back().setDimensions(bd.size/8, bd.size);
 		// If the wall is at an odd position it should be horizontal
-		if (position % 2) {
-			sprites.back().setRotation(fk::TAU/4);
-		}
+		if (position % 2) { sprites.back().setRotation(fk::TAU/4); }
 	}
 }
 float32 Boat::ReportFixture(
