@@ -7,19 +7,21 @@
 #include "States.h"
 #define _TRAIL_ 100
 
-struct BoatDef {
-	ActorDef ad;
-	std::string& boatFile{""};
-};
-
 class Boat : public Actor {
-public:
+  public:
+	struct Def {
+		Actor::Def ad;
+		Actor::Def::SpriteConstructor floor;
+		Actor::Def::SpriteConstructor wall;
+		Actor::Def::SpriteConstructor wake;
+		std::string& boatFile{""};
+	};
 	struct {
-		fk::Sprite* floor{ nullptr };
-		fk::Sprite* wall{ nullptr };
-		fk::Sprite* wake{ nullptr };
+		std::vector<fk::Sprite*> floors{ nullptr };
+		std::vector<fk::Sprite*> walls{ nullptr };
+		std::vector<fk::Sprite*> wakes{ nullptr };
 	} spritePtrs;
-	Boat(fk::World& world, fk::UserInput* uiPtr, BoatDef& pd);
+	Boat(fk::World& world, fk::UserInput* uiPtr, Boat::Def& pd);
 	~Boat();
 	void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr);
 	void updateSprites() override;
