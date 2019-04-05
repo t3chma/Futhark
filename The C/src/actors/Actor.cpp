@@ -2,9 +2,9 @@
 #include "States.h"
 
 
-Actor::Actor(fk::World& world, Actor::Def& ad, State& startState, AgroState* agroStatePtr) :
+Actor::Actor(Actor::Def& ad, State& startState, AgroState* agroStatePtr) :
 	Object(
-		world,
+		ad.world,
 		b2_dynamicBody,
 		ad.position.x,
 		ad.position.y,
