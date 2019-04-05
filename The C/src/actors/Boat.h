@@ -63,5 +63,5 @@ private:
 	// TODO: Use a circular buffer instead of this garbage. Boost has a nice one.
 	glm::vec2 m_oldPos[_TRAIL_];
 	float m_oldAng[_TRAIL_];
-	glm::vec2 shipDimensions;
+	glm::vec2 shipDimensions{ 0 };
 };
