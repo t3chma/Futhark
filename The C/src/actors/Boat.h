@@ -60,8 +60,8 @@ private:
 	};
 	fk::UserInput* m_uiPtr{ nullptr };
 	glm::vec2 m_mousePos;
+	// TODO: Use a circular buffer instead of this garbage. Boost has a nice one.
 	glm::vec2 m_oldPos[_TRAIL_];
 	float m_oldAng[_TRAIL_];
-	fk::Vec2 m_wakeReset;
-	glm::vec2 m_oldVel{ 0 };
+	glm::vec2 shipDimensions;
 };
