@@ -1,5 +1,5 @@
 #pragma once
-#include <set>
+#include <map>
 #include "Actor.h"
 #include "in/UserInput.h"
 #include "out/Camera.h"
@@ -24,6 +24,11 @@ class Boat : public Actor {
 		std::string& boatFile{""};
 		int health{ 100 };
 	};
+	struct Room {
+		char Type{ '*' };
+		fk::Body::Limb* limbPtr{ nullptr };
+		fk::Sprite* floorSpritePtr{ nullptr };
+	}
 	struct {
 		fk::Sprite* art{ nullptr };
 		std::vector<fk::Sprite*> floors{ nullptr };
@@ -64,4 +69,5 @@ private:
 	glm::vec2 m_oldPos[_TRAIL_];
 	float m_oldAng[_TRAIL_];
 	glm::vec2 shipDimensions{ 0 };
+	std::map<fk::Body::Limb*, Room> Rooms;
 };
