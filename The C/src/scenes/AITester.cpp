@@ -18,18 +18,12 @@ void AITester::create(fk::Tools& tools) {
 	wireRenderer.setShaders(wireShaders);
 	textBatchPtr = new fk::SpriteBatch(true);
 	cam.setDimensions(tools.windowPtr->getDimensions());
-	cam.setZoom(64);
+	cam.setZoom(128);
 
-	ActorDef ad;
-	ad.sprites.emplace_back(*textBatchPtr, tools.textures.get("Boat.png", 1));
-	for (size_t i = 0; i < 100; ++i) {
-		ad.sprites.emplace_back(*textBatchPtr, tools.textures.get("Wake.png", 1));
-	}
-	ad.position.x = 0;
-	ad.position.y = 0;
-	PlayerDef pd;
-	pd.ad = ad;
-	playerPtr = new Player(world, &tools.ui, pd);
+	Player::Def pd(world, tools.textures, *textBatchPtr, "Skiboat.boat", tools.ui);
+	pd.position.x = 0;
+	pd.position.y = 0;
+	playerPtr = new Player(pd);
 
 	mousePtr = new Mouse(*textBatchPtr, tools.textures.get("Wave.png", 1), world);
 	glClearColor(0.3f, 0.8f, 0.9f, 1.0f);
