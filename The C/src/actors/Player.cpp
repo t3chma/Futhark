@@ -52,7 +52,9 @@ void Player::M_Control::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr
 	}
 	fk::Random rangen;
 	static int i = 1;
-	player.movement.direction.x += rangen.getFloat(0, 0.1) * i;
-	player.movement.direction.y += rangen.getFloat(0, 0.1) * i;
-	i = -i;
+	if (rangen.getInt(0, 3)) {
+		player.movement.direction.x += rangen.getFloat(0, 1) * i;
+		player.movement.direction.y += rangen.getFloat(0, 1) * i;
+		i = -i;
+	}
 }

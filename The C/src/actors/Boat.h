@@ -22,11 +22,21 @@ class Boat : public Actor {
 		std::string boatFile{""};
 		int health{ 100 };
 	};
+	struct Position {
+		Position(int x, int y, int z = 0, char r = ' ') : x(x), y(y), z(z), r(r) {}
+		bool operator < (const Position& rhs) const { return x == rhs.x ? y < rhs.y : x < rhs.x; }
+		int x;
+		int y;
+		int z{ 0 };
+		char r{ ' ' };
+	};
 	struct Room {
-		char Type{ '*' };
+		Room() = delete;
+		Room(char type, fk::Body::Limb* limbPtr, fk::Sprite* floorSpritePtr) : type(type), limbPtr(limbPtr), floorSpritePtr(floorSpritePtr) {}
+		char type{ '*' };
 		fk::Body::Limb* limbPtr{ nullptr };
 		fk::Sprite* floorSpritePtr{ nullptr };
-	}
+	};
 	struct {
 		fk::Sprite* art{ nullptr };
 		std::vector<fk::Sprite*> floors;
@@ -53,6 +63,5 @@ private:
 	float m_oldAng[_TRAIL_];
 	// The ship dimensions.
 	glm::vec2 m_shipDimensions{ 0 };
-	glm::vec2 shipDimensions{ 0 };
-	std::map<fk::Body::Limb*, Room> Rooms;
+	std::map<fk::Body::Limb*, Room> m_rooms;
 };
