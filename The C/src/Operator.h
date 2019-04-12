@@ -3,14 +3,14 @@ class Operator {
 	int Power;
 	// How far the effects travel.
 	enum class Range { HIGH = 3, MEDIUM = 2, LOW = 1, INFINITY = 0} range{ MEDIUM };
-	// How the bullets are delivered.
+	// How the rooms effects are delivered.
 	enum class Delivery { SEA = -1, AIR = 0, MORTAR = 1} delivery{ AIR };
-	// Delay in firing in frames.
+	// Delay in activation in frames.
 	int delay{ 0 };
-	// How much the gun heats up per shot.
+	// How much the room heats up per use.
 	int heat{ 0 };
-	// Minimum amount of time in frames that it takes to load/setup a gun.
-	int load{ 60*10 };
+	// Minimum amount of time in frames that it takes to setup a room.
+	int setup{ 60*10 };
 	// Type of overloading.
 	enum class Overload {
 		GUN, // Adds a gun.
@@ -18,10 +18,13 @@ class Operator {
 		CLIP, // Increases clip size.
 		GAUGE, // Increases the number of bullets fired.
 		POWER, // Increases the power
-		SPLASH // Increases the splash damage
+		SPLASH, // Increases the splash damage
+		RANGE // Increases the range
 	} overload{ GUN };
-	// Clip size for a fully loaded gun.
+	// Clip size for a fully prepared room.
 	int clip{ 1 };
+	// How long the room's effects last in frames (use for burst fire weapons also)
+	int duration{ 1 };
 }
 
 class Gun : public Operator {
@@ -41,6 +44,6 @@ class Gun : public Operator {
 	enum class Connection { NONE, GUN, NET, LINE} connection{ NONE };
 	// Radius of any splash damage.
 	float splash{ 0 };
-	// What triggers the bullets
-	enum class Trigger { IMPACT, RANGE} connection{ IMPACT };
+	// What triggers the bullets.
+	enum class Trigger { IMPACT, RANGE} trigger{ IMPACT };
 }
