@@ -3,10 +3,10 @@
 
 
 int main(int argc, char** argv) {
-	fk::Engine BloodMage;
-	BloodMage.makeWindow("BloodMage", 0, 0, fk::Window::RESIZABLE | fk::Window::BORDERLESS);
-	BloodMage.addWindowScene(0, "AITester", new AITester);
-	BloodMage.setWindowScene(0, "AITester");
-	BloodMage.run();
+	fk::Engine c;
+	c.makeWindow("The Sea", 0, 0, fk::Window::RESIZABLE | fk::Window::BORDERLESS);
+	c.addWindowScene(0, "AITester", new AITester);
+	c.setWindowScene(0, "AITester");
+	c.run();
 	return 0;
 }

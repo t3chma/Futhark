@@ -1,5 +1,4 @@
 #include "Actor.h"
-#include "States.h"
 
 
 Actor::Actor(Actor::Def& ad, State& startState, AgroState* agroStatePtr) :
@@ -20,10 +19,6 @@ Actor::Actor(Actor::Def& ad, State& startState, AgroState* agroStatePtr) :
 	// Misc
 	movement.speed = ad.speed;
 	category = "actor";
-	// Graphics. Leave this to children to decide now.
-	///for (auto&& sprite : ad.sprites) { sprites.emplace_back(sprite.batch, sprite.texture); }
-	///sprites.front().setDimensions(ad.size, ad.size);
-	///sprites.front().setPosition(ad.position.x, ad.position.y);
 	// Physics
 	b2FixtureDef fixtureDef1;
 	fixtureDef1.density = ad.density;

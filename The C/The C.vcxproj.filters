@@ -105,6 +105,18 @@
     <Image Include="Textures\Wave.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Textures\Wake.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Riptide.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\WallV.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\WallH.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Font Include="Fonts\bloodcrow.ttf" />

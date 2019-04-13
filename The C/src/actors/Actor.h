@@ -1,21 +1,25 @@
 #pragma once
 #include "../Object.h"
-struct State;
+#include "in/FileCache.h"
+#include "in/UserInput.h"
+#include "States.h"
 struct AgroState;
+
 
 class Actor : public Object, public b2RayCastCallback {
   public:
 	struct Def {
-		Def(fk::World& world, fk::FileCache& textureCache) : world(world), textureCache(textureCache) {}
+		Def() = delete;
+		Def(fk::World& world, fk::TextureCache& textureCache) : world(world), textureCache(textureCache) {}
 		fk::World& world;
 		float speed{ 0.5 };
 		float size{ 1 };
 		glm::vec2 position{ 0,0 };
-		fk::FileCache& textureCache;
+		fk::TextureCache& textureCache;
 		fk::UserInput* uiPtr{ nullptr };
 		struct SpriteDef {
 			SpriteDef() = delete;
-			SpriteDef(fk::SpriteBatch& batch, std::string& textureFilePath) :
+			SpriteDef(fk::SpriteBatch& batch, std::string textureFilePath) :
 				textureFilePath(textureFilePath), batch(batch) {};
 			std::string textureFilePath;
 			fk::SpriteBatch& batch;
@@ -27,7 +31,7 @@ class Actor : public Object, public b2RayCastCallback {
 	};
 	Actor() = delete;
 	Actor(Actor::Def& ad, State& startState, AgroState* agroStatePtr = nullptr);
-	~Actor();
+	virtual ~Actor();
 	struct {
 		State* currentPtr{ nullptr };
 		State* prevPtr{ nullptr };

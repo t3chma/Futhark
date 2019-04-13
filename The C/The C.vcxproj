@@ -217,6 +217,10 @@
     <Image Include="Textures\DevGrayCross128.png" />
     <Image Include="Textures\DevGraySlant128.png" />
     <Image Include="Textures\DevOrange128.png" />
+    <Image Include="Textures\Riptide.png" />
+    <Image Include="Textures\Wake.png" />
+    <Image Include="Textures\WallH.png" />
+    <Image Include="Textures\WallV.png" />
     <Image Include="Textures\Wall128.png" />
     <Image Include="Textures\Wave.png" />
   </ItemGroup>
