@@ -18,7 +18,7 @@ void AITester::create(fk::Tools& tools) {
 	wireRenderer.setShaders(wireShaders);
 	textBatchPtr = new fk::SpriteBatch(true);
 	cam.setDimensions(tools.windowPtr->getDimensions());
-	cam.setZoom(64);
+	cam.setZoom(32);
 
 	Player::Def pd(world, tools.textures, *textBatchPtr, "Basic.boat", tools.ui);
 	pd.position.x = 0;

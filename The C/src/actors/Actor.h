@@ -12,7 +12,7 @@ class Actor : public Object, public b2RayCastCallback {
 		Def() = delete;
 		Def(fk::World& world, fk::TextureCache& textureCache) : world(world), textureCache(textureCache) {}
 		fk::World& world;
-		float speed{ 0.5 };
+		float speed{ 0.8f };
 		float size{ 1 };
 		glm::vec2 position{ 0,0 };
 		fk::TextureCache& textureCache;

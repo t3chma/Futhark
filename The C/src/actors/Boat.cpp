@@ -1,6 +1,7 @@
 #include "Boat.h"
 #include "base/Utility.h"
 #include "in/IOManager.h"
+#include <set>
 
 Boat::Boat(Boat::Def& bd, State& startState, AgroState* agroStatePtr) : Actor(bd, startState, agroStatePtr) {
 	health = bd.health;
@@ -14,6 +15,9 @@ Boat::Boat(Boat::Def& bd, State& startState, AgroState* agroStatePtr) : Actor(bd
 	int level{ 0 };
 	int length{ 0 };
 	int width{ 0 };
+	// For wall and room generation.
+	std::set<Position> wallSet;
+	std::set<Position> roomSet;
 	// For checking text neighbors (up, left, right, down).
 	std::vector<Position> offsets;
 	offsets.reserve(4);
@@ -21,9 +25,6 @@ Boat::Boat(Boat::Def& bd, State& startState, AgroState* agroStatePtr) : Actor(bd
 	offsets.emplace_back(-2, 0);
 	offsets.emplace_back(2, 0);
 	offsets.emplace_back(0, -1);
-	// For wall and room generation.
-	std::set<Position> wallSet;
-	std::set<Position> roomSet;
 	b2FixtureDef roomDef;
 	// For each line.
 	for (int y = 0; y < boatData.size(); ++y) {
@@ -68,12 +69,31 @@ Boat::Boat(Boat::Def& bd, State& startState, AgroState* agroStatePtr) : Actor(bd
 					// If out of bounds treat it like a space.
 					int yo = y + offsets[i].y;
 					int xo = x + offsets[i].x;
-					bool outOfBounds = yo < 0 || yo >= boatData.size() || xo < 0 || xo >= boatData[yo].size();
-					char offsetChar = outOfBounds ? ' ' : boatData[y + offsets[i].y][x + offsets[i].x];
+					bool outOfBounds = yo < 0 || yo >= boatData.size() || xo < 0 || xo >= boatData[yo].size() - 1;
+					char offsetChar = outOfBounds ? ' ' : boatData[yo][xo];
 					// If your neighbor is not the same as you then queue wall creation.
-					if (offsetChar != boatData[y][x]) {
-						wallSet.emplace(Position(x + offsets[i].x / 2, length + offsets[i].y, level, offsetChar == ' ' ? 'e' : 'i'));
+					char wallType = 'f';
+					switch (offsetChar) {
+					  default:
+						if (offsetChar != boatData[y][x]) { wallType = 'i'; }
+						break;
+					  case '|':
+						if (boatData[yo][xo - 1] == ' ' || boatData[yo][xo - 1] == '\n') { wallType = 'l'; }
+						else if (boatData[yo][xo + 1] == ' ' || boatData[yo][xo + 1] == '\n') { wallType = 'r'; }
+						else { wallType = 'i'; }
+						break;
+					  case ' ':
+					  case '-':
+					  case '5':
+					  case '4':
+					  case '3':
+					  case '2':
+					  case '1':
+					  case '0':
+						wallType = 'e';
+						break;
 					}
+					wallSet.emplace(Position(x + offsets[i].x / 2, length + offsets[i].y, level, wallType));
 				}
 				break;
 			  default:
@@ -83,37 +103,62 @@ Boat::Boat(Boat::Def& bd, State& startState, AgroState* agroStatePtr) : Actor(bd
 	}
 	float size = bd.size / 2;
 	glm::vec2 adjustment = glm::vec2(m_shipDimensions.x / 2 * size, m_shipDimensions.y / 2 * size) - glm::vec2(0.25);
-	// Generate rooms.
-	for (auto&& position : roomSet) {
-		glm::vec2 sPos = glm::vec2((float)position.x * size, (float)position.y * size) - adjustment;
-		// Make the physics object.
-		addRectangleLimb(size, size, sPos.x, sPos.y, 0, &roomDef).category = position.r;
-		// Make the sprite.
-		sprites.emplace_back(bd.floor.batch, bd.textureCache.get(bd.floor.textureFilePath, 1));
-		spritePtrs.floors.push_back(&sprites.back());
-		sprites.back().getCanvasRef().position.z = position.z;
-		sprites.back().setDimensions(bd.size, bd.size);
-		sprites.back().setPosition(sPos);
-	}
-	// Generate wall sprites.
-	for (auto&& position : wallSet) {
-		glm::vec2 sPos = glm::vec2((float)position.x * size, (float)position.y * size) - adjustment;
-		bool horizontal = position.y & 1;
-		if (horizontal) { sprites.emplace_back(bd.wallH.batch, bd.textureCache.get(bd.wallH.textureFilePath, 1)); }
-		else { sprites.emplace_back(bd.wallV.batch, bd.textureCache.get(bd.wallV.textureFilePath, 1)); }
-		spritePtrs.walls.push_back(&sprites.back());
-		sprites.back().getCanvasRef().position.z = position.z;
-		if (horizontal) { sprites.back().setDimensions(bd.size, bd.size / 16); }
-		else { sprites.back().setDimensions(bd.size / 16, bd.size); }
-		if (position.r == 'i') { sprites.back().getCanvasRef().color.a = 128; }
-		sprites.back().setPosition(sPos);
-	}
 	// Generate wake sprites.
 	for (int i = 0; i < _TRAIL_; ++i) {
 		sprites.emplace_back(bd.wake.batch, bd.textureCache.get(bd.wake.textureFilePath, 1));
 		spritePtrs.wakes.push_back(&sprites.back());
 		sprites.back().getCanvasRef().position.z = -0.0001;
 		sprites.back().setDimensions(m_shipDimensions.x * size, m_shipDimensions.x * size);
+	}
+	// Generate rooms.
+	for (auto&& position : roomSet) {
+		glm::vec2 sPos = glm::vec2((float)position.x * size, (float)position.y * size) - adjustment;
+		// Make the physics object.
+		auto&& room = addRectangleLimb(size, size, sPos.x, sPos.y, 0, &roomDef);
+		room.category = position.r;
+		// Make the sprite.
+		sprites.emplace_back(bd.floor.batch, bd.textureCache.get(bd.floor.textureFilePath, 1));
+		spritePtrs.floors.push_back(&sprites.back());
+		sprites.back().getCanvasRef().position.z = position.z;
+		sprites.back().setDimensions(bd.size * 1.02, bd.size * 1.02);
+		sprites.back().setPosition(sPos);
+		m_rooms.emplace(&room, Room(position.r, &room, &sprites.back()));
+	}
+	// Generate wall sprites.
+	for (auto&& position : wallSet) {
+		glm::vec2 sPos = glm::vec2((float)position.x * size, (float)position.y * size) - adjustment;
+		bool horizontal = position.y & 1;
+		if (horizontal) {
+			sprites.emplace_back(bd.wallH.batch, bd.textureCache.get(bd.wallH.textureFilePath, 1));
+		} else {
+			sprites.emplace_back(bd.wallV.batch, bd.textureCache.get(bd.wallV.textureFilePath, 1));
+		}
+		spritePtrs.walls.push_back(&sprites.back());
+		sprites.back().getCanvasRef().position.z = position.z;
+		if (position.z < 0) { sprites.back().getCanvasRef().color.a = 0; }
+		int division = 64;
+		float multiply = 1.05;
+		switch (position.r) {
+		  case 'l':
+		  case 'r':
+			multiply /= 2;
+		  case 'e':
+			division /= 4;
+			break;
+		  case 'i':
+		  case 'f':
+		  default:
+			sprites.back().getCanvasRef().color.a = 0;
+			break;
+		}
+		if (horizontal) {
+			sprites.back().setDimensions(bd.size * multiply, bd.size / division);
+			if (position.r == 'l') { sPos.x -= size / 2; }
+			else if (position.r == 'r') { sPos.x += size / 2; }
+		} else {
+			sprites.back().setDimensions(bd.size / division, bd.size * multiply);
+		}
+		sprites.back().setPosition(sPos);
 	}
 }
 Boat::~Boat() {
@@ -129,18 +174,6 @@ void Boat::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	auto vel = glm::vec2(velocity.x, velocity.y);
 	if (vel.x || vel.y) { m_oldAng[0] = fk::makeAngle(glm::normalize(vel)) - fk::TAU / 4; }
 	else { m_oldAng[0] = m_oldAng[1]; }
-}
-void Boat::p_beginCollision(
-	b2Fixture* collisionFixturePtr,
-	b2Fixture* myFixturePtr,
-	b2Contact* contactPtr
-) {
-}
-void Boat::p_endCollision(
-	b2Fixture* collisionFixturePtr,
-	b2Fixture* myFixturePtr,
-	b2Contact* contactPtr
-) {
 }
 void Boat::updateSprites() {
 	// TODO: Support artwork movement.
@@ -162,9 +195,21 @@ void Boat::updateSprites() {
 		wakePtr->setRotationAngle(m_oldAng[i]);
 		wakePtr->setPosition(m_oldPos[i]);
 		wakePtr->setRotationAxis(m_oldPos[i]);
-		wakePtr->setDimensions(glm::vec2(m_shipDimensions.x / 2) + glm::vec2(0.02 * i));
-		wakePtr->setColor(255, 255, 255, (_TRAIL_ * 2 - i * 2) / 4);
+		wakePtr->setDimensions(glm::vec2(m_shipDimensions.x / 4) + glm::vec2(1.0f/16 * i));
+		wakePtr->setColor(255, 255, 255, ((255 - (255.0f / _TRAIL_ * i)) / 4 ));
 		++i;
 	}
 	states.currentPtr->updateSprite();
+}
+void Boat::p_beginCollision(
+	b2Fixture* collisionFixturePtr,
+	b2Fixture* myFixturePtr,
+	b2Contact* contactPtr
+) {
+}
+void Boat::p_endCollision(
+	b2Fixture* collisionFixturePtr,
+	b2Fixture* myFixturePtr,
+	b2Contact* contactPtr
+) {
 }
