@@ -191,6 +191,7 @@
     <None Include="Shaders\Wire.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\objects\Bullet.cpp" />
     <ClCompile Include="src\actors\Boat.cpp" />
     <ClCompile Include="src\actors\Actor.cpp" />
     <ClCompile Include="src\actors\Player.cpp" />
@@ -198,15 +199,18 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Mouse.cpp" />
     <ClCompile Include="src\Object.cpp" />
+    <ClCompile Include="src\Operator.cpp" />
     <ClCompile Include="src\scenes\AITester.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\objects\Bullet.h" />
     <ClInclude Include="src\actors\Boat.h" />
     <ClInclude Include="src\actors\Actor.h" />
     <ClInclude Include="src\actors\States.h" />
     <ClInclude Include="src\actors\Player.h" />
     <ClInclude Include="src\Mouse.h" />
     <ClInclude Include="src\Object.h" />
+    <ClInclude Include="src\Operator.h" />
     <ClInclude Include="src\scenes\AITester.h" />
   </ItemGroup>
   <ItemGroup>

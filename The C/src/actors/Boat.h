@@ -1,6 +1,7 @@
 #pragma once
 #include <map>
 #include "Actor.h"
+#include "../Operator.h"
 #define _TRAIL_ 100
 
 class Boat : public Actor {
@@ -36,6 +37,7 @@ class Boat : public Actor {
 		char type{ '*' };
 		fk::Body::Limb* limbPtr{ nullptr };
 		fk::Sprite* floorSpritePtr{ nullptr };
+		Operator* operatorPtr{ nullptr };
 	};
 	struct {
 		fk::Sprite* art{ nullptr };
