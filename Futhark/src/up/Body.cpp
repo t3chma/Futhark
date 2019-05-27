@@ -9,7 +9,7 @@ namespace fk {
 		float xPosition, float yPosition, float angle,
 		bool fixedRotaion, bool bullet,
 		float angularDamping, float linearDamping
-	) {
+	) : world(world) {
 		b2BodyDef bodyDef;
 		bodyDef.type = type;
 		bodyDef.fixedRotation = fixedRotaion;
@@ -21,6 +21,20 @@ namespace fk {
 
 		b2Ptr = world.b2Ptr->CreateBody(&bodyDef);
 		b2Ptr->SetUserData(this);
+	}
+
+	/* Moves this body into another one deleting the replaced body.
+	[t3chma] */
+
+	void Body::moveTo(Body & rhs) {
+		rhs.world.b2Ptr->DestroyBody(rhs.b2Ptr);
+		rhs.b2Ptr = b2Ptr;
+		rhs.category = category;
+		rhs.limbs = limbs;
+		rhs.world = world;
+		b2Ptr = nullptr;
+		category = "NULL";
+		limbs.clear();
 	}
 	Body::~Body() {
 		b2Ptr->GetWorld()->DestroyBody(b2Ptr);

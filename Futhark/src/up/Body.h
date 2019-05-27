@@ -39,6 +39,8 @@ class Body {
 	};
 	// Used to keep track of limbs.
 	std::list<Limb> limbs;
+	// World of this body.
+	World& world;
 	Body() = delete;
 	/* Constructor
 	^ http://www.iforce2d.net/b2dtut/
@@ -56,6 +58,10 @@ class Body {
 		float angle = 0.0f, bool fixedRotation = false, bool bullet = false,
 		float angularDamping = 10, float linearDamping = 10
 	);
+	/* Moves this body into another one deleting the replaced body.
+	(rhs) The body to move into.
+	[t3chma] */
+	void moveTo(Body& rhs);
 	/* Destructor
 	[t3chma] */
 	virtual ~Body();
@@ -174,7 +180,7 @@ class Body {
 		b2Contact* contactPtr
 	) {};
 	// Convenient overload.
-	bool operator == (const b2BodyType type) const {
+	inline bool operator == (const b2BodyType type) const {
 		return b2Ptr->GetType() == type;
 	}
 };

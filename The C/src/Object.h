@@ -5,6 +5,7 @@
 #include "up/Body.h"
 #include "up/World.h"
 
+
 class Object : public fk::Body {
 public:
 	Object() = delete;

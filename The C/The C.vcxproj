@@ -203,6 +203,7 @@
     <ClCompile Include="src\scenes\AITester.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Attribute.h" />
     <ClInclude Include="src\objects\Bullet.h" />
     <ClInclude Include="src\actors\Boat.h" />
     <ClInclude Include="src\actors\Actor.h" />

@@ -1,5 +1,7 @@
 #pragma once
 #include "../actors/Actor.h"
+#include "../Attribute.h"
+#include <set>
 
 
 class Bullet : public Object {
@@ -20,6 +22,6 @@ class Bullet : public Object {
 		b2Fixture* myFixturePtr,
 		b2Contact* contactPtr
 	) override;
-	int collisions{ 0 };
-	int lifetime{ 0 }
+	std::set<b2Fixture*> hitFixturePtrs;
+	int lifetime{ 0 };
 };

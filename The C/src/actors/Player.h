@@ -1,11 +1,15 @@
 #pragma once
 #include "Boat.h"
 
+
 class Player : public Boat {
   public:
 	struct Def : public Boat::Def {
 		Def() = delete;
-		Def(fk::World& world, fk::TextureCache& textureCache, fk::SpriteBatch& batch, std::string boatFile, fk::UserInput& ui) :
+		Def(
+			fk::World& world, fk::TextureCache& textureCache, fk::SpriteBatch& batch,
+			std::string boatFile, fk::UserInput& ui
+		) :
 			Boat::Def(world, textureCache, batch, boatFile)
 		{
 			uiPtr = &ui;
@@ -31,4 +35,5 @@ class Player : public Boat {
 		virtual void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr) override;
 	};
 	glm::vec2 m_mousePos;
+	bool m_moused{ false };
 };

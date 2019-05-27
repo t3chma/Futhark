@@ -4,6 +4,7 @@
 #include "../Operator.h"
 #define _TRAIL_ 100
 
+
 class Boat : public Actor {
   public:
 	struct Def : public Actor::Def {
@@ -33,11 +34,14 @@ class Boat : public Actor {
 	};
 	struct Room {
 		Room() = delete;
-		Room(char type, fk::Body::Limb* limbPtr, fk::Sprite* floorSpritePtr) : type(type), limbPtr(limbPtr), floorSpritePtr(floorSpritePtr) {}
+		Room(char type, fk::Body::Limb* limbPtr, fk::Sprite* floorSpritePtr)
+			: type(type), limbPtr(limbPtr), floorSpritePtr(floorSpritePtr) {}
 		char type{ '*' };
 		fk::Body::Limb* limbPtr{ nullptr };
 		fk::Sprite* floorSpritePtr{ nullptr };
 		Operator* operatorPtr{ nullptr };
+		float getHalfSize();
+		glm::vec2 getPosition();
 	};
 	struct {
 		fk::Sprite* art{ nullptr };
@@ -45,6 +49,14 @@ class Boat : public Actor {
 		std::vector<fk::Sprite*> walls;
 		std::vector<fk::Sprite*> wakes;
 	} spritePtrs;
+	void m_parseCharacter(
+		std::vector<std::string> &boatData,
+		int y, int x,
+		int &width, int &length, int &level,
+		bool &hitShip, bool &hitDeck,
+		std::vector<Boat::Position> &offsets,
+		std::set<Boat::Position> &wallSet, std::set<Boat::Position> &roomSet
+	);
 	Boat(Boat::Def& bd, State& startState, AgroState* agroStatePtr = nullptr);
 	virtual ~Boat();
 	virtual void think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr = nullptr);
@@ -59,11 +71,13 @@ class Boat : public Actor {
 		b2Fixture* myFixturePtr,
 		b2Contact* contactPtr
 	) override;
-private:
+	glm::vec2 getTarget();
+  private:
 	// TODO: Use a circular buffer instead of this garbage. Boost has a nice one.
 	glm::vec2 m_oldPos[_TRAIL_];
 	float m_oldAng[_TRAIL_];
 	// The ship dimensions.
 	glm::vec2 m_shipDimensions{ 0 };
 	std::map<fk::Body::Limb*, Room> m_rooms;
+	glm::vec2 m_target;
 };

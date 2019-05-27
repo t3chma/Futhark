@@ -3,7 +3,91 @@
 #include "in/IOManager.h"
 #include <set>
 
+void Boat::m_parseCharacter(
+	std::vector<std::string> &boatData,
+	int y, int x,
+	int &width, int &length, int &level,
+	bool &hitShip, bool &hitDeck,
+	std::vector<Boat::Position> &offsets,
+	std::set<Boat::Position> &wallSet, std::set<Boat::Position> &roomSet
+) {
+	// Depending on the char.
+	switch (boatData[y][x]) {
+	  case '\n':
+		// Iterate the relative length for the current level.
+		// Odd lengths will always be populated with walls so iterate by 2.
+		width = 0;
+		length += 2;
+		if (length > m_shipDimensions.y) { m_shipDimensions.y = length; }
+		break;
+	  case '5':
+	  case '4':
+	  case '3':
+	  case '2':
+	  case '1':
+	  case '0':
+		// Update level and reset relative length for it.
+		hitShip = true;
+		level = (int)boatData[y][x] - 48;
+		if (level == 0) { hitDeck = true; }
+		if (hitDeck) { level *= -1; }
+		length = 0;
+	  case '-':
+		if (++width > m_shipDimensions.x) { m_shipDimensions.x = width; }
+		break;
+	  case 'I':
+	  case 'E':
+	  case 'S':
+	  case 's':
+	  case 'b':
+	  case 'x':
+		// Don't process the ship overview.
+		if (!hitShip) { break; }
+		// For each neighbor.
+		for (int i = 0; i < offsets.size(); ++i) {
+			// If out of bounds treat it like a space.
+			int yo = y + offsets[i].y;
+			int xo = x + offsets[i].x;
+			bool outOfBounds = yo < 0 || yo >= boatData.size() || xo < 0 || xo >= boatData[yo].size() - 1;
+			char offsetChar = outOfBounds ? ' ' : boatData[yo][xo];
+			// If your neighbor is not the same as you then queue wall creation.
+			char wallType = 'f';
+			switch (offsetChar) {
+			  default:
+				if (offsetChar != boatData[y][x]) { wallType = 'i'; }
+				break;
+			  case '|':
+				if (boatData[yo][xo - 1] == ' ' || boatData[yo][xo - 1] == '\n') {
+					wallType = 'l';
+				} else if (boatData[yo][xo + 1] == ' ' || boatData[yo][xo + 1] == '\n') {
+					wallType = 'r';
+				} else {
+					wallType = 'i';
+				}
+				break;
+			  case ' ':
+			  case '-':
+			  case '5':
+			  case '4':
+			  case '3':
+			  case '2':
+			  case '1':
+			  case '0':
+				wallType = 'e';
+				break;
+			}
+			wallSet.emplace(Position(x + offsets[i].x / 2, length + offsets[i].y));
+		}
+		// Queue room creation.
+		roomSet.emplace(x, length, level, boatData[y][x]);
+		break;
+	  default:
+		break;
+	}
+}
+
 Boat::Boat(Boat::Def& bd, State& startState, AgroState* agroStatePtr) : Actor(bd, startState, agroStatePtr) {
+	category - "boat";
 	health = bd.health;
 	// Make boat from file.
 	fk::IOManager iom;
@@ -30,75 +114,14 @@ Boat::Boat(Boat::Def& bd, State& startState, AgroState* agroStatePtr) : Actor(bd
 	for (int y = 0; y < boatData.size(); ++y) {
 		// For each char.
 		for (int x = 0; x < boatData[y].size(); ++x) {
-			// Depending on the char.
-			switch (boatData[y][x]) {
-			  case '\n':
-				// Iterate the relative length for the current level.
-				// Odd lengths will always be populated with walls so iterate by 2.
-				width = 0;
-				length += 2;
-				if (length > m_shipDimensions.y) { m_shipDimensions.y = length; }
-				break;
-			  case '5':
-			  case '4':
-			  case '3':
-			  case '2':
-			  case '1':
-			  case '0':
-				// Update level and reset relative length for it.
-				hitShip = true;
-				level = (int)boatData[y][x] - 48;
-				if (level == 0) { hitDeck = true; }
-				if (hitDeck) { level *= -1; }
-				length = 0;
-			  case '-':
-				if (++width > m_shipDimensions.x) { m_shipDimensions.x = width; }
-				break;
-			  case 'I':
-			  case 'E':
-			  case 'S':
-			  case 's':
-			  case 'b':
-			  case 'x':
-			  	// Don't process the ship overview.
-			  	if (!hitShip) { break; }
-				// Queue room creation.
-				roomSet.emplace(x, length, level, boatData[y][x]);
-				// For each neighbor.
-				for (int i = 0; i < offsets.size(); ++i) {
-					// If out of bounds treat it like a space.
-					int yo = y + offsets[i].y;
-					int xo = x + offsets[i].x;
-					bool outOfBounds = yo < 0 || yo >= boatData.size() || xo < 0 || xo >= boatData[yo].size() - 1;
-					char offsetChar = outOfBounds ? ' ' : boatData[yo][xo];
-					// If your neighbor is not the same as you then queue wall creation.
-					char wallType = 'f';
-					switch (offsetChar) {
-					  default:
-						if (offsetChar != boatData[y][x]) { wallType = 'i'; }
-						break;
-					  case '|':
-						if (boatData[yo][xo - 1] == ' ' || boatData[yo][xo - 1] == '\n') { wallType = 'l'; }
-						else if (boatData[yo][xo + 1] == ' ' || boatData[yo][xo + 1] == '\n') { wallType = 'r'; }
-						else { wallType = 'i'; }
-						break;
-					  case ' ':
-					  case '-':
-					  case '5':
-					  case '4':
-					  case '3':
-					  case '2':
-					  case '1':
-					  case '0':
-						wallType = 'e';
-						break;
-					}
-					wallSet.emplace(Position(x + offsets[i].x / 2, length + offsets[i].y, level, wallType));
-				}
-				break;
-			  default:
-				break;
-			}
+			m_parseCharacter(
+				boatData,
+				y, x,
+				width, length, level,
+				hitShip, hitDeck,
+				offsets,
+				wallSet, roomSet
+			);
 		}
 	}
 	float size = bd.size / 2;
@@ -140,16 +163,11 @@ Boat::Boat(Boat::Def& bd, State& startState, AgroState* agroStatePtr) : Actor(bd
 		float multiply = 1.05;
 		switch (position.r) {
 		  case 'l':
-		  case 'r':
-			multiply /= 2;
-		  case 'e':
-			division /= 4;
-			break;
+		  case 'r': multiply /= 2;
+		  case 'e': division /= 4; break;
 		  case 'i':
 		  case 'f':
-		  default:
-			sprites.back().getCanvasRef().color.a = 0;
-			break;
+		  default: sprites.back().getCanvasRef().color.a = 0; break;
 		}
 		if (horizontal) {
 			sprites.back().setDimensions(bd.size * multiply, bd.size / division);
@@ -161,9 +179,11 @@ Boat::Boat(Boat::Def& bd, State& startState, AgroState* agroStatePtr) : Actor(bd
 		sprites.back().setPosition(sPos);
 	}
 }
+
 Boat::~Boat() {
 
 }
+
 void Boat::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	// States
 	Actor::think(actorPtrs, camPtr);
@@ -175,6 +195,7 @@ void Boat::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	if (vel.x || vel.y) { m_oldAng[0] = fk::makeAngle(glm::normalize(vel)) - fk::TAU / 4; }
 	else { m_oldAng[0] = m_oldAng[1]; }
 }
+
 void Boat::updateSprites() {
 	// TODO: Support artwork movement.
 	// Move floors.
@@ -201,15 +222,30 @@ void Boat::updateSprites() {
 	}
 	states.currentPtr->updateSprite();
 }
+
 void Boat::p_beginCollision(
 	b2Fixture* collisionFixturePtr,
 	b2Fixture* myFixturePtr,
 	b2Contact* contactPtr
 ) {
+
 }
+
 void Boat::p_endCollision(
 	b2Fixture* collisionFixturePtr,
 	b2Fixture* myFixturePtr,
 	b2Contact* contactPtr
 ) {
+}
+
+glm::vec2 Boat::getTarget() {
+	return m_target;
+}
+
+float Boat::Room::getHalfSize() {
+	return floorSpritePtr->getCanvasRef().dimensions.x;
+}
+
+glm::vec2 Boat::Room::getPosition() {
+	return floorSpritePtr->getPosition();
 }

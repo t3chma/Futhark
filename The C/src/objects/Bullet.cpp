@@ -22,10 +22,11 @@ Bullet::Bullet(
 	b2Ptr->ApplyForceToCenter(b2Vec2(velocity.x, velocity.y), true);
 }
 
-void Bullet::p_beginCollision(b2Fixture * collisionFixturePtr, b2Fixture * myFixturePtr, b2Contact * contactPtr) {
-	++collisions;
+void Bullet::p_beginCollision(b2Fixture* collisionFixturePtr, b2Fixture* myFixturePtr, b2Contact* contactPtr) {
+	hitFixturePtrs.insert(collisionFixturePtr);
 }
 
-void Bullet::p_endCollision(b2Fixture * collisionFixturePtr, b2Fixture * myFixturePtr, b2Contact * contactPtr) {
-	--collisions;
+void Bullet::p_endCollision(b2Fixture* collisionFixturePtr, b2Fixture* myFixturePtr, b2Contact* contactPtr) {
+	//--collisions;
+	//hitFixturePtrs.erase(collisionFixturePtr);
 }

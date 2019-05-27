@@ -4,30 +4,43 @@
 Player::Player(Player::Def& pd) : Boat(pd, *(new M_Control(*this))) {
 	type = "player";
 }
+
 Player::~Player() {
 
 }
+
 void Player::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	// Mouse
 	m_mousePos = camPtr->getWorldCoordinates(p_uiPtr->getMouseInfo(0).windowPosition);
 	Boat::think(actorPtrs, camPtr);
 }
+
 void Player::p_beginCollision(
 	b2Fixture* collisionFixturePtr,
 	b2Fixture* myFixturePtr,
 	b2Contact* contactPtr
 ) {
+	auto objectPtr = static_cast<Object*>(
+		collisionFixturePtr->GetBody()->GetUserData()
+	);
+	if (objectPtr->category == "mouse") { m_moused = true; }
 }
+
 void Player::p_endCollision(
 	b2Fixture* collisionFixturePtr,
 	b2Fixture* myFixturePtr,
 	b2Contact* contactPtr
 ) {
+	auto objectPtr = static_cast<Object*>(
+		collisionFixturePtr->GetBody()->GetUserData()
+	);
+	if (objectPtr->category == "mouse") { m_moused = true; }
 }
 
 void Player::M_Control::enter() {
 	Player& player = *static_cast<Player*>(actorPtr);
 }
+
 void Player::M_Control::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	Player& player = *static_cast<Player*>(actorPtr);
 	b2Vec2 test;
