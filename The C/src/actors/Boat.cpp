@@ -87,7 +87,7 @@ void Boat::m_parseCharacter(
 }
 
 Boat::Boat(Boat::Def& bd, State& startState, AgroState* agroStatePtr) : Actor(bd, startState, agroStatePtr) {
-	category - "boat";
+	category = "boat";
 	health = bd.health;
 	// Make boat from file.
 	fk::IOManager iom;

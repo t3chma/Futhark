@@ -9,8 +9,8 @@ class Boat : public Actor {
   public:
 	struct Def : public Actor::Def {
 		Def() = delete;
-		Def(fk::World& world, fk::TextureCache& textureCache, fk::SpriteBatch& batch, std::string& boatFile) :
-			Actor::Def(world, textureCache),
+		Def(fk::World& world, fk::TextureCache& textureCache, fk::TreeCache<Choices>& treeCache, fk::SpriteBatch& batch, std::string& boatFile) :
+			Actor::Def(world, textureCache, treeCache),
 			floor(batch, "deck.png"),
 			wallV(batch, "wallV.png"),
 			wallH(batch, "wallH.png"),

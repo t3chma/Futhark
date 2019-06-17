@@ -11,11 +11,12 @@ Actor::Actor(Actor::Def& ad, State& startState, AgroState* agroStatePtr) :
 		ad.linearDamping
 	),
 	p_radius(ad.size / 2),
-	p_uiPtr(ad.uiPtr)
+	p_uiPtr(ad.uiPtr),
+	treeCache(ad.treeCache),
+	ai(ad.ai)
 {
 	// AI
 	states.currentPtr = &startState;
-	states.agroStatePtr = agroStatePtr;
 	// Misc
 	movement.speed = ad.speed;
 	category = "actor";
@@ -27,9 +28,6 @@ Actor::Actor(Actor::Def& ad, State& startState, AgroState* agroStatePtr) :
 	addCircleLimb(ad.size / 2, 0, 0, &fixtureDef1);
 }
 Actor::~Actor() {
-	delete states.currentPtr;
-	delete states.prevPtr;
-	delete states.agroStatePtr;
 }
 bool Actor::inLOS(Actor* targetPtr, float awareness, std::string ignoreCategory) {
 	glm::vec2 targetVec = targetPtr->getPosition() - getPosition();
@@ -100,7 +98,8 @@ void Actor::rayCast(glm::vec2 origin, glm::vec2 target) {
 }
 void Actor::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	if (health < 1) { setState(new Dead(*this)); }
-	states.currentPtr->think(actorPtrs, camPtr);
+	if (ai) { states.currentPtr = ai->decide(0); }
+	states.currentPtr->updateVariables(actorPtrs, camPtr);
 }
 void Actor::updateBody() { states.currentPtr->updateBody(); }
 void Actor::updateSprites() {
@@ -110,16 +109,6 @@ void Actor::updateSprites() {
 	///sprites.front().setRotationAxis(getPosition().x, getPosition().y);
 	states.currentPtr->updateSprite();
 }
-void Actor::setState(State* newStatePtr) {
-	delete states.prevPtr;
-	states.prevPtr = states.currentPtr;
-	states.currentPtr = newStatePtr;
-	newStatePtr->enter();
-}
 void Actor::look(glm::vec2 targetVector) {
 	b2Ptr->SetTransform(b2Ptr->GetWorldCenter(), fk::makeAngle(targetVector) + fk::TAU / 4);
-}
-void Actor::returnToPrevState() {
-	std::swap(states.currentPtr, states.prevPtr);
-	states.currentPtr->enter();
 }

@@ -4,7 +4,7 @@
 #include "out/Camera.h"
 #include "Box2D/Box2D.h"
 #include "../actors/Player.h"
-#include "../Mouse.h"
+#include "../objects/Mouse.h"
 #include "out/TTFont.h"
 #include "out/WireRenderer.h"
 #include "out/SpriteRenderer.h"

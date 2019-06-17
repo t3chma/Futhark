@@ -1,6 +1,6 @@
 #pragma once
 #include "Object.h"
-#include "actors/Actor.h"
+#include "../actors/Actor.h"
 
 
 class Mouse : public Object {

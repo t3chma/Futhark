@@ -38,13 +38,7 @@
     <ClCompile Include="src\scenes\AITester.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Mouse.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\actors\States.cpp">
@@ -53,10 +47,16 @@
     <ClCompile Include="src\actors\Boat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Operator.cpp">
+    <ClCompile Include="src\objects\Bullet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\objects\Bullet.cpp">
+    <ClCompile Include="src\objects\Object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\Mouse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Operator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -70,25 +70,25 @@
     <ClInclude Include="src\scenes\AITester.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Mouse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Object.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\actors\States.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\actors\Boat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Operator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\objects\Bullet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Attribute.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\objects\Object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\objects\Mouse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Operator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

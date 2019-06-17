@@ -1,5 +1,5 @@
 #pragma once
-#include "../Object.h"
+#include "../objects/Object.h"
 #include "in/FileCache.h"
 #include "in/UserInput.h"
 #include "States.h"
@@ -10,12 +10,15 @@ class Actor : public Object, public b2RayCastCallback {
   public:
 	struct Def {
 		Def() = delete;
-		Def(fk::World& world, fk::TextureCache& textureCache) : world(world), textureCache(textureCache) {}
+		Def(fk::World& world, fk::TextureCache& textureCache, fk::TreeCache<State>& treeCache)
+			: world(world), textureCache(textureCache), treeCache(treeCache) {}
 		fk::World& world;
 		float speed{ 0.8f };
 		float size{ 1 };
 		glm::vec2 position{ 0,0 };
 		fk::TextureCache& textureCache;
+		fk::TreeCache<State>& treeCache;
+		fk::DTree<State>* ai{ nullptr };
 		fk::UserInput* uiPtr{ nullptr };
 		struct SpriteDef {
 			SpriteDef() = delete;
@@ -29,13 +32,14 @@ class Actor : public Object, public b2RayCastCallback {
 		float friction{ 0.3f };
 		float density{ 10.0f };
 	};
+
 	Actor() = delete;
 	Actor(Actor::Def& ad, State& startState, AgroState* agroStatePtr = nullptr);
 	virtual ~Actor();
 	struct {
 		State* currentPtr{ nullptr };
-		State* prevPtr{ nullptr };
-		AgroState* agroStatePtr{ nullptr };
+		fk::TreeCache<State>& treeCache;
+		fk::DTree<State>* ai{ nullptr };
 	} states;
 	struct {
 		float speed{ 1 };
@@ -70,6 +74,8 @@ class Actor : public Object, public b2RayCastCallback {
 	) override;
 	void rayCast(glm::vec2 target);
 	void rayCast(glm::vec2 origin, glm::vec2 target);
+	fk::TreeCache<State>& treeCache;
+	fk::DTree<State>* ai{ nullptr };
   protected:
 	struct {
 		std::string ignore{ "" };

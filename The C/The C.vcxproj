@@ -197,8 +197,8 @@
     <ClCompile Include="src\actors\Player.cpp" />
     <ClCompile Include="src\actors\States.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Mouse.cpp" />
-    <ClCompile Include="src\Object.cpp" />
+    <ClCompile Include="src\objects\Mouse.cpp" />
+    <ClCompile Include="src\objects\Object.cpp" />
     <ClCompile Include="src\Operator.cpp" />
     <ClCompile Include="src\scenes\AITester.cpp" />
   </ItemGroup>
@@ -209,8 +209,8 @@
     <ClInclude Include="src\actors\Actor.h" />
     <ClInclude Include="src\actors\States.h" />
     <ClInclude Include="src\actors\Player.h" />
-    <ClInclude Include="src\Mouse.h" />
-    <ClInclude Include="src\Object.h" />
+    <ClInclude Include="src\objects\Mouse.h" />
+    <ClInclude Include="src\objects\Object.h" />
     <ClInclude Include="src\Operator.h" />
     <ClInclude Include="src\scenes\AITester.h" />
   </ItemGroup>

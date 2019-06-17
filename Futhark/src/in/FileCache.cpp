@@ -123,4 +123,8 @@ TTFont FontCache::p_load(const std::string& IMAGE_FILE_PATH) {
 	return TTFont("Fonts/" + IMAGE_FILE_PATH);
 }
 
+DTree TreeCache::p_load(const std::string& TREE_FILE_PATH) {
+	return DTree("DTrees/" + TREE_FILE_PATH);
+}
+
 }

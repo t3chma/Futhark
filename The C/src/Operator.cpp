@@ -2,7 +2,7 @@
 
 
 void GunMan::use() {
-	if (prep / setup) { queued = true; }
+	if (prep / setup) { queued = true; };
 }
 
 void GunMan::update() {
@@ -26,7 +26,7 @@ void GunMan::update() {
 	}
 	if (queued && !clip.isMin()) {
 		// If preparing.
-		if (!delay.isMin()) 
+		if (!delay.isMin()) {
 			--delay;
 			return;
 		}

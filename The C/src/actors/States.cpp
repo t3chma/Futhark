@@ -1,6 +1,12 @@
 #include "States.h"
 #include "Actor.h"
 
+
+State::State(Actor& actor) : actorPtr(&actor) {
+	//dTree = actor.treeCache.get("default.dtm");
+}
+
+
 void State::updateBody() {
 	actorPtr->b2Ptr->ApplyLinearImpulse(
 		b2Vec2(
@@ -22,7 +28,7 @@ void Dead::enter() {
 }
 
 
-void Idle::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
+void Idle::updateVariables(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	// TODO: follow orders
 	actorPtr->movement.direction.x = 0;
 	actorPtr->movement.direction.y = 0;
@@ -31,14 +37,14 @@ void Idle::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 }
 
 
-void Search::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
+void Search::updateVariables(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	// TODO: search
 	///if (actorPtr->hit) { actorPtr->setState(new P_Stun(actorPtr)); }
 	actorPtr->setState(actorPtr->states.agroStatePtr->copy());
 }
 
 
-void Flee::think(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
+void Flee::updateVariables(std::vector<Actor*>& actorPtrs, fk::Camera* camPtr) {
 	// TODO: flee
 	actorPtr->setState(new Idle(*actorPtr));
 }

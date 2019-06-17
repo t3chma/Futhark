@@ -2,6 +2,7 @@
 #include <map>
 #include "../out/TTFont.h"
 #include "../out/Shader.h"
+#include "../up/DTree.h"
 namespace fk {
 
 
@@ -16,7 +17,7 @@ class FileCache {
 	(filepath) The file path to the data.
 	< The data (T) associated to the file path.
 	[t3chma] */
-	virtual T get(const std::string& filePath) final {
+	virtual T& get(const std::string& filePath) final {
 		// Look for data
 		auto mapSelection = m_map.find(filePath);
 		if (mapSelection != m_map.end()) {
@@ -60,13 +61,13 @@ class TextureCache : public FileCache<Texture> {
 };
 
 
-/* Loads and stores PNG files as textures in memory.
+/* Loads and stores TTF files as fonts in memory.
 [t3chma] */
 class FontCache : public FileCache<TTFont> {
 protected:
-	/* Load texture from the given PNG file path.
-	(filepath) The file path to the texture.
-	< The texture.
+	/* Load font from the given TTF file path.
+	(filepath) The file path to the font.
+	< The font.
 	[t3chma] */
 	TTFont p_load(const std::string& filePath) override;
 };
@@ -76,11 +77,23 @@ protected:
 [t3chma] */
 class ShadersCache : public FileCache<Shader> {
   protected:
-	/* Load texture from the given PNG file path.
-	(filepath) The file path to the texture.
-	< The texture.
+	/* Load shader from the given glsl file path.
+	(filepath) The file path to the shader.
+	< The shader.
 	[t3chma] */
 	Shader p_load(const std::string& filePath) override;
+};
+
+/* Loads and stores DTM files in memory.
+[t3chma] */
+
+class TreeCache : public FileCache<DTree> {
+protected:
+	/* Load decision tree from the given DTM file path.
+	(filepath) The file path to the decision tree.
+	< The decision tree.
+	[t3chma] */
+	DTree p_load(const std::string& filePath) override;
 };
 
 }

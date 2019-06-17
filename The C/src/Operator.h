@@ -14,7 +14,7 @@ class Operator {
 	// Update function.
 	virtual void update() = 0;
 	// The strength of the primary ability.
-	int Power{ 1 };
+	int power{ 1 };
 	// How far the effects travel.
 	enum class Range { HIGH = 3, MEDIUM = 2, LOW = 1, NA = 0} range{ Range::MEDIUM };
 	// How the rooms effects are delivered.
