@@ -222,6 +222,8 @@ TextSprite TTFont::generateCharSprites(
 ) {
 	TextSprite textSprite(spriteBatch, *this);
 	textSprite.m_string = text;
+	textSprite.m_justification = justification;
+	textSprite.m_scale = scaling;
 	scaling /= 60;
 	glm::vec2 textPosition(0);
 	glm::vec2 stringLength = measure(text.c_str());
@@ -259,7 +261,8 @@ TextSprite TTFont::generateCharSprites(
 }
 
 
-TextSprite::TextSprite(SpriteBatch& spriteBatch, TTFont& font) : m_spriteBatch(spriteBatch), m_font(font) {}
+TextSprite::TextSprite(SpriteBatch& spriteBatch, TTFont& font)
+	: m_spriteBatch(spriteBatch), m_font(font) {}
 TextSprite TextSprite::operator=(const TextSprite& rhs) {
 	m_string = rhs.m_string;
 	m_spriteIds = rhs.m_spriteIds;
@@ -267,11 +270,15 @@ TextSprite TextSprite::operator=(const TextSprite& rhs) {
 	return *this;
 }
 void TextSprite::setPosition(glm::vec2 position, Justification justification) {
+	m_justification = justification;
 	switch (justification) {
 	  case Justification::LEFT: move(position - m_spriteBatch[m_spriteIds.front()].getPosition()); break;
 	  case Justification::RIGHT: move(position - m_spriteBatch[m_spriteIds.back()].getPosition()); break;
 	  default: break;
 	}
+}
+void TextSprite::setPosition(glm::vec2 position) {
+	setPosition(position, m_justification);
 }
 void TextSprite::move(glm::vec2 translation) {
 	for (auto&& index : m_spriteIds) { m_spriteBatch[index].move(translation); }
@@ -287,9 +294,16 @@ void TextSprite::clearText() {
 	for (auto&& id : m_spriteIds) { m_spriteBatch.destroySprite(id); }
 }
 
-void TextSprite::setText(std::string& text, glm::vec2 size, Justification justification) {
+void TextSprite::setText(std::string& text, glm::vec2 scale, Justification justification) {
+	glm::vec2 pos;
+	if (m_spriteIds.size()) { pos = m_spriteBatch[m_spriteIds[0]].getPosition(); }
 	for (auto&& id : m_spriteIds) { m_spriteBatch.destroySprite(id); }
-	*this = m_font.generateCharSprites(text, m_spriteBatch, size, justification);
+	*this = m_font.generateCharSprites(text, m_spriteBatch, scale, justification);
+	setPosition(pos);
+}
+
+void TextSprite::setText(std::string& text) {
+	setText(text, m_scale, m_justification);
 }
 
 }

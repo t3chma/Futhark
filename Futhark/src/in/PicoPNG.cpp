@@ -449,11 +449,11 @@ namespace fk {
 			}
 			void setBitOfReversedStream(size_t& bitp, unsigned char* bits, unsigned long bit) { bits[bitp >> 3] |= (bit << (7 - (bitp & 0x7))); bitp++; }
 			unsigned long read32bitInt(const unsigned char* buffer) { return (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3]; }
-			int checkColorValidity(unsigned long colorType, unsigned long bd) //return type is a LodePNG error code
+			int checkColorValidity(unsigned long colorType, unsigned long botSpawner) //return type is a LodePNG error code
 			{
-				if ((colorType == 2 || colorType == 4 || colorType == 6)) { if (!(bd == 8 || bd == 16)) return 37; else return 0; }
-				else if (colorType == 0) { if (!(bd == 1 || bd == 2 || bd == 4 || bd == 8 || bd == 16)) return 37; else return 0; }
-				else if (colorType == 3) { if (!(bd == 1 || bd == 2 || bd == 4 || bd == 8)) return 37; else return 0; }
+				if ((colorType == 2 || colorType == 4 || colorType == 6)) { if (!(botSpawner == 8 || botSpawner == 16)) return 37; else return 0; }
+				else if (colorType == 0) { if (!(botSpawner == 1 || botSpawner == 2 || botSpawner == 4 || botSpawner == 8 || botSpawner == 16)) return 37; else return 0; }
+				else if (colorType == 3) { if (!(botSpawner == 1 || botSpawner == 2 || botSpawner == 4 || botSpawner == 8)) return 37; else return 0; }
 				else return 31; //unexisting color type
 			}
 			unsigned long getBpp(const Info& info)

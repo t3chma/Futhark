@@ -20,7 +20,12 @@ class Body {
 	// ^ http://www.iforce2d.net/b2dtut/
 	b2Body* b2Ptr{ nullptr };
 	// Used for things like conditional collision events between certain categories of bodies.
-	std::string category{ "body" };
+	int species{ 0 };
+	int team{ 0 };
+	int squad{ 0 };
+	int type{ 0 };
+	int teir{ 0 };
+
 	// Used to keep track of limbs.
 	struct Limb {
 		Limb(b2Fixture* b2Ptr, std::vector<glm::vec2> offsets, bool opens = false);
@@ -61,7 +66,7 @@ class Body {
 	/* Moves this body into another one deleting the replaced body.
 	(rhs) The body to move into.
 	[t3chma] */
-	void moveTo(Body& rhs);
+	void replace(Body& rhs);
 	/* Destructor
 	[t3chma] */
 	virtual ~Body();

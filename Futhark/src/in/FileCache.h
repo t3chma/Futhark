@@ -2,7 +2,6 @@
 #include <map>
 #include "../out/TTFont.h"
 #include "../out/Shader.h"
-#include "../up/DTree.h"
 namespace fk {
 
 
@@ -87,13 +86,13 @@ class ShadersCache : public FileCache<Shader> {
 /* Loads and stores DTM files in memory.
 [t3chma] */
 
-class TreeCache : public FileCache<DTree> {
-protected:
-	/* Load decision tree from the given DTM file path.
-	(filepath) The file path to the decision tree.
-	< The decision tree.
-	[t3chma] */
-	DTree p_load(const std::string& filePath) override;
-};
+//class TreeCache : public FileCache<DTree> {
+//protected:
+//	/* Load decision tree from the given DTM file path.
+//	(filepath) The file path to the decision tree.
+//	< The decision tree.
+//	[t3chma] */
+//	DTree p_load(const std::string& filePath) override;
+//};
 
 }

@@ -48,10 +48,31 @@ int SpriteBatch::makeSprite(const Texture& texture) {
 		sprite.texture = texture;
 		int spriteID = m_deadBufferIndices.back() + 1;
 		m_deadBufferIndices.pop_back();
+		//printf("\n%i recycled", spriteID);
 		return spriteID;
 	} else {
 		m_spriteBuffer.emplace_back();
 		m_spriteBuffer.back().texture = texture;
+		//printf("\n%i made", m_spriteBuffer.size());
+		return m_spriteBuffer.size();
+	}
+}
+int SpriteBatch::copySprite(const int& otherSpriteID) {
+	if (!m_dynamic) { m_bufferStatic = true; }
+	if (!m_deadBufferIndices.empty()) {
+		auto& sprite = m_spriteBuffer[m_deadBufferIndices.back()];
+		sprite = Sprite();
+		sprite.texture = m_spriteBuffer[otherSpriteID].texture;
+		sprite.canvas = m_spriteBuffer[otherSpriteID].canvas;
+		int spriteID = m_deadBufferIndices.back() + 1;
+		m_deadBufferIndices.pop_back();
+		//printf("\n%i copied into recycled %i", otherSpriteID, spriteID);
+		return spriteID;
+	} else {
+		m_spriteBuffer.emplace_back();
+		m_spriteBuffer.back().texture = m_spriteBuffer[otherSpriteID].texture;
+		m_spriteBuffer.back().canvas = m_spriteBuffer[otherSpriteID].canvas;
+		//printf("\n%i copied into %i", otherSpriteID, m_spriteBuffer.size());
 		return m_spriteBuffer.size();
 	}
 }
@@ -65,6 +86,7 @@ void SpriteBatch::destroySprite(int spriteID) {
 	int spriteIndex = spriteID - 1;
 	m_deadBufferIndices.push_back(spriteIndex);
 	m_spriteBuffer[spriteIndex].canvas.color.a = 0;
+	//printf("\n%i killed", spriteID);
 }
 void SpriteBatch::m_makeSpriteTrays() {
 	m_spriteTrays.clear();
@@ -219,6 +241,9 @@ void Sprite::move(const float x, const float y) {
 glm::vec2 Sprite::getPosition() const {
 	return (*m_spriteBatchPtr)[m_id].getPosition();
 }
+int Sprite::getID() const {
+	return m_id;
+}
 void Sprite::setPosition(const glm::vec2& position) {
 	(*m_spriteBatchPtr)[m_id].setPosition(position.x, position.y);
 }
@@ -264,9 +289,11 @@ void Sprite::setTexture(const Texture& texture) {
 void Sprite::makeLine(glm::vec2& b, glm::vec2& a, float thickness) {
 	(*m_spriteBatchPtr)[m_id].makeLine(b, a, thickness);
 }
-Sprite::Sprite(SpriteBatch& spriteBatch, const Texture& texture)
-	: m_spriteBatchPtr(&spriteBatch) {
+Sprite::Sprite(SpriteBatch& spriteBatch, const Texture& texture) : m_spriteBatchPtr(&spriteBatch) {
 	m_id = spriteBatch.makeSprite(texture);
+}
+Sprite::Sprite(const Sprite& sprite) : m_spriteBatchPtr(sprite.m_spriteBatchPtr){
+	m_id = m_spriteBatchPtr->copySprite(sprite.m_id);
 }
 Sprite::~Sprite() {
 	(*m_spriteBatchPtr).destroySprite(m_id);

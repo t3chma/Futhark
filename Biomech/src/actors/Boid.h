@@ -1,28 +1,88 @@
 #pragma once
-#include "Actor.h"
+#include "../Body.h"
+#include "../Image.h"
+#include "../Intellect.h"
 #include <set>
 
 
-class Boid : public Actor {
+struct Goal {
+	glm::vec2 location{ 0 };
+	Body* bodyPtr{ nullptr };
+	bool resolved{ true };
+};
+
+class Boid : public Body, public Image, public Intellect {
   public:
-	struct Los {
-		Los(float radius);
+	struct LineOfSight {
+		struct Friend {
+			Friend(float i, float j, float x, float y) : direction(i, j), position(x, y) {}
+			glm::vec2 position;
+			glm::vec2 direction;
+		};
+		LineOfSight(float radius);
 		float radius{ 0 };
-		std::vector<float> friendAngles;
-		std::vector<glm::vec2> friendPos;
-		std::vector<glm::vec2> badPos;
+		float angle{ 0 };
+		struct FriendCompare {
+			bool operator() (const Friend& lhs, const Friend& rhs) const {
+				return
+					lhs.direction.x < rhs.direction.x &&
+					lhs.direction.y < rhs.direction.y &&
+					lhs.position.x < rhs.position.x &&
+					lhs.position.y < rhs.position.y;
+			}
+		};
+		std::set<Friend, FriendCompare> friends;
+		struct GLMVec2Compare {
+			bool operator() (const glm::vec2& lhs, const glm::vec2& rhs) const {
+				return lhs.x < rhs.x && lhs.y < rhs.y;
+			}
+		};
+		std::set<glm::vec2, GLMVec2Compare> badPositions;
 	} los;
-	glm::vec2 goal{0};
-	Boid(fk::SpriteBatch& sb, fk::World& world, float sightRadius);
+	struct PriorityWeights {
+		float studder{ 10 };
+		float alignment{ 0.01 };
+		float seperation{ 8 };
+		float cohesion{ 15 };
+		float seek{ 15 };
+		float target{ 25 };
+		float snap{ 1.5 };
+		float aversion{ 10 };
+	} pw;
+	struct GoalVectors {
+		glm::vec2 alignment{ 0 };
+		glm::vec2 seperation{ 0 };
+		glm::vec2 cohesion{ 0 };
+		glm::vec2 seek{ 0 };
+		glm::vec2 target{ 0 };
+		glm::vec2 snap{ 0 };
+		glm::vec2 aversion{ 0 };
+	} gv;
+	struct Def {
+		Body::Def bd;
+		float sightRadius{ 1 };
+		Boid::PriorityWeights pw;
+	};
+	std::vector<Goal> goals;
+	glm::vec2 goal{1, 1};
+	Boid(fk::SpriteBatch& sb, fk::World& world, Def bd);
 	~Boid();
+	virtual glm::vec2 getDirection() final { return p_direction; };
 	virtual void update(fk::UserInput& ui) override;
-	void draw() override;
+	virtual void draw() = 0;
   protected:
-	inline virtual void p_postCollisionAdjusting(
+	int p_speed{ 20 };
+	glm::vec2 p_direction{ 0 };
+	virtual void p_preCollisionAdjusting(
+		b2Fixture* collisionFixturePtr,
+		b2Fixture* myFixturePtr,
+		b2Contact* contactPtr,
+		const b2Manifold* oldManifoldPtr
+	) override;
+	virtual void p_postCollisionAdjusting(
 		b2Fixture* collisionFixturePtr,
 		b2Fixture* myFixturePtr,
 		b2Contact* contactPtr,
 		const b2ContactImpulse* impulsePtr
 	) override;
 };
-

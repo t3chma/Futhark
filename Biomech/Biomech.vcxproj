@@ -192,6 +192,7 @@
     <Image Include="Textures\Water128.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Fonts\desktop.ini" />
     <None Include="Shaders\Sprite.frag" />
     <None Include="Shaders\Sprite.geom" />
     <None Include="Shaders\Sprite.vert" />
@@ -199,19 +200,37 @@
     <None Include="Shaders\Wire.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Spectrals\Equipment.cpp" />
+    <ClCompile Include="src\actors\Projectile.cpp" />
+    <ClCompile Include="src\actors\Dummy.cpp" />
+    <ClCompile Include="src\actors\Mouse.cpp" />
+    <ClCompile Include="src\actors\Bot.cpp" />
     <ClCompile Include="src\actors\Boid.cpp" />
-    <ClCompile Include="src\actors\Macro.cpp" />
-    <ClCompile Include="src\actors\Actor.cpp" />
     <ClCompile Include="src\actors\Player.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\scenes\GameWorld.cpp" />
+    <ClCompile Include="SRC\SPECTRALS\PROJECTILE.CPP" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Intellect.h" />
+    <ClInclude Include="src\Image.h" />
+    <ClInclude Include="src\Spectrals\Equipment.h" />
+    <ClInclude Include="src\actors\Projectile.h" />
+    <ClInclude Include="src\Body.h" />
+    <ClInclude Include="src\actors\Dummy.h" />
+    <ClInclude Include="src\Constants.h" />
+    <ClInclude Include="src\actors\Mouse.h" />
+    <ClInclude Include="src\actors\Bot.h" />
     <ClInclude Include="src\actors\Boid.h" />
-    <ClInclude Include="src\actors\Macro.h" />
-    <ClInclude Include="src\actors\Actor.h" />
     <ClInclude Include="src\actors\Player.h" />
     <ClInclude Include="src\scenes\GameWorld.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="Fonts\bloodcrow.ttf" />
+    <Font Include="Fonts\bloody.ttf" />
+    <Font Include="Fonts\calibri.ttf" />
+    <Font Include="Fonts\consola.ttf" />
+    <Font Include="Fonts\eldermagic.ttf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

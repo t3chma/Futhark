@@ -44,9 +44,13 @@ namespace fk {
 	}
 
 	Vec2::Vec2(GLfloat x, GLfloat y) : x(x), y(y) {}
-	Vec2::Vec2(const glm::vec2& VEC2) : x(VEC2.x), y(VEC2.y) {}
-	Vec2::Vec2(const glm::ivec2& VEC2) : x(VEC2.x), y(VEC2.y) {}
+	Vec2::Vec2(const b2Vec2& const VEC2) : x(VEC2.x), y(VEC2.y) {}
+	Vec2::Vec2(const glm::vec2& const VEC2) : x(VEC2.x), y(VEC2.y) {}
+	Vec2::Vec2(const glm::ivec2& const VEC2) : x(VEC2.x), y(VEC2.y) {}
 	Vec2::operator glm::vec2() const { return glm::vec2(x, y); }
+	Vec2::operator b2Vec2() const { return b2Vec2(x, y); }
+	Vec2 Vec2::operator = (const glm::vec2& VEC2) { x = VEC2.x; y = VEC2.y; return *this; }
+	Vec2 Vec2::operator = (const b2Vec2& VEC2) { x = VEC2.x; y = VEC2.y; return *this; }
 	Vec2 Vec2::operator = (const Vec2& VEC2) { x = VEC2.x; y = VEC2.y; return VEC2; }
 	Vec2 Vec2::operator += (const Vec2& VEC2) { x += VEC2.x; y += VEC2.y; return *this; }
 	Vec2 Vec2::operator -= (const Vec2& VEC2) { x -= VEC2.x; y -= VEC2.y; return *this; }

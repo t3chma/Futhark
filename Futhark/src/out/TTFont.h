@@ -12,6 +12,8 @@ enum class Justification {
 	RIGHT
 };
 
+class TTFont;
+
 /* For managing text sprites.
 [t3chma] */
 class TextSprite {
@@ -20,17 +22,15 @@ class TextSprite {
 	TextSprite(SpriteBatch& spriteBatch, TTFont& font);
 	TextSprite(const TextSprite&) = default;
 	TextSprite operator = (const TextSprite& rhs);
-	void setPosition(glm::vec2 position, Justification justification = Justification::LEFT);
+	void setPosition(glm::vec2 position, Justification m_justification);
+	void setPosition(glm::vec2 position);
 	void move(glm::vec2 translation);
 	SpriteBatch::Sprite& operator [] (int charIndex);
 	std::string getText();
 	int getTextLength();
 	void clearText();
-	void setText(
-		std::string& text,
-		glm::vec2 size = glm::vec2(1),
-		Justification justification = Justification::LEFT
-	);
+	void setText(std::string& text, glm::vec2 scale, Justification m_justification);
+	void setText(std::string& text);
   private:
 	// The font of this class
 	TTFont& m_font;
@@ -40,6 +40,10 @@ class TextSprite {
 	std::vector<int> m_spriteIds;
 	// The spritebatch for the given character sprites.
 	SpriteBatch& m_spriteBatch;
+	// Base justification.
+	Justification m_justification;
+	// Base scale.
+	glm::vec2 m_scale;
 };
 
 /* Allows fonts to be displayed on screen.
@@ -69,8 +73,8 @@ class TTFont {
 	TextSprite generateCharSprites(
 		const std::string text,
 		SpriteBatch& spriteBatch,
-		glm::vec2 size = glm::vec2(1),
-		Justification justification = Justification::LEFT
+		glm::vec2 scaling = glm::vec2(1),
+		Justification m_justification = Justification::LEFT
 	);
   private:
 	/* Used to represent a single character in a sprite sheet.

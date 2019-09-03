@@ -60,7 +60,7 @@
     <ClCompile Include="src\out\WireRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\up\DTree.cpp">
+    <ClCompile Include="src\up\TreePlan.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -125,7 +125,7 @@
     <ClInclude Include="src\out\WireRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\up\DTree.h">
+    <ClInclude Include="src\up\TreePlan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

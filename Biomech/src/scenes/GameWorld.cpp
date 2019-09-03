@@ -1,9 +1,13 @@
 #include "GameWorld.h"
 #include "base\Utility.h"
 #include <iostream>
-#include "../actors/Actor.h"
+#include "../actors/Dummy.h"
 
 void GameWorld::create(fk::Tools& tools) {
+	tools.ui.setShowCursor(false);
+	
+	// Set up srite batch
+	spriteBatchPtr = new fk::SpriteBatch(true);
 	textBatchPtr = new fk::SpriteBatch(true);
 	std::vector<fk::Shader> spriteShaders{
 		tools.shaders.get("Sprite.vert"),
@@ -16,17 +20,34 @@ void GameWorld::create(fk::Tools& tools) {
 		tools.shaders.get("Wire.frag")
 	};
 	wireRenderer.setShaders(wireShaders);
+	
+	// Adjust cam
 	cam.setDimensions(tools.windowPtr->getDimensions());
-	cam.setZoom(70);
-	cam.setPosition(glm::vec2(250, 250));
+	cam.setZoom(100);
 
-	cursorPtr = new fk::Sprite(*textBatchPtr, tools.textures.get("Selector.png", 1));
-	cursorPtr->setDimensions(0.5, 0.5);
+	// Text
+	font = tools.fonts.get("calibri.ttf");
+	std::string text;
+	text += "# Keys = Set current squad\n";
+	text += "Ctrl + Middle Click = Activate/deactivate current squad\n";
+	text += "Ctrl + Left Click = Add position to current squad\n";
+	text += "Ctrl + Right Click = Remove position from current squad\n";
+	text += "Ctrl + q = Add dummy\n";
+	text += "Ctrl + e = Add enemy\n";
+	text += "Shift + Right Click = Set primary objective for current squad\n";
+	text += "Shift + Left Click = Set primary objective for current squad\n";
+	text += "WASD = Move chara";
+	fk::TextSprite ts = font.generateCharSprites(text, *spriteBatchPtr, glm::vec2(0.5));
 
-	font = tools.fonts.get("eldermagic.ttf");
-
-	fk::TextSprite ts = font.generateCharSprites("Test", *textBatchPtr, glm::vec2(1.0));
-	ts.setPosition(glm::vec2(249, 250));
+	// Player
+	Player::Def pd;
+	pd.body = tools.textures.get("Circle.png", 1);
+	pd.md.body = tools.textures.get("Circle.png", 1);
+	pd.botSpawner.body = tools.textures.get("Circle.png", 1);
+	pd.hudFont = tools.fonts.get("calibri.ttf");
+	playerPtr = new Player(*spriteBatchPtr, *textBatchPtr, world, pd);
+	actorPtrs.push_back(playerPtr);
+	imagePtrs.push_back(playerPtr);
 
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 }
@@ -40,21 +61,46 @@ void GameWorld::close(fk::Tools& tools) {
 
 }
 void GameWorld::update(fk::Tools& tools) {
-	cam.update();
-	auto matrix = cam.getTransScaledMatrix();
-	wireRenderer.render(world, matrix);
-	world.update(1.0f / 60.0f, 4, 2);
-	cursorPtr->setPosition(
-		cam.getWorldCoordinates(tools.ui.getMouseInfo(0).windowPosition)
-	);
-	///for (auto&& actorPtr : actorPtrs) { actorPtr->update(); }
-	for (auto&& actorPtr : actorPtrs) { actorPtr->draw(); }
-	float speed = 0.1;
-	if (tools.ui.getKeyInfo(fk::Key::SHIFT_L).downFrames > 1) { speed = 0.2; }
-	if (tools.ui.getKeyInfo(fk::Key::D).downFrames > 1) { cam.move(glm::vec2(speed,0)); }
-	if (tools.ui.getKeyInfo(fk::Key::A).downFrames > 1) { cam.move(glm::vec2(-speed, 0)); }
-	if (tools.ui.getKeyInfo(fk::Key::W).downFrames > 1) { cam.move(glm::vec2(0, speed)); }
-	if (tools.ui.getKeyInfo(fk::Key::S).downFrames > 1) { cam.move(glm::vec2(0, -speed)); }
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	spriteRenderer.render(*textBatchPtr, matrix);
+	
+	// Update cam and render.
+	//wireRenderer.render(world, matrix);
+	cam.setPosition(glm::vec2(playerPtr->b2Ptr->GetPosition().x, playerPtr->b2Ptr->GetPosition().y));
+	cam.update();
+	auto batrix = cam.getBaseMatrix();
+	auto matrix = cam.getTransScaledMatrix();
+	spriteRenderer.render(*spriteBatchPtr, matrix);
+	spriteRenderer.render(*textBatchPtr, batrix);
+	
+	// Physics
+	world.update(1.0f / 60.0f, 3, 2);
+	
+	// Mouse
+	glm::vec2 mousePos = cam.getWorldCoordinates(tools.ui.getMouseInfo(0).windowPosition);
+	playerPtr->mouse.b2Ptr->SetTransform(b2Vec2(mousePos.x, mousePos.y), 0);
+	// Debug
+	if (tools.ui.getKeyInfo(fk::Key::CTRL_L).downFrames || tools.ui.getKeyInfo(fk::Key::CTRL_R).downFrames) {
+		if (tools.ui.getKeyInfo(fk::Key::Q).downFrames == 1) {
+			Dummy::Def dd;
+			dd.body = tools.textures.get("Circle.png", 1);
+			dd.bd.sightRadius = 1;
+			dd.bd.bd.position = fk::Vec2(mousePos.x, mousePos.y);
+			auto dummy = new Dummy(*spriteBatchPtr, world, dd);
+			actorPtrs.push_back(dummy);
+			imagePtrs.push_back(dummy);
+		}
+		if (tools.ui.getKeyInfo(fk::Key::E).downFrames == 1) {
+			Dummy::Def dd;
+			dd.body = tools.textures.get("Circle.png", 1);
+			dd.bd.sightRadius = 1;
+			dd.bd.bd.position = fk::Vec2(mousePos.x, mousePos.y);
+			auto dummy = new DumRunner(*spriteBatchPtr, world, dd);
+			actorPtrs.push_back(dummy);
+			imagePtrs.push_back(dummy);
+		}
+	}
+	
+	// Redering and AI
+	for (auto&& imagePtrs : imagePtrs) { imagePtrs->draw(); }
+	for (auto&& actorPtr : actorPtrs) { actorPtr->update(tools.ui); }
 }

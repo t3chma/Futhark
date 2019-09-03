@@ -61,33 +61,33 @@ Shader ShadersCache::p_load(const std::string& SHADER_FILE_PATH) {
 	int dot = SHADER_FILE_PATH.find(".");
 	char shell = SHADER_FILE_PATH[dot + 1];
 	switch (shell) {
-	  case 'v':
+	case 'v':
 		TRY_GL(shader.id = glCreateShader(GL_VERTEX_SHADER));
 		shader.type = Shader::VERT;
-	  break;
-	  case 'f':
+		break;
+	case 'f':
 		TRY_GL(shader.id = glCreateShader(GL_FRAGMENT_SHADER));
 		shader.type = Shader::FRAG;
-	  break;
-	  case 'g':
+		break;
+	case 'g':
 		TRY_GL(shader.id = glCreateShader(GL_GEOMETRY_SHADER));
 		shader.type = Shader::GEOM;
-	  break;
-	  case 't':
+		break;
+	case 't':
 		TRY_GL(shader.id = glCreateShader(GL_TESS_CONTROL_SHADER));
 		shader.type = Shader::TESC;
-	  break;
-	  case 'e':
+		break;
+	case 'e':
 		TRY_GL(shader.id = glCreateShader(GL_TESS_EVALUATION_SHADER));
 		shader.type = Shader::TESE;
-	  break;
-	  case 'c':
+		break;
+	case 'c':
 		TRY_GL(shader.id = glCreateShader(GL_COMPUTE_SHADER));
 		shader.type = Shader::COMP;
-	  break;
-	  default:
+		break;
+	default:
 		BREAK_IF(true);
-	  break;
+		break;
 	}
 	if (shader.id == 0) { LOG_LINE("Failed to create shader"); }
 	// Read in text file
@@ -123,8 +123,4 @@ TTFont FontCache::p_load(const std::string& IMAGE_FILE_PATH) {
 	return TTFont("Fonts/" + IMAGE_FILE_PATH);
 }
 
-DTree TreeCache::p_load(const std::string& TREE_FILE_PATH) {
-	return DTree("DTrees/" + TREE_FILE_PATH);
-}
-
-}
+};

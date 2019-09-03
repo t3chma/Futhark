@@ -5,19 +5,23 @@
 #include "Box2D/Box2D.h"
 #include "out/TTFont.h"
 #include "out/SpriteRenderer.h"
-#include "out\WireRenderer.h"
-#include "../Actors/Actor.h"
+#include "out/WireRenderer.h"
+#include "../Body.h"
+#include "../actors/Player.h"
+
 
 class GameWorld : public fk::Scene {
   public:
 	fk::World world;
-	fk::TTFont font;
+	fk::SpriteBatch* spriteBatchPtr{ nullptr };
 	fk::SpriteBatch* textBatchPtr{ nullptr };
-	fk::Sprite* cursorPtr;
-	fk::Camera cam;
 	fk::SpriteRenderer spriteRenderer;
 	fk::WireRenderer wireRenderer;
-	std::vector<Actor*> actorPtrs;
+	fk::TTFont font;
+	fk::Camera cam;
+	std::vector<Intellect*> actorPtrs;
+	std::vector<Image*> imagePtrs;
+	Player* playerPtr;
 	GameWorld() = default;
 	~GameWorld() = default;
 	// Inherited via fk::Scene

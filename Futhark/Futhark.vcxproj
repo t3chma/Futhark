@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\up\TreePlan.h" />
     <ClInclude Include="src\out\Shader.h" />
     <ClInclude Include="src\out\Texture.h" />
     <ClInclude Include="src\up\Body.h" />
@@ -36,12 +37,12 @@
     <ClInclude Include="src\in\FileCache.h" />
     <ClInclude Include="src\in\UserInput.h" />
     <ClInclude Include="src\out\OutUtility.h" />
-    <ClInclude Include="src\up\DTree.h" />
     <ClInclude Include="src\up\World.h" />
     <ClInclude Include="src\out\TTFont.h" />
     <ClInclude Include="src\out\WireRenderer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\up\TreePlan.cpp" />
     <ClCompile Include="src\up\Body.cpp" />
     <ClCompile Include="src\out\Camera.cpp" />
     <ClCompile Include="src\out\SpriteBatch.cpp" />
@@ -54,7 +55,6 @@
     <ClCompile Include="src\in\FileCache.cpp" />
     <ClCompile Include="src\in\UserInput.cpp" />
     <ClCompile Include="src\out\OutUtility.cpp" />
-    <ClCompile Include="src\up\DTree.cpp" />
     <ClCompile Include="src\up\World.cpp" />
     <ClCompile Include="src\out\TTFont.cpp" />
     <ClCompile Include="src\out\WireRenderer.cpp" />
@@ -118,7 +118,7 @@
     <IntDir>$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(Configuration)\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -126,7 +126,7 @@
     <IntDir>$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(Configuration)\$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

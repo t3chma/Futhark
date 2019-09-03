@@ -69,12 +69,19 @@ class Vec2 {
 	/* Constructor
 	(vec2) glm::vec2.
 	[t3chma] */
+	Vec2(const b2Vec2& VEC2);
+	/* Constructor
+	(vec2) glm::vec2.
+	[t3chma] */
 	Vec2(const glm::vec2& VEC2);
 	/* Constructor
 	(vec2) glm::ivec2.
 	[t3chma] */
 	Vec2(const glm::ivec2& VEC2);
 	operator glm::vec2() const;
+	operator b2Vec2() const;
+	Vec2 operator = (const glm::vec2& VEC2);
+	Vec2 operator = (const b2Vec2& VEC2);
 	Vec2 operator = (const Vec2& VEC2);
 	Vec2 operator += (const Vec2& VEC2);
 	Vec2 operator -= (const Vec2& VEC2);

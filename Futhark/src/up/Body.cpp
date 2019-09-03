@@ -26,14 +26,17 @@ namespace fk {
 	/* Moves this body into another one deleting the replaced body.
 	[t3chma] */
 
-	void Body::moveTo(Body & rhs) {
+	void Body::replace(Body & rhs) {
 		rhs.world.b2Ptr->DestroyBody(rhs.b2Ptr);
 		rhs.b2Ptr = b2Ptr;
-		rhs.category = category;
 		rhs.limbs = limbs;
 		rhs.world = world;
+		rhs.team = team;
+		rhs.squad = squad;
+		rhs.type = type;
+		rhs.teir = teir;
+		rhs.species = species;
 		b2Ptr = nullptr;
-		category = "NULL";
 		limbs.clear();
 	}
 	Body::~Body() {

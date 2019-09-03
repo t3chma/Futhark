@@ -79,6 +79,11 @@ class SpriteBatch {
 	< The new sprite's ID.
 	[t3chma] */
 	int makeSprite(const Texture& texture);
+	/* Adds a sprite to the sprite batch by copying an existing one.
+	(spriteID) The ID of the the sprite to copy.
+	< The new sprite's ID.
+	[t3chma] */
+	int copySprite(const int& spriteID);
 	/* Allows the retrieval of a sprite using its ID.
 	[t3chma] */
 	Sprite& operator [] (int spriteID);
@@ -120,9 +125,11 @@ class Sprite {
 	SpriteBatch* m_spriteBatchPtr{ nullptr };
   public:
 	Sprite(SpriteBatch& spriteBatch, const Texture& texture);
+	Sprite(const Sprite& sprite);
 	~Sprite();
 	SpriteBatch::Canvas& getCanvasRef();
 	SpriteBatch& getSpriteBatchRef();
+	int getID() const;
 	void move(const glm::vec2& translation);
 	void move(const float x, const float y);
 	glm::vec2 getPosition() const;

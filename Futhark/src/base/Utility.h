@@ -1,6 +1,7 @@
 #pragma once
 #include <random>
 #include <ctime>
+#include <cmath>
 #include <glm/glm.hpp>
 #include <GLEW/glew.h>
 #include <boost/property_tree/ptree.hpp>
@@ -40,6 +41,14 @@ class Random {
 	double getFloat(double min, double max) {
 		return std::uniform_real_distribution<double>(min, max)(m_generator);
 	}
+	/* Get a random float.
+	(min) Minimum float to get back.
+	(max) Maximum float to get back.
+	< Random float in the given range.
+	[t3chma] */
+	double getNormal(double mean, double standardDeviation = 1) {
+		return std::normal_distribution<double>(mean, standardDeviation)(m_generator);
+	}
   private:
 	// The random number generator.
 	std::mt19937 m_generator{ time(nullptr) };
@@ -48,6 +57,7 @@ class Random {
 
 // 2 PI, 1 Turn.
 const double TAU = 3.14159265359 * 2;
+const double E = std::exp(1.0);
 /* Gets the angle of a vector.
 (DIRECTION) The vector to get the angle of.
 < The angle in radians.
