@@ -3,41 +3,35 @@
 Mouse::Mouse(fk::SpriteBatch& sb, fk::World& world, Mouse::Def& md) : Body(world, md.bd), Image(sb) {
 	type = (int)Type::PLAYER;
 	team = (int)Team::PLAYER;
-	species = (int)Spec::PLAYER;
+	species = (int)Spec::MOUSE;
 	addCircleLimb(0.02).b2Ptr->SetSensor(true);
-	p_sprites.emplace_back(p_spriteBatch, md.body);
-	p_sprites.back().setColor(255, 255, 255, 255); // white
-	p_sprites.back().setDimensions(0.05, 0.05);
+	sprites.emplace_back(p_spriteBatch, md.body);
+	sprites.back().setColor(255, 255, 255, 255); // white
+	sprites.back().setDimensions(0.05, 0.05);
 }
 
 void Mouse::click(bool left) {
-	if (left > -1) {
-		bool check{ true };
-		// If target
-		if (contacts.size()) {
-			for (auto&& contact : contacts) {
-				// Grab first contact
-				Body& body = *static_cast<Body*>(contact->GetBody()->GetUserData());
-				// If mean
-				if (body.team != (int)Team::PLAYER && body.team != (int)Team::PEACE) {
-					goal.location = glm::vec2(body.b2Ptr->GetPosition().x, body.b2Ptr->GetPosition().y);
-					goal.bodyPtr = &body;
-					check = false;
-				}
-				break;
-			}
-		}
-		// If no mean target
-		if (check) {
-			goal.location = glm::vec2(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
-			goal.bodyPtr = this;
-		}
-	}
 }
 
 void Mouse::draw() {
 	auto position = b2Ptr->GetPosition();
-	p_sprites.front().setPosition(position.x, position.y);
+	sprites.front().setPosition(position.x, position.y);
+}
+
+void Mouse::think(fk::UserInput& ui) {
+	b2Ptr->SetAwake(true);
+	if (contacts.size()) {
+		for (auto&& contact : contacts) {
+			// Grab first contact
+			Body& body = *static_cast<Body*>(contact->GetBody()->GetUserData());
+			goal.location = glm::vec2(body.b2Ptr->GetPosition().x, body.b2Ptr->GetPosition().y);
+			goal.bodyPtr = &body;
+			break;
+		}
+	} else {
+		goal.location = glm::vec2(b2Ptr->GetPosition().x, b2Ptr->GetPosition().y);
+		goal.bodyPtr = this;
+	}
 }
 
 Mouse::~Mouse() {
@@ -54,7 +48,10 @@ void Mouse::p_beginCollision(
 		!collisionFixturePtr->IsSensor() &&
 		static_cast<Limb*>(collisionFixturePtr->GetUserData())->category != "s"
 	) {
-		contacts.insert(collisionFixturePtr); }
+		contacts.insert(collisionFixturePtr);
+	} else {
+
+	}
 }
 
 void Mouse::p_endCollision(

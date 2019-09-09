@@ -13,7 +13,7 @@ struct Texture {
 	// Resolution of texture.
 	int width{ 0 }, height{ 0 };
 	// Number of animation frames.
-	int frames{ 1 };
+	int m_frames{ 1 };
 	operator GLuint() { return id; };
 };
 

@@ -9,7 +9,7 @@ class Dummy : public Boid {
 	};
 	Dummy(fk::SpriteBatch& sb, fk::World& world, Dummy::Def& dd);
 	~Dummy();
-	virtual void update(fk::UserInput & ui) override;
+	virtual void p_think(fk::UserInput & ui) override;
 	virtual void draw() override;
 	virtual bool connect(Boid* bPtr) override;
 	virtual bool interact(Boid* bPtr) override;
@@ -17,11 +17,6 @@ class Dummy : public Boid {
 
 class DumRunner : public Dummy {
   public:
-	DumRunner(fk::SpriteBatch& sb, fk::World& world, Dummy::Def& dd) : Dummy(sb, world, dd) {
-		pw.target = 0;
-		pw.seek = 0;
-		pw.snap = 0;
-		p_speed = 10;
-	};
-	virtual void update(fk::UserInput & ui) override;
+	DumRunner(fk::SpriteBatch& sb, fk::World& world, Dummy::Def& dd);;
+	virtual void p_think(fk::UserInput& ui) override;
 };

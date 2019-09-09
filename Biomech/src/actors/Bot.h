@@ -13,7 +13,7 @@ public:
 
 	Bot(fk::SpriteBatch& sb, fk::World& world, Def& bd);
 	~Bot();
-	virtual void update(fk::UserInput& ui) override;
+	virtual void p_think(fk::UserInput& ui) override;
 	void draw() override;
 };
 

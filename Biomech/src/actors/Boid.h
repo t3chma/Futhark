@@ -3,6 +3,7 @@
 #include "../Image.h"
 #include "../Intellect.h"
 #include <set>
+class Equipment;
 
 
 struct Goal {
@@ -13,6 +14,7 @@ struct Goal {
 
 class Boid : public Body, public Image, public Intellect {
   public:
+	friend Equipment;
 	struct LineOfSight {
 		struct Friend {
 			Friend(float i, float j, float x, float y) : direction(i, j), position(x, y) {}
@@ -46,8 +48,8 @@ class Boid : public Body, public Image, public Intellect {
 		float cohesion{ 15 };
 		float seek{ 15 };
 		float target{ 25 };
-		float snap{ 1.5 };
-		float aversion{ 10 };
+		float snap{ 2 };
+		float aversion{ 22 };
 	} pw;
 	struct GoalVectors {
 		glm::vec2 alignment{ 0 };
@@ -65,14 +67,28 @@ class Boid : public Body, public Image, public Intellect {
 	};
 	std::vector<Goal> goals;
 	glm::vec2 goal{1, 1};
+	float damage{ 1 };
+	virtual void primeGun(int option);
+	virtual void releaseGun();
+	virtual void primeGadget(int option);
+	virtual void releaseGadget();
 	Boid(fk::SpriteBatch& sb, fk::World& world, Def bd);
 	~Boid();
+	void attack(Body& body);
 	virtual glm::vec2 getDirection() final { return p_direction; };
-	virtual void update(fk::UserInput& ui) override;
+	virtual void think(fk::UserInput& ui) override final;
 	virtual void draw() = 0;
+	void setGun(Equipment* ePtr);
+	Equipment* getGun();
+	void setGadget(Equipment* ePtr);
+	Equipment* getGatget();
   protected:
-	int p_speed{ 20 };
+	Equipment* p_gunPtr{ nullptr };
+	Equipment* p_gadgetPtr{ nullptr };
+	float p_speed{ 20 };
 	glm::vec2 p_direction{ 0 };
+	glm::vec2 p_looking{ 0 };
+	virtual void p_think(fk::UserInput& ui);
 	virtual void p_preCollisionAdjusting(
 		b2Fixture* collisionFixturePtr,
 		b2Fixture* myFixturePtr,

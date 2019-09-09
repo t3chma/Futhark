@@ -11,8 +11,8 @@ public:
 	};
 	Mouse(fk::SpriteBatch& sb, fk::World& world, Mouse::Def& md);
 	void click(bool left);
-	virtual void update(fk::UserInput& ui) override {};
 	virtual void draw() override;
+	virtual void think(fk::UserInput& ui) override;
 	~Mouse();
 	virtual void p_beginCollision(
 		b2Fixture* collisionFixturePtr,

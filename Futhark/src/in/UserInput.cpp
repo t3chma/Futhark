@@ -10,30 +10,27 @@ UserInput::UserInput(int history) {
 	m_unpressedKeys.reserve(16);
 }
 GameState UserInput::poll() {
-	m_mouseHistory.push_front(m_mouseHistory.front());
 	GameState gs = m_pollSDL();
-	MouseInfo& mouseInfo = m_mouseHistory.front();
 	// Get last Mod key.
 	// Handle down keys/butts.
 	for (auto&& key : m_downKeys) {
 		KeyInfo& ki = m_keyStates[key];
 		if (++ki.downFrames == 1) {
-			ki.pressPos = m_mouseHistory.front().windowPosition;
+			ki.pressPos = m_mouseHistory[0].windowPosition;
 		}
 	}
 	// Handle unpressed key/butts.
 	for (auto&& key : m_unpressedKeys) {
 		KeyInfo& ki = m_keyStates[key];
 		ki.downFrames = 0;
-		ki.unpressPos = m_mouseHistory.front().windowPosition;
+		ki.unpressPos = m_mouseHistory[0].windowPosition;
 	}
 	// Clear unpressed lists.
 	m_unpressedKeys.clear();
 	return gs;
 }
 UserInput::MouseInfo UserInput::getMouseInfo(unsigned int framesAgo) const {
-	if (framesAgo < m_mouseHistory.size()) { return m_mouseHistory[framesAgo]; }
-	else { return m_mouseHistory[m_mouseHistory.size() - 1]; }
+		return m_mouseHistory[0];
 }
 void UserInput::setShowCursor(bool show) {
 	if (show) { SDL_ShowCursor(SDL_ENABLE); }
@@ -45,7 +42,7 @@ UserInput::KeyInfo UserInput::getKeyInfo(Key key) {
 GameState UserInput::m_pollSDL() {
 	SDL_Event sdlEvent;
 	GameState gs = GameState::PLAY;
-	MouseInfo& mouseInfo = m_mouseHistory.front();
+	m_mouseHistory[0].wheel = 0;
 	// Loops until there are no more events to process
 	while (SDL_PollEvent(&sdlEvent)) {
 		switch (sdlEvent.type) {
@@ -65,12 +62,12 @@ GameState UserInput::m_pollSDL() {
 			m_keyEvent(false, sdlEvent.button.button, false);
 		  break;
 		  case SDL_MOUSEMOTION:
-			mouseInfo.windowPosition.x = sdlEvent.motion.x;
-			mouseInfo.windowPosition.y = sdlEvent.motion.y;
-			mouseInfo.windowID = sdlEvent.motion.windowID;
+			m_mouseHistory[0].windowPosition.x = sdlEvent.motion.x;
+			m_mouseHistory[0].windowPosition.y = sdlEvent.motion.y;
+			m_mouseHistory[0].windowID = sdlEvent.motion.windowID;
 		  break;
 		  case SDL_MOUSEWHEEL:
-			mouseInfo.wheel = sdlEvent.wheel.y;
+			m_mouseHistory[0].wheel = sdlEvent.wheel.y;
 		  break;
 		  default:
 			for (auto&& windowPtr : windowPtrs) { windowPtr->handleEvents(sdlEvent); }

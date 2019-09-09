@@ -58,6 +58,8 @@ class Random {
 // 2 PI, 1 Turn.
 const double TAU = 3.14159265359 * 2;
 const double E = std::exp(1.0);
+const double SECOND = 60;
+const double MINUTE = 60 * 60;
 /* Gets the angle of a vector.
 (DIRECTION) The vector to get the angle of.
 < The angle in radians.

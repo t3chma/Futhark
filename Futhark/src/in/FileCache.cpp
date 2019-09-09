@@ -6,10 +6,10 @@
 namespace fk {
 
 
-Texture TextureCache::get(const std::string& IMAGE_FILE_PATH, int frames) {
+Texture TextureCache::get(const std::string& IMAGE_FILE_PATH, int m_frames) {
 	Texture texture = FileCache<Texture>::get(IMAGE_FILE_PATH);
-	if (frames < 1) { frames = 1; }
-	texture.frames = frames;
+	if (m_frames < 1) { m_frames = 1; }
+	texture.m_frames = m_frames;
 	return texture;
 }
 Texture TextureCache::p_load(const std::string& IMAGE_FILE_PATH) {

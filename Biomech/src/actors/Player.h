@@ -3,24 +3,28 @@
 #include "Bot.h"
 #include "Mouse.h"
 #include "out/TTFont.h"
+#include "out/Camera.h"
 
 
-class Player : public Body, public Image, public Intellect {
+class Player : public Boid{
   public:
 	struct Def {
-		Body::Def bd;
+		Boid::Def bd;
 		Mouse::Def md;
 		Bot::Def botSpawner;
 		fk::Texture body;
 		fk::TTFont hudFont;
 	};
-	Player(fk::SpriteBatch& sb, fk::SpriteBatch& textBatch, fk::World& world, Player::Def pd);
+	Player(fk::SpriteBatch& sb, fk::SpriteBatch& tb, fk::Camera& c, fk::World& w, Player::Def pd);
 	~Player();
-	virtual void update(fk::UserInput& ui) override;
+	virtual void primeGadget(int option);
+	virtual void primeGun(int option);
+	virtual void p_think(fk::UserInput& ui) override;
 	virtual void draw() override;
 	virtual bool connect(Boid* bPtr) override;
 	virtual bool interact(Boid* bPtr) override;
 	Mouse mouse;
+	fk::Camera& camera;
 	fk::Key up{ fk::Key::W };
 	fk::Key left{ fk::Key::A };
 	fk::Key down{ fk::Key::S };

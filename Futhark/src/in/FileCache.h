@@ -50,7 +50,7 @@ class TextureCache : public FileCache<Texture> {
 	(frames) The number of animation frames for this texture.
 	< The texture associated to the file path.
 	[t3chma] */
-	Texture get(const std::string& filePath, int frames);
+	Texture get(const std::string& filePath, int m_frames);
   protected:
 	/* Load texture from the given PNG file path.
 	(filepath) The file path to the texture.

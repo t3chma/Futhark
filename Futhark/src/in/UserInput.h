@@ -69,14 +69,14 @@ class UserInput {
 		// Window position of the mouse.
 		glm::ivec2 windowPosition{ 0 };
 		// Direction of mouse wheel scroll. Pos for up and neg for down.
-		int wheel;
+		int wheel{ 0 };
 	};
 	// Window handles.
 	std::vector<Window*> windowPtrs;
 	/* Constructor
 	(history) How many frames of history to keep about mouse information.
 	[t3chma] */
-	UserInput(int history = 36000);
+	UserInput(int history = 2);
 	/* Polls SDL for input and queues actions based on it.
 	(actions) Which actions list to queue to.
 	[t3chma] */

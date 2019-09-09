@@ -1,4 +1,4 @@
-#version 330
+#version 150
 in vec2 offset;
 in vec4 color;
 in vec2 position;

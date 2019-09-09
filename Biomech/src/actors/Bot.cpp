@@ -11,10 +11,10 @@ Bot::Bot(fk::SpriteBatch& sb, fk::World& world, Bot::Def& bd) : Boid(sb, world, 
 	limbs.back().category = "body";
 	limbs.back().b2Ptr->SetDensity(10);
 	limbs.back().b2Ptr->SetRestitution(0);
-	p_sprites.emplace_back(p_spriteBatch, bd.body);
-	p_sprites.back().setColor(255, 255, 255, 255); // white
-	p_sprites.back().setDimensions(0.06, 0.04);
-	p_sprites.back().getCanvasRef().position.z = 100;
+	sprites.emplace_back(p_spriteBatch, bd.body);
+	sprites.back().setColor(255, 255, 255, 255); // white
+	sprites.back().setDimensions(0.06, 0.04);
+	sprites.back().getCanvasRef().position.z = 100;
 	goals.resize(3);
 	goals[2].bodyPtr = bd.basePtr;
 	goals[2].location = glm::vec2(bd.basePtr->b2Ptr->GetPosition().x, bd.basePtr->b2Ptr->GetPosition().y);
@@ -26,14 +26,14 @@ Bot::~Bot() {
 
 }
 
-void Bot::update(fk::UserInput& ui) { Boid::update(ui); }
+void Bot::p_think(fk::UserInput& ui) { }
 
 void Bot::draw() {
 	auto position = b2Ptr->GetPosition();
 	auto p = glm::vec2(position.x, position.y);
-	p_sprites.front().setPosition(p);
-	p_sprites.front().setRotationAngle(b2Ptr->GetAngle());
-	p_sprites.front().setRotationAxis(p);
+	sprites.front().setPosition(p);
+	sprites.front().setRotationAngle(b2Ptr->GetAngle());
+	sprites.front().setRotationAxis(p);
 }
 
 size_t HiveMind::squadSize(){

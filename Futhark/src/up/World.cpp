@@ -104,8 +104,8 @@ namespace fk {
 			}
 			if (body.limbs.empty()) { continue; }
 			for (auto&& limb : body.limbs) {
-				unsigned int numberOfOffsets{ 0 };
-				unsigned int verticesSize{ m_vertexBuffer.size() };
+				size_t numberOfOffsets{ 0 };
+				size_t verticesSize{ m_vertexBuffer.size() };
 				// If circle
 				if (limb == b2Shape::e_circle) {
 					// Add space for new verticies
@@ -144,7 +144,7 @@ namespace fk {
 					}
 				}
 				// Set up indices for indexed drawing
-				unsigned int indicesSize{ m_indexBuffer.size() };
+				size_t indicesSize{ m_indexBuffer.size() };
 				m_indexBuffer.reserve(m_indexBuffer.size() + (numberOfOffsets + 1) * 2);
 				for (int i = 0; i < numberOfOffsets - 1; ++i) {
 					m_indexBuffer.push_back(verticesSize + i);

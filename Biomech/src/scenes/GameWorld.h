@@ -19,7 +19,7 @@ class GameWorld : public fk::Scene {
 	fk::WireRenderer wireRenderer;
 	fk::TTFont font;
 	fk::Camera cam;
-	std::vector<Intellect*> actorPtrs;
+	std::vector<Intellect*> aiPtrs;
 	std::vector<Image*> imagePtrs;
 	Player* playerPtr;
 	GameWorld() = default;

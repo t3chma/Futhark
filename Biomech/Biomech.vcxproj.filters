@@ -24,9 +24,6 @@
     <Image Include="Textures\Box128.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Textures\Circle.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="Textures\CursorBlood.png">
       <Filter>Resource Files</Filter>
     </Image>
@@ -111,6 +108,12 @@
     <Image Include="Textures\Water128.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Textures\Body.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Circle.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Sprite.frag" />
@@ -119,6 +122,7 @@
     <None Include="Shaders\Wire.frag" />
     <None Include="Shaders\Wire.vert" />
     <None Include="Fonts\desktop.ini" />
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -146,9 +150,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\actors\Projectile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SRC\SPECTRALS\PROJECTILE.CPP">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

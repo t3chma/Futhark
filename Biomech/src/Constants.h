@@ -20,6 +20,7 @@ enum class Team {
 enum class Spec {
 	PROP = 0,
 	PLAYER = 1,
+	MOUSE,
 	BOT,
 	DUMMY
 };

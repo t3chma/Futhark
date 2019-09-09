@@ -1,4 +1,4 @@
-#version 330
+#version 150
 in vec3 windowPosition;
 in vec2 dimensions;
 in vec2 texturePosition;

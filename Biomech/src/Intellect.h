@@ -4,6 +4,6 @@
 
 class Intellect {
   public:
-	virtual void update(fk::UserInput& ui) = 0;
+	virtual void think(fk::UserInput& ui) = 0;
 };
 
