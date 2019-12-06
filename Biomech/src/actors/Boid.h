@@ -21,8 +21,7 @@ class Boid : public Body, public Image, public Intellect {
 			glm::vec2 position;
 			glm::vec2 direction;
 		};
-		LineOfSight(float radius);
-		float radius{ 0 };
+		float radius{ 1 };
 		float angle{ 0 };
 		struct FriendCompare {
 			bool operator() (const Friend& lhs, const Friend& rhs) const {
@@ -60,11 +59,6 @@ class Boid : public Body, public Image, public Intellect {
 		glm::vec2 snap{ 0 };
 		glm::vec2 aversion{ 0 };
 	} gv;
-	struct Def {
-		Body::Def bd;
-		float sightRadius{ 1 };
-		Boid::PriorityWeights pw;
-	};
 	std::vector<Goal> goals;
 	glm::vec2 goal{1, 1};
 	float damage{ 1 };
@@ -72,7 +66,7 @@ class Boid : public Body, public Image, public Intellect {
 	virtual void releaseGun();
 	virtual void primeGadget(int option);
 	virtual void releaseGadget();
-	Boid(fk::SpriteBatch& sb, fk::World& world, Def bd);
+	Boid(fk::SpriteBatch& sb, fk::World& world, Def& bd);
 	~Boid();
 	void attack(Body& body);
 	virtual glm::vec2 getDirection() final { return p_direction; };

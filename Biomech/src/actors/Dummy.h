@@ -3,8 +3,7 @@
 
 class Dummy : public Boid {
   public:
-	struct Def {
-		Boid::Def bd;
+	struct Def : public Body::Def {
 		fk::Texture body;
 	};
 	Dummy(fk::SpriteBatch& sb, fk::World& world, Dummy::Def& dd);

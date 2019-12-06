@@ -2,8 +2,8 @@
 #include "../spectrals/Equipment.h"
 
 
-Player::Player(fk::SpriteBatch& sb, fk::SpriteBatch& tb, fk::Camera& c, fk::World& w, Player::Def pd)
-	: Boid(sb, w, pd.bd), mouse(sb, world, pd.md), hudFont(pd.hudFont), camera(c)
+Player::Player(fk::SpriteBatch& sb, fk::SpriteBatch& tb, fk::TTFont& hudFont, fk::Camera& c, fk::World& w, Player::Def& pd)
+	: Boid(sb, w, pd), mouse(sb, world, pd.md), hudFont(hudFont), camera(c)
 {
 	type = (int)Type::PLAYER;
 	team = (int)Team::PLAYER;
@@ -86,13 +86,13 @@ void Player::p_think(fk::UserInput& ui) {
 		if (ui.getKeyInfo(fk::Key::MOUSE_LEFT).downFrames == 1 && hive.isActive()) {
 			auto text = std::to_string(hive.squadSize() + 1);
 			tempHUD[hive.squad - 1].setText(text);
-			botSpawner.db.bd.position = fk::Vec2(myPos.x, myPos.y);
+			botSpawner.position = fk::Vec2(myPos.x, myPos.y);
 			hive.addBot(p_spriteBatch, world, botSpawner);
 		}
 		if (ui.getKeyInfo(fk::Key::MOUSE_RIGHT).downFrames == 1 && hive.isActive()) {
 			auto text = std::to_string(hive.squadSize() - 1);
 			tempHUD[hive.squad - 1].setText(text);
-			hive.removeBot();
+			if (hive.squadSize()) { hive.removeBot(); }
 		}
 		if (ui.getKeyInfo(fk::Key::MOUSE_MIDDLE).downFrames == 1) {
 			hive.toggleActivation();

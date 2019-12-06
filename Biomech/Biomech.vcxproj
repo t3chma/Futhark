@@ -260,42 +260,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Image Include="Textures\Circle.png" />
-    <Image Include="Textures\Arrow.png" />
-    <Image Include="Textures\BigSlash.png" />
-    <Image Include="Textures\Box128.png" />
-    <Image Include="Textures\Body.png" />
-    <Image Include="Textures\CursorBlood.png" />
-    <Image Include="Textures\DevFluid128.jpg" />
-    <Image Include="Textures\DevFluid128.png" />
-    <Image Include="Textures\DevGray128.png" />
-    <Image Include="Textures\DevGrayCircleCross128.png" />
-    <Image Include="Textures\DevGrayCross128.png" />
-    <Image Include="Textures\DevGraySlant128.png" />
-    <Image Include="Textures\DevOrange128.png" />
-    <Image Include="Textures\Dirt128.png" />
-    <Image Include="Textures\Door128.png" />
-    <Image Include="Textures\Fire128.png" />
-    <Image Include="Textures\flare1.png" />
-    <Image Include="Textures\flare2.png" />
-    <Image Include="Textures\Grass128.png" />
-    <Image Include="Textures\Oil128.png" />
-    <Image Include="Textures\Poison128.png" />
-    <Image Include="Textures\roguelikeSheet_transparent.png" />
-    <Image Include="Textures\Selector.png" />
-    <Image Include="Textures\Slash.png" />
-    <Image Include="Textures\Square.png" />
-    <Image Include="Textures\Stab.png" />
-    <Image Include="Textures\Steam128.png" />
-    <Image Include="Textures\Swipe.png" />
-    <Image Include="Textures\Test.png" />
-    <Image Include="Textures\Toxin128.png" />
-    <Image Include="Textures\Tree128.png" />
-    <Image Include="Textures\Wall128.png" />
-    <Image Include="Textures\Water128.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
     <None Include="Fonts\desktop.ini" />
     <None Include="Shaders\Sprite.frag" />
     <None Include="Shaders\Sprite.geom" />
@@ -313,6 +277,7 @@
     <ClCompile Include="src\actors\Player.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\scenes\GameWorld.cpp" />
+    <ClCompile Include="src\spectrals\Weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Intellect.h" />
@@ -327,6 +292,7 @@
     <ClInclude Include="src\actors\Boid.h" />
     <ClInclude Include="src\actors\Player.h" />
     <ClInclude Include="src\scenes\GameWorld.h" />
+    <ClInclude Include="src\spectrals\Weapon.h" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="Fonts\bloodcrow.ttf" />
@@ -334,6 +300,21 @@
     <Font Include="Fonts\calibri.ttf" />
     <Font Include="Fonts\consola.ttf" />
     <Font Include="Fonts\eldermagic.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Textures\button64.png" />
+    <Image Include="Textures\circle128.png" />
+    <Image Include="Textures\cross128.png" />
+    <Image Include="Textures\dev128.png" />
+    <Image Include="Textures\dev128x256.png" />
+    <Image Include="Textures\dev128x64.png" />
+    <Image Include="Textures\dev256.png" />
+    <Image Include="Textures\dev256x128.png" />
+    <Image Include="Textures\dev64.png" />
+    <Image Include="Textures\dev64x128.png" />
+    <Image Include="Textures\question64.png" />
+    <Image Include="Textures\slant128.png" />
+    <Image Include="Textures\square128.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

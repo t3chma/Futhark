@@ -67,9 +67,6 @@
     <ClCompile Include="src\out\TTFont.cpp" />
     <ClCompile Include="src\out\WireRenderer.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{3524243C-5261-4C55-BB04-22C23F473846}</ProjectGuid>

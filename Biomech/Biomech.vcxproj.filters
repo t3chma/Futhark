@@ -15,114 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Textures\Arrow.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\BigSlash.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Box128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\CursorBlood.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\DevFluid128.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\DevFluid128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\DevGray128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\DevGrayCircleCross128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\DevGrayCross128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\DevGraySlant128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\DevOrange128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Dirt128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Door128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Fire128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\flare1.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\flare2.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Grass128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Oil128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Poison128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\roguelikeSheet_transparent.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Selector.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Slash.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Square.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Stab.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Steam128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Swipe.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Test.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Toxin128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Tree128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Wall128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Water128.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Body.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Textures\Circle.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Shaders\Sprite.frag" />
     <None Include="Shaders\Sprite.geom" />
     <None Include="Shaders\Sprite.vert" />
     <None Include="Shaders\Wire.frag" />
     <None Include="Shaders\Wire.vert" />
     <None Include="Fonts\desktop.ini" />
-    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -150,6 +48,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\actors\Projectile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\spectrals\Weapon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -190,6 +91,9 @@
     <ClInclude Include="src\actors\Projectile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\spectrals\Weapon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Font Include="Fonts\bloodcrow.ttf" />
@@ -197,5 +101,46 @@
     <Font Include="Fonts\calibri.ttf" />
     <Font Include="Fonts\consola.ttf" />
     <Font Include="Fonts\eldermagic.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Textures\button64.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\circle128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\cross128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\dev64.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\dev64x128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\dev128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\dev128x64.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\dev128x256.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\dev256.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\dev256x128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\question64.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\slant128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\square128.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

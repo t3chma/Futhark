@@ -16,13 +16,13 @@ void Boid::primeGadget(int option) { if (p_gadgetPtr) {
 	p_gadgetPtr->prime(option, this, t);
 } }
 
-inline void Boid::releaseGadget() { if (p_gadgetPtr) { p_gadgetPtr->release(); } }
+void Boid::releaseGadget() { if (p_gadgetPtr) { p_gadgetPtr->release(); } }
 
-Boid::Boid(fk::SpriteBatch& sb, fk::World& world, Boid::Def bd)
-	: Body(world, bd.bd), Image(sb), los(bd.sightRadius), pw(bd.pw)
+Boid::Boid(fk::SpriteBatch& sb, fk::World& world, Def& bd)
+	: Body(world, bd), Image(sb)
 {
 	type = (int)Type::SWARM;
-	addCircleLimb(bd.sightRadius);
+	addCircleLimb(los.radius);
 	limbs.front().category = "s";
 	goals.resize(2);
 }
@@ -198,5 +198,3 @@ void Boid::p_postCollisionAdjusting(
 	const b2ContactImpulse* impulsePtr
 ) {
 };
-
-Boid::LineOfSight::LineOfSight(float radius) : radius(radius) {}

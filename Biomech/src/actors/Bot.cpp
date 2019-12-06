@@ -2,7 +2,7 @@
 
 
 
-Bot::Bot(fk::SpriteBatch& sb, fk::World& world, Bot::Def& bd) : Boid(sb, world, bd.db) {
+Bot::Bot(fk::SpriteBatch& sb, fk::World& world, Bot::Def& bd) : Boid(sb, world, bd) {
 	type = (int)Type::SWARM;
 	team = (int)Team::PLAYER;
 	species = (int)Spec::BOT;

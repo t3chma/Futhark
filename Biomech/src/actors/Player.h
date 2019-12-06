@@ -8,14 +8,12 @@
 
 class Player : public Boid{
   public:
-	struct Def {
-		Boid::Def bd;
+	struct Def : public Body::Def {
+		fk::Texture body;
 		Mouse::Def md;
 		Bot::Def botSpawner;
-		fk::Texture body;
-		fk::TTFont hudFont;
 	};
-	Player(fk::SpriteBatch& sb, fk::SpriteBatch& tb, fk::Camera& c, fk::World& w, Player::Def pd);
+	Player(fk::SpriteBatch& sb, fk::SpriteBatch& tb, fk::TTFont& hudFont, fk::Camera& c, fk::World& w, Player::Def& pd);
 	~Player();
 	virtual void primeGadget(int option);
 	virtual void primeGun(int option);

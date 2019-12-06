@@ -5,8 +5,7 @@
 
 class Bot : public Boid {
 public:
-	struct Def {
-		Boid::Def db;
+	struct Def : public Body::Def {
 		fk::Texture body;
 		Body* basePtr{ nullptr };
 	};

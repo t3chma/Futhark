@@ -5,8 +5,7 @@
 
 class Mouse : public Body, public Image, public Intellect {
 public:
-	struct Def {
-		Body::Def bd;
+	struct Def : public Body::Def {
 		fk::Texture body;
 	};
 	Mouse(fk::SpriteBatch& sb, fk::World& world, Mouse::Def& md);

@@ -1,6 +1,6 @@
 #include "Mouse.h"
 
-Mouse::Mouse(fk::SpriteBatch& sb, fk::World& world, Mouse::Def& md) : Body(world, md.bd), Image(sb) {
+Mouse::Mouse(fk::SpriteBatch& sb, fk::World& world, Mouse::Def& md) : Body(world, md), Image(sb) {
 	type = (int)Type::PLAYER;
 	team = (int)Team::PLAYER;
 	species = (int)Spec::MOUSE;

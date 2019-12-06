@@ -2,12 +2,12 @@
 
 
 
-Dummy::Dummy(fk::SpriteBatch& sb, fk::World& world, Dummy::Def& botSpawner) : Boid(sb, world, botSpawner.bd) {
+Dummy::Dummy(fk::SpriteBatch& sb, fk::World& world, Dummy::Def& dd) : Boid(sb, world, dd) {
 	type = (int)Type::PRACTICE;
 	team = (int)Team::BANDIT;
 	species = (int)Spec::DUMMY;
 	addCircleLimb(0.2).b2Ptr->SetDensity(100);
-	sprites.emplace_back(p_spriteBatch, botSpawner.body);
+	sprites.emplace_back(p_spriteBatch, dd.body);
 	sprites.back().setColor(255, 255, 255, 255); // white
 	sprites.back().setDimensions(.4, .4);
 	p_speed = 0;
