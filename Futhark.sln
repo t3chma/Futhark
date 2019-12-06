@@ -39,6 +39,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Biomech", "Biomech\Biomech.
 		{3524243C-5261-4C55-BB04-22C23F473846} = {3524243C-5261-4C55-BB04-22C23F473846}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Peacetime", "Peacetime\Peacetime.vcxproj", "{0543444F-98C5-4CC6-953F-33474805242A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -65,6 +67,18 @@ Global
 		{15862190-8055-4F03-B1EB-96FC39443347}.Release|x86.Build.0 = Release|Win32
 		{15862190-8055-4F03-B1EB-96FC39443347}.Staging|x64.ActiveCfg = Release|x64
 		{15862190-8055-4F03-B1EB-96FC39443347}.Staging|x86.ActiveCfg = Release|Win32
+		{0543444F-98C5-4CC6-953F-33474805242A}.Debug|x64.ActiveCfg = Debug|x64
+		{0543444F-98C5-4CC6-953F-33474805242A}.Debug|x64.Build.0 = Debug|x64
+		{0543444F-98C5-4CC6-953F-33474805242A}.Debug|x86.ActiveCfg = Debug|Win32
+		{0543444F-98C5-4CC6-953F-33474805242A}.Debug|x86.Build.0 = Debug|Win32
+		{0543444F-98C5-4CC6-953F-33474805242A}.Release|x64.ActiveCfg = Release|x64
+		{0543444F-98C5-4CC6-953F-33474805242A}.Release|x64.Build.0 = Release|x64
+		{0543444F-98C5-4CC6-953F-33474805242A}.Release|x86.ActiveCfg = Release|Win32
+		{0543444F-98C5-4CC6-953F-33474805242A}.Release|x86.Build.0 = Release|Win32
+		{0543444F-98C5-4CC6-953F-33474805242A}.Staging|x64.ActiveCfg = Release|x64
+		{0543444F-98C5-4CC6-953F-33474805242A}.Staging|x64.Build.0 = Release|x64
+		{0543444F-98C5-4CC6-953F-33474805242A}.Staging|x86.ActiveCfg = Release|Win32
+		{0543444F-98C5-4CC6-953F-33474805242A}.Staging|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
