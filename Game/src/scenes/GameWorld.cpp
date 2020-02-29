@@ -1,10 +1,9 @@
 #include "GameWorld.h"
 #include "base\Utility.h"
 #include <iostream>
-#include "../actors/Dummy.h"
 
 void GameWorld::create(fk::Tools& tools) {
-	tools.ui.setShowCursor(false);
+	///tools.ui.setShowCursor(false);
 	
 	// Set up srite batch
 	spriteBatchPtr = new fk::SpriteBatch(true);
@@ -28,22 +27,12 @@ void GameWorld::create(fk::Tools& tools) {
 	// Text
 	font = tools.fonts.get("calibri.ttf");
 	std::string text;
-	text += "# Keys = Set current squad\n";
-	text += "Ctrl + Middle Click = Activate/deactivate current squad\n";
-	text += "Ctrl + Left Click = Add position to current squad\n";
-	text += "Ctrl + Right Click = Remove position from current squad\n";
-	text += "Ctrl + q = Add dummy\n";
-	text += "Ctrl + e = Add enemy\n";
-	text += "Shift + Right Click = Set primary objective for current squad\n";
-	text += "Shift + Left Click = Set primary objective for current squad\n";
-	text += "WASD = Move chara";
-	fk::TextSprite ts = font.generateCharSprites(text, *spriteBatchPtr, glm::vec2(0.5));
+	///fk::TextSprite ts = font.generateCharSprites(text, *spriteBatchPtr, glm::vec2(0.5));
 
 	// Player
 	Player::Def pd;
 	pd.body = tools.textures.get("Circle.png", 1);
 	pd.md.body = tools.textures.get("Circle.png", 1);
-	pd.botSpawner.body = tools.textures.get("Circle.png", 1);
 	pd.hudFont = tools.fonts.get("calibri.ttf");
 	playerPtr = new Player(*spriteBatchPtr, *textBatchPtr, world, pd);
 	actorPtrs.push_back(playerPtr);
@@ -81,22 +70,8 @@ void GameWorld::update(fk::Tools& tools) {
 	// Debug
 	if (tools.ui.getKeyInfo(fk::Key::CTRL_L).downFrames || tools.ui.getKeyInfo(fk::Key::CTRL_R).downFrames) {
 		if (tools.ui.getKeyInfo(fk::Key::Q).downFrames == 1) {
-			Dummy::Def dd;
-			dd.body = tools.textures.get("Circle.png", 1);
-			dd.bd.sightRadius = 1;
-			dd.bd.bd.position = fk::Vec2(mousePos.x, mousePos.y);
-			auto dummy = new Dummy(*spriteBatchPtr, world, dd);
-			actorPtrs.push_back(dummy);
-			imagePtrs.push_back(dummy);
 		}
 		if (tools.ui.getKeyInfo(fk::Key::E).downFrames == 1) {
-			Dummy::Def dd;
-			dd.body = tools.textures.get("Circle.png", 1);
-			dd.bd.sightRadius = 1;
-			dd.bd.bd.position = fk::Vec2(mousePos.x, mousePos.y);
-			auto dummy = new DumRunner(*spriteBatchPtr, world, dd);
-			actorPtrs.push_back(dummy);
-			imagePtrs.push_back(dummy);
 		}
 	}
 	

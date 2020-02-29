@@ -16,8 +16,6 @@ class Body : public fk::Body {
 		)
 	{};
 	~Body() {};
-	virtual bool connect(Boid* bPtr) { return true; };
-	virtual bool interact(Boid* bPtr) { return true; };
   protected:
 	long p_health{ 100000 };
 };

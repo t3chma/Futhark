@@ -1,5 +1,7 @@
 #pragma once
-#include "Boid.h"
+#include "../Body.h"
+#include "../Image.h"
+#include "../Intellect.h"
 #include <set>
 
 
@@ -24,8 +26,5 @@ public:
 		b2Fixture* myFixturePtr,
 		b2Contact* contactPtr
 	) override;
-	virtual bool connect(Boid* bPtr) override;
-	virtual bool interact(Boid* bPtr) override;
 	std::set<b2Fixture*> contacts;
-	Goal goal;
 };
