@@ -7,7 +7,8 @@
 #include "out/SpriteRenderer.h"
 #include "out/WireRenderer.h"
 #include "../Body.h"
-#include "../actors/Player.h"
+#include "../map/Map.h"
+#include "../Brush.h"
 
 
 class GameWorld : public fk::Scene {
@@ -19,9 +20,14 @@ class GameWorld : public fk::Scene {
 	fk::WireRenderer wireRenderer;
 	fk::TTFont font;
 	fk::Camera cam;
-	std::vector<Intellect*> actorPtrs;
+	Brush* brushPtr;
 	std::vector<Image*> imagePtrs;
-	Player* playerPtr;
+	std::vector<Map> Maps;
+	Tile* currentTilePtr{ nullptr };
+	std::vector<Tile*> surroundingTilePtrs;
+
+
+	std::vector<Map> maps;
 	GameWorld() = default;
 	~GameWorld() = default;
 	// Inherited via fk::Scene

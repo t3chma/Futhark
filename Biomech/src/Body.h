@@ -1,9 +1,7 @@
 #pragma once
 #include "up/Body.h"
-#include "Constants.h"
 #include "out/OutUtility.h"
 
-class Boid;
 class Body : public fk::Body {
   public:
 	struct Def {
@@ -16,8 +14,8 @@ class Body : public fk::Body {
 		)
 	{};
 	~Body() {};
-	virtual bool connect(Boid* bPtr) { return true; };
-	virtual bool interact(Boid* bPtr) { return true; };
+	virtual bool connect(Body* bPtr) { return true; };
+	virtual bool interact(Body* bPtr) { return true; };
   protected:
 	long p_health{ 100000 };
 };
