@@ -1,8 +1,6 @@
 # Futhark
-A 2D game engine. Version 2.0
+A hobby 2D game engine. Version 2.0
 Author: t3chma
-Special Thanks: Stripez & Ben
-Starting Date: 01/22/2016
 --------------------------------------------------
 Style Guide:
 Code documentation:
