@@ -3,19 +3,17 @@
 #include "Constants.h"
 #include "out/OutUtility.h"
 
-class Boid;
 class Body : public fk::Body {
   public:
 	struct Def {
 		fk::Vec2 position{ 0, 0 };
 		float angle{ 0 };
 	};
-	Body(fk::World& world, Body::Def botSpawner = Body::Def())
+	Body(fk::World& world, Body::Def bs = Body::Def())
 		: fk::Body(
-			world, b2_dynamicBody, botSpawner.position.x, botSpawner.position.y, botSpawner.angle
+			world, b2_dynamicBody, bs.position.x, bs.position.y, bs.angle
 		)
 	{};
 	~Body() {};
-  protected:
-	long p_health{ 100000 };
+	long health{ 1 };
 };

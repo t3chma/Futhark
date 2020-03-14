@@ -277,6 +277,9 @@ void TextSprite::setPosition(glm::vec2 position, Justification justification) {
 	  default: break;
 	}
 }
+void TextSprite::setDepth(int depth) {
+	for (auto&& index : m_spriteIds) { m_spriteBatch[index].canvas.position.z = depth; }
+}
 void TextSprite::setPosition(glm::vec2 position) {
 	setPosition(position, m_justification);
 }
@@ -296,9 +299,11 @@ void TextSprite::clearText() {
 
 void TextSprite::setText(std::string& text, glm::vec2 scale, Justification justification) {
 	glm::vec2 pos;
+	int depth = m_spriteBatch[m_spriteIds[0]].canvas.position.z;
 	if (m_spriteIds.size()) { pos = m_spriteBatch[m_spriteIds[0]].getPosition(); }
 	for (auto&& id : m_spriteIds) { m_spriteBatch.destroySprite(id); }
 	*this = m_font.generateCharSprites(text, m_spriteBatch, scale, justification);
+	setDepth(depth);
 	setPosition(pos);
 }
 

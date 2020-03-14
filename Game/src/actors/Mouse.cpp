@@ -1,7 +1,7 @@
 #include "Mouse.h"
 
 Mouse::Mouse(fk::SpriteBatch& sb, fk::World& world, Mouse::Def& md) : Body(world, md.bd), Image(sb) {
-
+	type = -1;
 	addCircleLimb(0.02).b2Ptr->SetSensor(true);
 	p_sprites.emplace_back(p_spriteBatch, md.body);
 	p_sprites.back().setColor(255, 255, 255, 255); // white

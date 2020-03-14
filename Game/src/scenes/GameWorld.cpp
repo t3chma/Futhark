@@ -1,6 +1,7 @@
 #include "GameWorld.h"
 #include "base\Utility.h"
 #include <iostream>
+#include "in/IOManager.h"
 
 void GameWorld::create(fk::Tools& tools) {
 	///tools.ui.setShowCursor(false);
@@ -26,13 +27,17 @@ void GameWorld::create(fk::Tools& tools) {
 
 	// Text
 	font = tools.fonts.get("calibri.ttf");
-	std::string text;
-	///fk::TextSprite ts = font.generateCharSprites(text, *spriteBatchPtr, glm::vec2(0.5));
+	//std::string text = "test";
+	//font.generateCharSprites(text, *spriteBatchPtr, glm::vec2(0.5));
+
+	std::string s = "Arenas/test.area";
+	fk::Texture t = tools.textures.get("Square.png");
+	arenaPtr = new Arena(s, font, t, *spriteBatchPtr, world);
 
 	// Player
 	Player::Def pd;
-	pd.body = tools.textures.get("Circle.png", 1);
-	pd.md.body = tools.textures.get("Circle.png", 1);
+	pd.body = tools.textures.get("Circle.png");
+	pd.md.body = tools.textures.get("Circle.png");
 	pd.hudFont = tools.fonts.get("calibri.ttf");
 	playerPtr = new Player(*spriteBatchPtr, *textBatchPtr, world, pd);
 	actorPtrs.push_back(playerPtr);
@@ -51,19 +56,15 @@ void GameWorld::close(fk::Tools& tools) {
 }
 void GameWorld::update(fk::Tools& tools) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//AI
+	arenaPtr->update(tools.ui);
+	for (auto&& actorPtr : actorPtrs) { actorPtr->update(tools.ui); }
 	
-	// Update cam and render.
-	//wireRenderer.render(world, matrix);
-	cam.setPosition(glm::vec2(playerPtr->b2Ptr->GetPosition().x, playerPtr->b2Ptr->GetPosition().y));
-	cam.update();
-	auto batrix = cam.getBaseMatrix();
-	auto matrix = cam.getTransScaledMatrix();
-	spriteRenderer.render(*spriteBatchPtr, matrix);
-	spriteRenderer.render(*textBatchPtr, batrix);
-	
-	// Physics
-	world.update(1.0f / 60.0f, 3, 2);
-	
+	// Draw sprites
+	arenaPtr->draw();
+	for (auto&& imagePtrs : imagePtrs) { imagePtrs->draw(); }
+
 	// Mouse
 	glm::vec2 mousePos = cam.getWorldCoordinates(tools.ui.getMouseInfo(0).windowPosition);
 	playerPtr->mouse.b2Ptr->SetTransform(b2Vec2(mousePos.x, mousePos.y), 0);
@@ -74,8 +75,16 @@ void GameWorld::update(fk::Tools& tools) {
 		if (tools.ui.getKeyInfo(fk::Key::E).downFrames == 1) {
 		}
 	}
+
+	// Update cam and render.
+	cam.setPosition(glm::vec2(playerPtr->b2Ptr->GetPosition().x, playerPtr->b2Ptr->GetPosition().y));
+	cam.update();
+	auto batrix = cam.getBaseMatrix();
+	auto matrix = cam.getTransScaledMatrix();
+	spriteRenderer.render(*spriteBatchPtr, matrix);
+	spriteRenderer.render(*textBatchPtr, batrix);
+	//wireRenderer.render(world, matrix);
 	
-	// Redering and AI
-	for (auto&& imagePtrs : imagePtrs) { imagePtrs->draw(); }
-	for (auto&& actorPtr : actorPtrs) { actorPtr->update(tools.ui); }
+	// Physics
+	world.update(1.0f / 60.0f, 3, 2);
 }

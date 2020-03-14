@@ -8,10 +8,12 @@
 #include "out/WireRenderer.h"
 #include "../Body.h"
 #include "../actors/Player.h"
-
+#include "../Arena.h"
 
 class GameWorld : public fk::Scene {
   public:
+	Arena* arenaPtr;
+	std::vector<std::vector<TextBlock>> map;
 	fk::World world;
 	fk::SpriteBatch* spriteBatchPtr{ nullptr };
 	fk::SpriteBatch* textBatchPtr{ nullptr };

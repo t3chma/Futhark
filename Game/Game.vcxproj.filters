@@ -133,6 +133,15 @@
     <ClCompile Include="src\actors\Mouse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\actors\TextBlock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Arena.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\actors\Gun.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\scenes\GameWorld.h">
@@ -154,6 +163,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\actors\TextBlock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Arena.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\actors\Gun.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

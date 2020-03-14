@@ -24,6 +24,7 @@ class TextSprite {
 	TextSprite operator = (const TextSprite& rhs);
 	void setPosition(glm::vec2 position, Justification m_justification);
 	void setPosition(glm::vec2 position);
+	void setDepth(int depth);
 	void move(glm::vec2 translation);
 	SpriteBatch::Sprite& operator [] (int charIndex);
 	std::string getText();
@@ -105,7 +106,7 @@ class TTFont {
 	(i) The number to get the closest power of.
 	[t3chma] */
 	int m_closestPow2(int i);
-	// Which ASCII characters are.
+	// Which ASCII characters are used.
 	int m_asciiStart, m_asciiRange;
 	// Array of glyoh info.
 	m_Glyph* m_GlyphsPtr;

@@ -132,7 +132,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)Futhark\$(Configuration)\$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Configuration)\$(Platform)\</AdditionalLibraryDirectories>
       <AdditionalDependencies>Futhark.lib;</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
@@ -201,12 +201,17 @@
     <None Include="Shaders\Wire.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\actors\Gun.cpp" />
+    <ClCompile Include="src\Arena.cpp" />
     <ClCompile Include="src\actors\Mouse.cpp" />
     <ClCompile Include="src\actors\Player.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\scenes\GameWorld.cpp" />
+    <ClCompile Include="src\actors\TextBlock.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\actors\Gun.h" />
+    <ClInclude Include="src\Arena.h" />
     <ClInclude Include="src\Intellect.h" />
     <ClInclude Include="src\Image.h" />
     <ClInclude Include="src\Body.h" />
@@ -214,6 +219,7 @@
     <ClInclude Include="src\actors\Mouse.h" />
     <ClInclude Include="src\actors\Player.h" />
     <ClInclude Include="src\scenes\GameWorld.h" />
+    <ClInclude Include="src\actors\TextBlock.h" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="Fonts\bloodcrow.ttf" />
