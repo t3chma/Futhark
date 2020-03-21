@@ -4,7 +4,7 @@
 
 int main(int argc, char** argv) {
 	fk::Engine Biomech;
-	Biomech.makeWindow("Biomech", -100, -100, fk::Window::RESIZABLE);
+	Biomech.makeWindow("Sumogun", -100, -100, fk::Window::RESIZABLE);
 	Biomech.addWindowScene(0, "GameWorld", new GameWorld);
 	Biomech.setWindowScene(0, "GameWorld");
 	Biomech.run();

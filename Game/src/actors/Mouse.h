@@ -13,6 +13,7 @@ public:
 	};
 	Mouse(fk::SpriteBatch& sb, fk::World& world, Mouse::Def& md);
 	void click(bool left);
+	void setColor(char r, char g, char b, char a);
 	virtual void update(fk::UserInput& ui) override {};
 	virtual void draw() override;
 	~Mouse();

@@ -16,7 +16,7 @@ namespace fk {
 enum class Trigger { PRESS, UNPRESS, HOLD };
 
 
-// Key enums
+// Keybard enums
 enum class Key {
 	// Numbers
 	NUM0 = SDLK_0, NUM1 = SDLK_1, NUM2 = SDLK_2, NUM3 = SDLK_3, NUM4 = SDLK_4,
@@ -47,6 +47,21 @@ enum class Key {
 };
 
 
+// Joypad enums
+enum class Joy {
+	// Buttons
+	A = 0, X = 2, B = 1, Y = 3, L = 4, R = 5, BACK = 6, START = 7, LS = 8, RS = 9,
+	// D-pad
+	DL = 10, DR = 11, DD = 12, DU = 13,
+	// Axi
+	LX = -0, RX = -3,
+	LY = -1, RY = -4,
+	LZ = -2, RZ = -5,
+	// Misc
+	MAXI = 32767, MINXI = -32768
+};
+
+
 /* Used to handle user input through SDL.
 [t3chma] */
 class UserInput {
@@ -60,6 +75,12 @@ class UserInput {
 		glm::ivec2 pressPos{ 0 };
 		// Mouse position when this was last unpressed.
 		glm::ivec2 unpressPos{ 0 };
+	};
+	/* Joybinding info.
+	[t3chma] */
+	struct JoyInfo {
+		// How many frames this has been down for.
+		long downFrames{ 0 };
 	};
 	/* Information about the mouse.
 	[t3chma] */
@@ -89,11 +110,22 @@ class UserInput {
 	(show) If the cursor should be show.
 	[t3chma] */
 	void setShowCursor(bool show);
-	/* Get the key info for a key.
+	/* Get the key info for a keyboard.
 	(key) The key you want info for.
 	[t3chma] */
 	KeyInfo getKeyInfo(Key key);
+	/* Get the joy info for a joypad.
+	(key) The joy you want info for.
+	[t3chma] */
+	JoyInfo getJoyInfo(Joy joy, int player = 1);
+	int getAxiInfo(Joy joy, int player = 1);
   private:
+	struct PairHashFunctor { template <class T1, class T2>
+	std::size_t operator () (const std::pair<T1, T2>& p) const {
+		auto h1 = std::hash<T1>{}(p.first);
+		auto h2 = std::hash<T2>{}(p.second);
+		return h1 ^ h2;
+	}};
 	// History of mouse placement.
 	boost::circular_buffer<MouseInfo> m_mouseHistory;
 	// Key info for keys.
@@ -102,14 +134,16 @@ class UserInput {
 	std::unordered_set<Key> m_downKeys;
 	// The just unpressed keys.
 	std::unordered_set<Key> m_unpressedKeys;
+	// Joy info for joys.
+	std::unordered_map<std::pair<Joy, int>, JoyInfo, PairHashFunctor> m_joyStates;
+	// The currently down joys.
+	std::unordered_set<std::pair<Joy, int>, PairHashFunctor> m_downJoys;
+	// The just unpressed joys.
+	std::unordered_set<std::pair<Joy, int>, PairHashFunctor> m_unpressedJoys;
+	// Axis info for axi.
+	std::unordered_map<std::pair<Joy, int>, int, PairHashFunctor> m_axiStates;
 	// Polls SDL for key/button info.
 	GameState m_pollSDL();
-	/* Handles key event.
-	(down) If this is a down key event.
-	(keyID) The ID of the key this event is for.
-	(notButt) If this is not a button.
-	[t3chma] */
-	void m_keyEvent(bool down, int keyID, bool notButt);
 };
 
 }

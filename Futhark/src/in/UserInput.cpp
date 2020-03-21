@@ -8,6 +8,13 @@ UserInput::UserInput(int history) {
 	m_keyStates.reserve(512);
 	m_downKeys.reserve(16);
 	m_unpressedKeys.reserve(16);
+	m_joyStates.reserve(512);
+	m_downJoys.reserve(16);
+	m_unpressedJoys.reserve(16);
+	for (int p = 0; p < 5; ++p) {
+		m_axiStates[std::make_pair(Joy::LZ, p)] = (int)Joy::MINXI;
+		m_axiStates[std::make_pair(Joy::RZ, p)] = (int)Joy::MINXI;
+	}
 }
 GameState UserInput::poll() {
 	m_mouseHistory.push_front(m_mouseHistory.front());
@@ -27,7 +34,19 @@ GameState UserInput::poll() {
 		ki.downFrames = 0;
 		ki.unpressPos = m_mouseHistory.front().windowPosition;
 	}
+	// Get last Mod key.
+	// Handle down keys/butts.
+	for (auto&& key : m_downJoys) {
+		JoyInfo& ki = m_joyStates[key];
+		++ki.downFrames;
+	}
+	// Handle unpressed key/butts.
+	for (auto&& key : m_unpressedJoys) {
+		JoyInfo& ki = m_joyStates[key];
+		ki.downFrames = 0;
+	}
 	// Clear unpressed lists.
+	m_unpressedJoys.clear();
 	m_unpressedKeys.clear();
 	return gs;
 }
@@ -42,27 +61,61 @@ void UserInput::setShowCursor(bool show) {
 UserInput::KeyInfo UserInput::getKeyInfo(Key key) {
 	return m_keyStates[key];
 }
+UserInput::JoyInfo UserInput::getJoyInfo(Joy joy, int player) {
+	return m_joyStates[std::make_pair(joy, player - 1)];
+}
+int UserInput::getAxiInfo(Joy joy, int player) {
+	return m_axiStates[std::make_pair(joy, player - 1)];
+}
 GameState UserInput::m_pollSDL() {
 	SDL_Event sdlEvent;
 	GameState gs = GameState::PLAY;
 	MouseInfo& mouseInfo = m_mouseHistory.front();
+	Key k;
 	// Loops until there are no more events to process
 	while (SDL_PollEvent(&sdlEvent)) {
+		auto j = std::make_pair((Joy)sdlEvent.jbutton.button, (int)sdlEvent.jbutton.which);
+		auto a = std::make_pair((Joy)(-sdlEvent.jaxis.axis), (int)sdlEvent.jaxis.which);
+		auto h = std::make_pair((Joy)(10), (int)sdlEvent.jaxis.which);
 		switch (sdlEvent.type) {
 		  case SDL_QUIT:
 			gs = GameState::EXIT;
 		  break;
 		  case SDL_KEYDOWN:
-			m_keyEvent(true, sdlEvent.key.keysym.sym, true);
+			k = (Key)sdlEvent.key.keysym.sym;
+			m_downKeys.insert(k);
 		  break;
 		  case SDL_KEYUP:
-			m_keyEvent(false, sdlEvent.key.keysym.sym, true);
+			k = (Key)sdlEvent.key.keysym.sym;
+			m_downKeys.erase(k);
+			m_unpressedKeys.insert(k);
 		  break;
 		  case SDL_MOUSEBUTTONDOWN:
-			m_keyEvent(true, sdlEvent.button.button, false);
+			k = (Key)sdlEvent.button.button;
+			m_downKeys.insert(k);
 		  break;
 		  case SDL_MOUSEBUTTONUP:
-			m_keyEvent(false, sdlEvent.button.button, false);
+			k = (Key)sdlEvent.button.button;
+			m_downKeys.erase(k);
+			m_unpressedKeys.insert(k);
+		  break;
+		  case SDL_JOYBUTTONDOWN:
+			m_downJoys.insert(j);
+		  break;
+		  case SDL_JOYBUTTONUP:
+			m_downJoys.erase(j);
+			m_unpressedJoys.insert(j);
+		  break;
+		  case SDL_JOYHATMOTION:
+			if (sdlEvent.jhat.value & SDL_HAT_LEFT) { h.first = Joy::DL; }
+			if (sdlEvent.jhat.value & SDL_HAT_RIGHT) { h.first = Joy::DR; }
+			if (sdlEvent.jhat.value & SDL_HAT_DOWN) { h.first = Joy::DD; }
+			if (sdlEvent.jhat.value & SDL_HAT_UP) { h.first = Joy::DU; }
+			m_downJoys.insert(h);
+		  break;
+		  break;
+		  case SDL_JOYAXISMOTION:
+			m_axiStates[a] = sdlEvent.jaxis.value;
 		  break;
 		  case SDL_MOUSEMOTION:
 			mouseInfo.windowPosition.x = sdlEvent.motion.x;
@@ -78,21 +131,6 @@ GameState UserInput::m_pollSDL() {
 		}
 	}
 	return gs;
-}
-void UserInput::m_keyEvent(bool down, int keyID, bool notButt) {
-	Key kiPtr = (Key)(notButt ? keyID : keyID);
-	// Setup down/up info.
-	if (down) {
-		// Add key/butt to down list.
-		m_downKeys.insert(kiPtr);
-		// Note: m_unpressedKeyPtrs get cleared every frame so we don't have to remove from that.
-	}
-	else {
-		// Find and remove key/butt from down list.
-		m_downKeys.erase(kiPtr);
-		// Add to the unpressed list. 
-		m_unpressedKeys.insert(kiPtr);
-	}
 }
 
 }

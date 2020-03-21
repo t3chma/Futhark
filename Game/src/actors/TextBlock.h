@@ -8,8 +8,9 @@
 class TextBlock : public Image, public Body, public Intellect {
   public:
 	fk::TextSprite text;
+	fk::TextSprite text2;
 	std::list<TextBlock*> reactors;
-	TextBlock(fk::TextSprite& text, fk::SpriteBatch& sb, fk::World& w, Body::Def& bd, fk::Texture& t);
+	TextBlock(fk::TextSprite& text, fk::TextSprite& text2, fk::SpriteBatch& sb, fk::World& w, Body::Def& bd, fk::Texture& t);
 	~TextBlock();
 	void setChar(char c);
 	void draw() override;

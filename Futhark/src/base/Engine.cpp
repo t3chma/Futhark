@@ -9,6 +9,9 @@ Engine::Engine() {
 	// Initialize SDL library. Must be called before using any other SDL function.
 	// ^ https://wiki.libsdl.org/SDL_Init
 	TRY_SDL(SDL_Init(SDL_INIT_EVERYTHING | SDL_INIT_JOYSTICK));
+	SDL_JoystickEventState(SDL_ENABLE);
+	for (int i = 0; i < SDL_NumJoysticks(); ++i) { SDL_JoystickOpen(i); }
+	printf("%i joystick found", SDL_NumJoysticks());
 	// Set an OpenGL window attribute before window creation.
 	// ^ https://wiki.libsdl.org/SDL_GL_SetAttribute
 	TRY_SDL(SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1));

@@ -20,11 +20,16 @@ class Player : public Body, public Image, public Intellect {
 		gun.team = team;
 	}
 	Mouse mouse;
-	fk::Key up{ fk::Key::W };
-	fk::Key left{ fk::Key::A };
-	fk::Key down{ fk::Key::S };
-	fk::Key right{ fk::Key::D };
-	fk::Key fire{ fk::Key::MOUSE_LEFT };
+	struct Joys {
+		fk::Joy xMove{ fk::Joy::LX };
+		fk::Joy yMove{ fk::Joy::LY };
+		fk::Joy xFire{ fk::Joy::RX };
+		fk::Joy yFire{ fk::Joy::RY };
+		fk::Joy fire{ fk::Joy::RZ };
+	} joys;
 	long prevHealth{ 0 };
 	Gun gun;
+	bool t{ false };
+	bool freeze{ false };
+	bool crank{ false };
 };

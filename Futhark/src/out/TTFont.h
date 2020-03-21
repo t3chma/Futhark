@@ -57,7 +57,7 @@ class TTFont {
 	(size) The ptSize of this font.
 	(firstASCIIChar) First ASCII character to be represented by this font.
 	(lastASCIIChar) Last ASCII character to be represented by this font.
-	[t3chma] */ 
+	[t3chma] */
 	TTFont(const std::string& fontFilePath, int size = 64, char firstASCIIChar = 32, char lastASCIIChar = 126);
 	// Returns the height of this font.
 	inline int getHeight() const { return m_height; }

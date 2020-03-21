@@ -12,6 +12,10 @@ void Mouse::click(bool left) {
 
 }
 
+void Mouse::setColor(char r, char g, char b, char a) {
+	p_sprites.back().setColor(r, g, b, a);
+}
+
 void Mouse::draw() {
 	auto position = b2Ptr->GetPosition();
 	p_sprites.front().setPosition(position.x, position.y);

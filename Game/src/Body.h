@@ -16,4 +16,11 @@ class Body : public fk::Body {
 	{};
 	~Body() {};
 	long health{ 1 };
+	int damage{ 0 };
+	bool toggleCam{ false };
+	glm::vec2 gravMod{ 0 };
+	Body* ownerPtr{ nullptr };
+	double torque{ 0 };
+	double gorque{ 0 };
+	int charge{ 0 };
 };

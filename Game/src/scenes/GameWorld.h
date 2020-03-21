@@ -17,6 +17,7 @@ class GameWorld : public fk::Scene {
 	fk::World world;
 	fk::SpriteBatch* spriteBatchPtr{ nullptr };
 	fk::SpriteBatch* textBatchPtr{ nullptr };
+	fk::Sprite* backgroundPtr;
 	fk::SpriteRenderer spriteRenderer;
 	fk::WireRenderer wireRenderer;
 	fk::TTFont font;
@@ -24,6 +25,7 @@ class GameWorld : public fk::Scene {
 	std::vector<Intellect*> actorPtrs;
 	std::vector<Image*> imagePtrs;
 	Player* playerPtr;
+	Player* player2Ptr;
 	GameWorld() = default;
 	~GameWorld() = default;
 	// Inherited via fk::Scene
@@ -32,4 +34,5 @@ class GameWorld : public fk::Scene {
 	virtual void open(fk::Tools& tools) override;
 	virtual void close(fk::Tools& tools) override;
 	virtual void update(fk::Tools& tools) override;
+
 };

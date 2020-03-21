@@ -9,7 +9,8 @@ class Gun : public Image {
 	class M_bullet : public Image, public Body {
 	  public:
 		int bounces{ 0 };
-		M_bullet(fk::SpriteBatch& sb, fk::World& w, Body::Def& bulDef, fk::Texture& t);
+		glm::vec2 oldPos{ 0,0 };
+		M_bullet(Body* ownerPtr, fk::SpriteBatch& sb, fk::World& w, Body::Def& bulDef, fk::Texture& t);
 		virtual void draw() override;
 		virtual void p_beginCollision(
 			b2Fixture* collisionFixturePtr,
@@ -20,7 +21,7 @@ class Gun : public Image {
   public:
 	int team{ 0 };
 	Gun(fk::SpriteBatch& sb, fk::World& w, fk::Texture& bulTex);
-	void fire(fk::Vec2 spawn, fk::Vec2 target);;
+	void fire(Body* ownerPtr, fk::Vec2 spawn, fk::Vec2 direction);;
 	virtual void draw() override;;
 	~Gun();
 	fk::World& w;
