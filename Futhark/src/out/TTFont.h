@@ -20,7 +20,8 @@ class TextSprite {
   public:
 	friend class TTFont;
 	TextSprite(SpriteBatch& spriteBatch, TTFont& font);
-	TextSprite(const TextSprite&) = default;
+	~TextSprite();
+	TextSprite(const TextSprite& rhs);
 	TextSprite operator = (const TextSprite& rhs);
 	void setPosition(glm::vec2 position, Justification m_justification);
 	void setPosition(glm::vec2 position);

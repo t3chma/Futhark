@@ -35,10 +35,7 @@ Gun::M_bullet::M_bullet(Body* ownerPtr, fk::SpriteBatch& sb, fk::World& w, Body:
 	b2Ptr->SetLinearDamping(0.01);
 	resistance = 0.01;
 	b2Ptr->SetBullet(true);
-	std::vector<glm::vec2> line;
-	line.emplace_back(0, 0);
-	line.emplace_back(0, 0);
-	addLineLimb(line, true);
+	addCircleLimb(0.01);
 	limbs.back().b2Ptr->SetDensity(0.000001);
 	limbs.back().b2Ptr->SetRestitution(0.5);
 	sprites.emplace_back(sb, t);
@@ -66,7 +63,7 @@ void Gun::M_bullet::update(fk::UserInput & ui) {
 
 void Gun::M_bullet::p_beginCollision(b2Fixture* collisionFixturePtr, b2Fixture* myFixturePtr, b2Contact* contactPtr) {
 	Body* bod = static_cast<Body*>(collisionFixturePtr->GetBody()->GetUserData());
-	if (collisionFixturePtr->IsSensor()) { return; }
+	if (collisionFixturePtr->IsSensor() || myFixturePtr->IsSensor()) { return; }
 	++bounces;
 	auto f = bod->b2Ptr->GetPosition() - b2Ptr->GetPosition();
 	glm::vec2 u = glm::normalize(glm::vec2(f.x, f.y));

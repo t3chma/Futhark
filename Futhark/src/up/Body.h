@@ -46,7 +46,7 @@ class Body {
 	std::list<Limb> limbs;
 	// World of this body.
 	World& world;
-	Body() = delete;
+	Body();
 	/* Constructor
 	^ http://www.iforce2d.net/b2dtut/
 	(world) b2World, see Box2D documentation.
@@ -66,7 +66,7 @@ class Body {
 	/* Moves this body into another one deleting the replaced body.
 	(rhs) The body to move into.
 	[t3chma] */
-	void replace(Body& rhs);
+	Body(const Body& rhs);
 	/* Destructor
 	[t3chma] */
 	virtual ~Body();

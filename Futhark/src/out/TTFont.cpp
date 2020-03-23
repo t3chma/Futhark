@@ -265,10 +265,24 @@ TextSprite::TextSprite(SpriteBatch& spriteBatch, TTFont& font)
 	: m_spriteBatch(spriteBatch), m_font(font) {
 	
 }
+
+TextSprite::~TextSprite() {
+	//for (auto&& id : m_spriteIds) { m_spriteBatch.destroySprite(id); }
+}
+
+TextSprite::TextSprite(const TextSprite& rhs)
+	: m_spriteBatch(rhs.m_spriteBatch), m_font(rhs.m_font) {
+	//*this = rhs.m_font.generateCharSprites(rhs.m_string, rhs.m_spriteBatch, rhs.m_scale, rhs.m_justification);
+	//for (auto&& id : rhs.m_spriteIds) { m_spriteBatch.destroySprite(id); }
+	m_string = rhs.m_string;
+	m_spriteIds = rhs.m_spriteIds;
+}
+
 TextSprite TextSprite::operator=(const TextSprite& rhs) {
 	m_string = rhs.m_string;
 	m_spriteIds = rhs.m_spriteIds;
 	m_spriteBatch = rhs.m_spriteBatch;
+	m_font = rhs.m_font;
 	return *this;
 }
 void TextSprite::setPosition(glm::vec2 position, Justification justification) {
@@ -300,9 +314,12 @@ void TextSprite::clearText() {
 }
 
 void TextSprite::setText(std::string text, glm::vec2 scale, Justification justification) {
-	glm::vec2 pos;
-	int depth = m_spriteBatch[m_spriteIds[0]].canvas.position.z;
-	if (m_spriteIds.size()) { pos = m_spriteBatch[m_spriteIds[0]].getPosition(); }
+	glm::vec2 pos(0);
+	int depth;
+	if (m_spriteIds.size()) {
+		depth = m_spriteBatch[m_spriteIds[0]].canvas.position.z;
+		pos = m_spriteBatch[m_spriteIds[0]].getPosition();
+	}
 	for (auto&& id : m_spriteIds) { m_spriteBatch.destroySprite(id); }
 	*this = m_font.generateCharSprites(text, m_spriteBatch, scale, justification);
 	setDepth(depth);

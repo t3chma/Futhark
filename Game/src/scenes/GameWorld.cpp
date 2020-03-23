@@ -69,7 +69,6 @@ void GameWorld::update(fk::Tools& tools) {
 
 	//AI
 	int h = font.getHeight();
-	printf("%i", h);
 	arenaPtr->update(tools.ui);
 	for (auto&& actorPtr : actorPtrs) { actorPtr->update(tools.ui); }
 	

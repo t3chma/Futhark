@@ -25,7 +25,7 @@ class Gun : public Intellect {
 	fk::SpriteBatch& sb;
 	fk::TextSprite text;
 	int team{ 0 };
-	Gun(fk::SpriteBatch& sb, fk::World& w, fk::Texture& bulTex, fk::TextSprite& f);
+	Gun(fk::SpriteBatch& sb, fk::World& w, fk::Texture& bulTex, fk::TextSprite& t);
 	void fire(Body* ownerPtr, fk::Vec2 spawn, fk::Vec2 direction, int level);
 	virtual void update(fk::UserInput& ui) override;
 	~Gun();

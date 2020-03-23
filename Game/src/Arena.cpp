@@ -163,7 +163,6 @@ void Arena::update(fk::UserInput& ui) {
 		for (auto&& block : line) {
 			block.update(ui);
 		}
-		line.remove_if([](TextBlock& tb) { return tb.health < 1; });
 	}
 	if (choreography.size() && !freeze) {
 		ctime -= 1;
