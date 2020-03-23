@@ -80,6 +80,8 @@ class Vec2 {
 	Vec2(const glm::ivec2& VEC2);
 	operator glm::vec2() const;
 	operator b2Vec2() const;
+	Vec2 normalized() const;
+	float length() const;
 	Vec2 operator = (const glm::vec2& VEC2);
 	Vec2 operator = (const b2Vec2& VEC2);
 	Vec2 operator = (const Vec2& VEC2);
@@ -105,6 +107,10 @@ class Vec2 {
 	(ANGLE) How much to rotate the point in radians.
 	[t3chma] */
 	void rotate(const GLfloat ANGLE);
+	/* Gets the angle of the vector.
+	< The angle in radians.
+	[t3chma] */
+	float makeAngle();
 };
 
 	

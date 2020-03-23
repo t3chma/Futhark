@@ -81,11 +81,5 @@ inline glm::vec2 rotatePoint(const glm::vec2& POINT, const float ANGLE) {
 		POINT.x * sin(ANGLE) + POINT.y * cos(ANGLE)
 	);
 }
-inline b2Vec2 rotatePoint(const b2Vec2& POINT, const float ANGLE) {
-	return b2Vec2(
-		POINT.x * cos(ANGLE) - POINT.y * sin(ANGLE),
-		POINT.x * sin(ANGLE) + POINT.y * cos(ANGLE)
-	);
-}
 
 }

@@ -49,6 +49,8 @@ namespace fk {
 	Vec2::Vec2(const glm::ivec2& const VEC2) : x(VEC2.x), y(VEC2.y) {}
 	Vec2::operator glm::vec2() const { return glm::vec2(x, y); }
 	Vec2::operator b2Vec2() const { return b2Vec2(x, y); }
+	Vec2 Vec2::normalized() const { return glm::normalize(glm::vec2(x, y)); }
+	float Vec2::length() const { return glm::length(glm::vec2(x, y)); }
 	Vec2 Vec2::operator = (const glm::vec2& VEC2) { x = VEC2.x; y = VEC2.y; return *this; }
 	Vec2 Vec2::operator = (const b2Vec2& VEC2) { x = VEC2.x; y = VEC2.y; return *this; }
 	Vec2 Vec2::operator = (const Vec2& VEC2) { x = VEC2.x; y = VEC2.y; return VEC2; }
@@ -73,6 +75,15 @@ namespace fk {
 	void Vec2::rotate(const GLfloat ANGLE) {
 		x = x * cos(ANGLE) - y * sin(ANGLE);
 		y = x * sin(ANGLE) + y * cos(ANGLE);
+	}
+	float Vec2::makeAngle() {
+		if (x == 0 && y == 0) {
+			return 0.0f;
+		} else {
+			float angle(acos(glm::dot(glm::vec2(1.0f, 0.0f), glm::vec2(x, y))));
+			if (y < 0.0f) angle = -angle;
+			return angle;
+		}
 	}
 
 	Color::Color(GLubyte r, GLubyte g, GLubyte b, GLubyte a) : r(r), g(g), b(b), a(a) {}
