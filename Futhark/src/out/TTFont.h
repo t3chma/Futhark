@@ -30,8 +30,8 @@ class TextSprite {
 	std::string getText();
 	int getTextLength();
 	void clearText();
-	void setText(std::string& text, glm::vec2 scale, Justification m_justification);
-	void setText(std::string& text);
+	void setText(std::string text, glm::vec2 scale, Justification m_justification);
+	void setText(std::string text);
   private:
 	// The font of this class
 	TTFont& m_font;
@@ -44,7 +44,7 @@ class TextSprite {
 	// Base justification.
 	Justification m_justification;
 	// Base scale.
-	glm::vec2 m_scale;
+	glm::vec2 m_scale{ 0 };
 };
 
 /* Allows fonts to be displayed on screen.
@@ -107,13 +107,13 @@ class TTFont {
 	[t3chma] */
 	int m_closestPow2(int i);
 	// Which ASCII characters are used.
-	int m_asciiStart, m_asciiRange;
+	int m_asciiStart{ 32 }, m_asciiRange{ 127 };
 	// Array of glyoh info.
-	m_Glyph* m_GlyphsPtr;
+	m_Glyph* m_GlyphsPtr{ nullptr };
 	// Height of each glyph.
-	int m_height;
+	int m_height{ 64 };
 	// The ID of the sprite sheet.
-	GLuint m_textureID;
+	GLuint m_textureID{ 0 };
 };
 
 }

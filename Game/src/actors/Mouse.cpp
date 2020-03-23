@@ -3,9 +3,9 @@
 Mouse::Mouse(fk::SpriteBatch& sb, fk::World& world, Mouse::Def& md) : Body(world, md.bd), Image(sb) {
 	type = -1;
 	addCircleLimb(0.02).b2Ptr->SetSensor(true);
-	p_sprites.emplace_back(p_spriteBatch, md.body);
-	p_sprites.back().setColor(255, 255, 255, 255); // white
-	p_sprites.back().setDimensions(0.05, 0.05);
+	sprites.emplace_back(p_spriteBatch, md.body);
+	sprites.back().setColor(255, 255, 255, 255); // white
+	sprites.back().setDimensions(0.05, 0.05);
 }
 
 void Mouse::click(bool left) {
@@ -13,12 +13,12 @@ void Mouse::click(bool left) {
 }
 
 void Mouse::setColor(char r, char g, char b, char a) {
-	p_sprites.back().setColor(r, g, b, a);
+	sprites.back().setColor(r, g, b, a);
 }
 
 void Mouse::draw() {
 	auto position = b2Ptr->GetPosition();
-	p_sprites.front().setPosition(position.x, position.y);
+	sprites.front().setPosition(position.x, position.y);
 }
 
 Mouse::~Mouse() {

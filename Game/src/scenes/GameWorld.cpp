@@ -39,7 +39,7 @@ void GameWorld::create(fk::Tools& tools) {
 	Player::Def pd;
 	pd.body = tools.textures.get("Circle.png");
 	pd.md.body = tools.textures.get("Circle.png");
-	pd.hudFont = font;
+	pd.hudFont = &font;
 	playerPtr = new Player(*spriteBatchPtr, *textBatchPtr, world, pd);
 	player2Ptr = new Player(*spriteBatchPtr, *textBatchPtr, world, pd);
 	player2Ptr->setTeam(2);
@@ -68,6 +68,8 @@ void GameWorld::update(fk::Tools& tools) {
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//AI
+	int h = font.getHeight();
+	printf("%i", h);
 	arenaPtr->update(tools.ui);
 	for (auto&& actorPtr : actorPtrs) { actorPtr->update(tools.ui); }
 	
@@ -88,7 +90,7 @@ void GameWorld::update(fk::Tools& tools) {
 		Player::Def pd;
 		pd.body = tools.textures.get("Circle.png");
 		pd.md.body = tools.textures.get("Circle.png");
-		pd.hudFont = font;
+		pd.hudFont = &font;
 		playerPtr = new Player(*spriteBatchPtr, *textBatchPtr, world, pd);
 		player2Ptr = new Player(*spriteBatchPtr, *textBatchPtr, world, pd);
 		player2Ptr->setTeam(2);
@@ -130,9 +132,9 @@ void GameWorld::update(fk::Tools& tools) {
 	auto p2p = player2Ptr->b2Ptr->GetPosition();
 	auto bd = backgroundPtr->getCanvasRef().dimensions / cam.getZoom() / 2;
 	auto bp = backgroundPtr->getPosition();
-	if (p1p.x < bp.x - bd.x || p1p.y > bp.x + bd.x || p1p.y < bp.y - bd.y || p1p.y > bp.y + bd.y) {
+	if (p1p.x < bp.x - bd.x || p1p.x > bp.x + bd.x || p1p.y < bp.y - bd.y || p1p.y > bp.y + bd.y) {
 		playerPtr->health = 0; }
-	if (p2p.x < bp.x - bd.x || p2p.y > bp.x + bd.x || p2p.y < bp.y - bd.y || p2p.y > bp.y + bd.y) {
+	if (p2p.x < bp.x - bd.x || p2p.x > bp.x + bd.x || p2p.y < bp.y - bd.y || p2p.y > bp.y + bd.y) {
 		player2Ptr->health = 0; }
 	world.setGravity(
 		arenaPtr->gravity.x + playerPtr->gravMod.x + player2Ptr->gravMod.x,

@@ -262,7 +262,9 @@ TextSprite TTFont::generateCharSprites(
 
 
 TextSprite::TextSprite(SpriteBatch& spriteBatch, TTFont& font)
-	: m_spriteBatch(spriteBatch), m_font(font) {}
+	: m_spriteBatch(spriteBatch), m_font(font) {
+	
+}
 TextSprite TextSprite::operator=(const TextSprite& rhs) {
 	m_string = rhs.m_string;
 	m_spriteIds = rhs.m_spriteIds;
@@ -297,7 +299,7 @@ void TextSprite::clearText() {
 	for (auto&& id : m_spriteIds) { m_spriteBatch.destroySprite(id); }
 }
 
-void TextSprite::setText(std::string& text, glm::vec2 scale, Justification justification) {
+void TextSprite::setText(std::string text, glm::vec2 scale, Justification justification) {
 	glm::vec2 pos;
 	int depth = m_spriteBatch[m_spriteIds[0]].canvas.position.z;
 	if (m_spriteIds.size()) { pos = m_spriteBatch[m_spriteIds[0]].getPosition(); }
@@ -307,7 +309,7 @@ void TextSprite::setText(std::string& text, glm::vec2 scale, Justification justi
 	setPosition(pos);
 }
 
-void TextSprite::setText(std::string& text) {
+void TextSprite::setText(std::string text) {
 	setText(text, m_scale, m_justification);
 }
 

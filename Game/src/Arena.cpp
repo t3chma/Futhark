@@ -110,10 +110,7 @@ Arena::Arena(std::string& levelPath, fk::TTFont& f, fk::Texture& t, fk::SpriteBa
 					case 'x':
 					case '+':
 					case '-':
-					case 'o':
 					case ':':
-					case 'O':
-					case '~':
 					case '=':
 					case '|':
 					case 'c':
@@ -125,20 +122,19 @@ Arena::Arena(std::string& levelPath, fk::TTFont& f, fk::Texture& t, fk::SpriteBa
 					case '#':
 					case '/':
 					case '*':
+					case '~':
+					case 'o':
+					case 'O':
 					case '<':
 					case '>':
 					case 'v':
 					case '^':
+					case 'p':
+					case 'q':
 						Body::Def bd;
 						bd.position.y = -(float)lineIndex / 2.0;
 						bd.position.x = (float)charIndex / 2.0;
-						std::string s = "";
-						s += c;
-						fk::TextSprite ts1 = f.generateCharSprites(s, sb, glm::vec2(0.5));
-						fk::TextSprite ts2 = f.generateCharSprites(s, sb, glm::vec2(0.5));
-						ts1.setDepth(1);
-						ts2.setDepth(1);
-						map.back().emplace_back(ts1, ts2, sb, w, bd, t);
+						map.back().emplace_back(c, f, sb, w, bd, t);
 					break;
 					}
 				}

@@ -2,22 +2,27 @@
 
 
 Player::Player(fk::SpriteBatch& sb, fk::SpriteBatch& textBatch, fk::World& world, Player::Def pd)
-	: Body(world, pd.bd), Image(sb), mouse(sb, world, pd.md), gun(sb, world, pd.md.body)
+	: Body(world, pd.bd), Image(sb), mouse(sb, world, pd.md)
 {
 	setTeam(1);
 	type = 1;
 	addCircleLimb(0.2);
+	resistance = 10;
 	b2Ptr->SetLinearDamping(10);
 	limbs.back().category = "body";
 	limbs.back().b2Ptr->SetDensity(200);
 	limbs.back().b2Ptr->SetRestitution(0);
-	p_sprites.emplace_back(p_spriteBatch, pd.body);
-	p_sprites.back().setColor(255, 255, 255, 255); // white
-	p_sprites.back().setDimensions(0.4, 0.4);
-	p_sprites.back().getCanvasRef().position.z = 10;
+	sprites.emplace_back(p_spriteBatch, pd.body);
+	sprites.back().setColor(0, 0, 0, 255); // white
+	sprites.back().setDimensions(0.4, 0.4);
+	sprites.back().getCanvasRef().position.z = 10;
+	fk::TextSprite t = pd.hudFont->generateCharSprites(" ", sb, glm::vec2(0.5));
+	t.setDepth(5);
+	gunPtr = new Gun(sb, world, pd.md.body, t);
+	gunPtr->team = team;
 }
 Player::~Player() {
-
+	delete gunPtr;
 }
 void Player::update(fk::UserInput& ui) {
 	mouse.update(ui);
@@ -42,31 +47,58 @@ void Player::update(fk::UserInput& ui) {
 		bool nt;
 		if (ui.getAxiInfo(joys.fire, team) != (int)fk::Joy::MINXI) { nt = true; }
 		else { nt = false; };
-		if (aim.x || aim.y) {
-			mouse.setColor(255, 255, charge > 60 ? 0 : 255, 255);
-			mouse.b2Ptr->SetTransform(b2Vec2(myPosition.x + aim.x / 4, myPosition.y + aim.y / 4), 0);
-			if (nt != t) {
-				if (!nt) {
-					aim.x *= 1000;
-					aim.y *= 1000;
-					mouse.setColor(255, 0, 0, 255);
-					gun.fire(this, b2Ptr->GetWorldCenter(), aim);
-					charge = 0;
-					crank = false;
-				} else {
-					crank = true;
+		if (gunPtr) {
+			if (aim.x || aim.y) {
+				mouse.setColor(0, 0, 0, 255);
+				mouse.b2Ptr->SetTransform(b2Vec2(myPosition.x + aim.x / 4, myPosition.y + aim.y / 4), 0);
+				if (nt != t) {
+					if (!nt) {
+						aim.x *= 1000;
+						aim.y *= 1000;
+						int l = 0;
+						if (gunPtr->charge > 60) { aim *= 5; l = 1; }
+						mouse.setColor(255, 0, 0, 255);
+						gunPtr->fire(this, b2Ptr->GetWorldCenter(), aim, l);
+						gunPtr->charge = 0;
+						crank = false;
+					} else {
+						crank = true;
+					}
 				}
+			} else {
+				mouse.setColor(0, 0, 0, 0);
 			}
+			if (crank) { ++gunPtr->charge; }
 		}
-		if (crank) { ++charge; }
 		t = nt;
 	}
+	if (gunPtr) { gunPtr->update(ui); }
 }
 void Player::draw() {
 	mouse.draw();
-	gun.draw();
 	auto position = b2Ptr->GetPosition();
-	p_sprites.front().setPosition(position.x, position.y);
-	if (prevHealth && health < 1) { p_sprites.front().setColor(0,0,0,255); }
+	if (gunPtr) { gunPtr->text[0].setPosition(position.x, position.y); }
+	sprites.front().setPosition(position.x, position.y);
+	if (prevHealth && health < 1) { sprites.front().setColor(0, 0, 0, 100); }
+	else {
+		if (gunPtr->charge > 60) { mouse.setColor(255, 255, 255, 255); }
+		if (sprites.front().getCanvasRef().color.r > 50) {
+			sprites.front().getCanvasRef().color.r -= 50;
+		}
+		else { sprites.front().getCanvasRef().color.r = 0; }
+		if (sprites.front().getCanvasRef().color.g > 50) {
+			sprites.front().getCanvasRef().color.g -= 50;
+		}
+		else { sprites.front().getCanvasRef().color.g = 0; }
+		if (sprites.front().getCanvasRef().color.b > 50) {
+			sprites.front().getCanvasRef().color.b -= 50;
+		}
+		else { sprites.front().getCanvasRef().color.b = 0; }
+	}
 	prevHealth = health;
+}
+
+void Player::setTeam(int t) {
+	team = t;
+	if (gunPtr) { gunPtr->team = team; }
 }

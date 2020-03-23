@@ -23,4 +23,7 @@ class Body : public fk::Body {
 	double torque{ 0 };
 	double gorque{ 0 };
 	int charge{ 0 };
+	float resistance{ 10 };
+	int level{ 0 };
+	int timer{ 0 };
 };

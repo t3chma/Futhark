@@ -9,16 +9,13 @@ class Player : public Body, public Image, public Intellect {
 		Body::Def bd;
 		Mouse::Def md;
 		fk::Texture body;
-		fk::TTFont hudFont;
+		fk::TTFont* hudFont;
 	};
 	Player(fk::SpriteBatch& sb, fk::SpriteBatch& textBatch, fk::World& world, Player::Def pd);
 	~Player();
 	virtual void update(fk::UserInput& ui) override;
 	virtual void draw() override;
-	void setTeam(int t) {
-		team = t;
-		gun.team = team;
-	}
+	void setTeam(int t);
 	Mouse mouse;
 	struct Joys {
 		fk::Joy xMove{ fk::Joy::LX };
@@ -28,7 +25,7 @@ class Player : public Body, public Image, public Intellect {
 		fk::Joy fire{ fk::Joy::RZ };
 	} joys;
 	long prevHealth{ 0 };
-	Gun gun;
+	Gun* gunPtr{ nullptr };
 	bool t{ false };
 	bool freeze{ false };
 	bool crank{ false };
