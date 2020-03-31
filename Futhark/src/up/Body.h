@@ -46,7 +46,6 @@ class Body {
 	std::list<Limb> limbs;
 	// World of this body.
 	World& world;
-	Body() = delete;
 	/* Constructor
 	^ http://www.iforce2d.net/b2dtut/
 	(world) b2World, see Box2D documentation.

@@ -36,7 +36,8 @@ namespace fk {
 		b2Ptr->SetUserData(this);
 	}
 	Body::~Body() {
-		b2Ptr->GetWorld()->DestroyBody(b2Ptr);
+		if (b2Ptr) { b2Ptr->GetWorld()->DestroyBody(b2Ptr); }
+		b2Ptr = nullptr;
 	}
 	Body::Limb& Body::addCircleLimb(
 		float radius,

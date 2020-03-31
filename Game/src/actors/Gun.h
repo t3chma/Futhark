@@ -35,6 +35,6 @@ class Gun : public Intellect {
 	std::list<M_bullet> bullets;
 	long charge{ 0 };
 	char upgrade{ '`' };
-	long oldFire{ 0 };
+	long lastFire{ 0 };
 };
 

@@ -51,16 +51,18 @@ void Player::update(fk::UserInput& ui) {
 			if (aim.x || aim.y) {
 				mouse.setColor(0, 0, 0, 255);
 				mouse.b2Ptr->SetTransform(b2Vec2(myPosition.x + aim.x / 4, myPosition.y + aim.y / 4), 0);
-				if (trigger != oldTrigger) {
-					if (!trigger) {
-						aim.x *= 1000;
-						aim.y *= 1000;
-						int l = 0;
-						if (gunPtr->charge > 60) { aim *= 5; l = 1; }
-						mouse.setColor(255, 0, 0, 255);
-						gunPtr->fire(this, b2Ptr->GetWorldCenter(), aim, l);
-						gunPtr->charge = 0;
-					}
+				if (
+					(gunPtr->upgrade == 'r' && trigger && gunPtr->lastFire > 5)
+					|| (trigger != oldTrigger && !trigger)
+				) {
+					aim.x *= 20;
+					aim.y *= 20;
+					int l = 0;
+					if (gunPtr->charge > 60) { aim *= 5; l = 1; }
+					mouse.setColor(255, 0, 0, 255);
+					gunPtr->fire(this, b2Ptr->GetWorldCenter(), aim, l);
+					gunPtr->charge = 0;
+					gunPtr->lastFire = 0;
 				}
 			} else {
 				mouse.setColor(0, 0, 0, 0);

@@ -18,6 +18,12 @@ TextBlock::TextBlock(char c, fk::TTFont& f, fk::SpriteBatch& sb, fk::World& w, B
 	case 'x':
 	case '~':
 	case 'O':
+	case '`':
+	case 'm':
+	case 'r':
+	case 'h':
+	case 'l':
+	case 't':
 		addCircleLimb(0.24);
 		break;
 	case 'o':
@@ -25,6 +31,7 @@ TextBlock::TextBlock(char c, fk::TTFont& f, fk::SpriteBatch& sb, fk::World& w, B
 		break;
 	}
 	limbs.back().b2Ptr->SetDensity(20);
+	limbs.back().b2Ptr->SetRestitution(0.8);
 
 	switch (c) {
 	default: break;
@@ -55,19 +62,23 @@ TextBlock::TextBlock(char c, fk::TTFont& f, fk::SpriteBatch& sb, fk::World& w, B
 	case 'p':
 	case 'q':
 	case '+': b2Ptr->SetType(b2_staticBody); break;
+	case 'c':
+	case 'O':
+	case 'o':
+	case 'z':
+	case 's':
 	case '`':
 	case 'm':
 	case 'r':
 	case 'h':
 	case 'l':
 	case 't':
+		resistance = 50;
+		limbs.back().b2Ptr->SetDensity(50);
+		limbs.back().b2Ptr->SetRestitution(0); 
+		break;
 	case '~': limbs.back().b2Ptr->SetDensity(1); break;
-	case 'x': resistance = 0; limbs.back().b2Ptr->SetRestitution(.8); break;
-	case 'c':
-	case 'O':
-	case 'o': resistance = 5; break;
-	case 'z':
-	case 's': resistance = 10; break;
+	case 'x': resistance = 0; break;
 	}
 	b2Ptr->SetLinearDamping(resistance);
 
@@ -197,6 +208,7 @@ TextBlock::TextBlock(char c, fk::TTFont& f, fk::SpriteBatch& sb, fk::World& w, B
 		case 'v':
 			text[0].setColor(128, 128, 128, 200);
 			sprites.back().setColor(0, 0, 0, 200);
+			sprites.back().getCanvasRef().position.z = -1;
 			break;
 		case 'w':
 			text[0].setColor(0, 0, 255, 100);
@@ -336,6 +348,7 @@ void TextBlock::update(fk::UserInput& ui) {
 				case 4: setChar('l'); break;
 				case 5: setChar('t'); break;
 				}
+				texts.back()[0].setDimensions(0.4, 0.4);
 			}
 			for (auto&& text : texts) { text[0].setColor(0, 255, 0, 255); }
 			sprites.back().setColor(0, 0, 0, 0);
@@ -360,12 +373,21 @@ void TextBlock::update(fk::UserInput& ui) {
 	case '9':
 	case 'x':
 	case 's':
+	case '`':
+	case 'm':
+	case 'r':
+	case 'h':
+	case 'l':
+	case 't':
 	case '.': i = 0; j = 0; k = 0; break;
 	case '0':
 		if (reactors.size()) {
 			setChar('x');
+			texts.back().clearText();
 			texts.pop_back();
+			texts.back().clearText();
 			texts.pop_back();
+			texts.back().clearText();
 			texts.pop_back();
 			texts.back()[0].setColor(255, 0, 0, 255);
 			sprites.back().setColor(255, 0, 0, 0);
@@ -503,7 +525,7 @@ void TextBlock::p_beginCollision(b2Fixture * collisionFixturePtr, b2Fixture * my
 			auto v = bod->b2Ptr->GetLinearVelocity();
 			// Player
 			if (bod->type == 1) {
-				Player* pod = static_cast<Player*>(collisionFixturePtr->GetBody()->GetUserData());
+				Player* pod = static_cast<Player*>(bod);
 				char upgrade = pod->gunPtr->upgrade;
 				switch (texts.front().getText()[0]) {
 				default: break;
@@ -620,8 +642,8 @@ void TextBlock::p_beginCollision(b2Fixture * collisionFixturePtr, b2Fixture * my
 				reactors.push_back(nullptr);
 				break;
 			}
-		// Player unrelated
-		} else if (bod->type > -1) {
+		// Envorinment
+		} else if (bod->type = 0) {
 			auto block = static_cast<TextBlock*>(bod);
 			switch (texts.front().getText()[0]) {
 			default: break;
@@ -694,9 +716,8 @@ void TextBlock::p_endCollision(b2Fixture * collisionFixturePtr, b2Fixture * myFi
 					break;
 				}
 			}
-		}
-		else if (bod->type > -1) {
-			auto block = static_cast<TextBlock*>(bod);
+		} else if (bod->type == 0) {
+			TextBlock* block = static_cast<TextBlock*>(bod);
 			switch (texts.front().getText()[0]) {
 			default: break;
 			case 'o':
