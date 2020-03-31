@@ -10,6 +10,7 @@ class Gun : public Intellect {
   private:
 	class M_bullet : public Image, public Body, public Intellect {
 	  public:
+		fk::Random r;
 		char upgrade{ '`' };
 		int bounces{ 0 };
 		glm::vec2 oldPos{ 0,0 };

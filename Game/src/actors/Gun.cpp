@@ -45,8 +45,12 @@ void Gun::fire(Body* ownerPtr, fk::Vec2 spawn, fk::Vec2 direction, int level) {
 		bullets.front().health = 30;
 		break;
 	case 'h':
+		bullets.front().limbs.back().b2Ptr->SetSensor(true);
 		break;
 	case 'l':
+		bullets.front().sprites.back().setDimensions(0.5, 0.5);
+		bullets.front().addCircleLimb(0.25);
+		bullets.front().limbs.back().b2Ptr->SetSensor(true);
 		direction /= 2;
 		break;
 	case 't':
@@ -89,18 +93,25 @@ Gun::M_bullet::M_bullet(Body* ownerPtr, fk::SpriteBatch& sb, fk::World& w, Body:
 }
 
 void Gun::M_bullet::draw() {
-	switch (level) {
-	default: sprites.back().setColor(0, 0, 0, 255); break;
-	case 1: sprites.back().setColor(255, 255, 255, 255); break;
-	}
 	auto position = b2Ptr->GetPosition();
 	glm::vec2 p(position.x, position.y);
-	sprites.front().makeLine(p, oldPos,0.0375);
+	switch (upgrade) {
+	default: sprites.front().makeLine(p, oldPos, 0.0375); break;
+	case 'l': sprites.front().setPosition(p); break;
+	}
 	oldPos = p;
 }
 
 void Gun::M_bullet::update(fk::UserInput & ui) {
+	switch (upgrade) {
+	default: break;
+	case 'h':
+		b2Ptr->ApplyForceToCenter(b2Vec2(r.getFloat(-100,100), r.getFloat(-100, 100)), true);
+		break;
+	}
 	--health;
+	if (level == 0 && b2Ptr->GetLinearVelocity().Length() < 5) { health = -1; }
+	if (level == 1 && b2Ptr->GetLinearVelocity().Length() < 1) { health = 0; }
 }
 
 void Gun::M_bullet::p_beginCollision(b2Fixture* collisionFixturePtr, b2Fixture* myFixturePtr, b2Contact* contactPtr) {
