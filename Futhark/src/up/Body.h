@@ -63,10 +63,7 @@ class Body {
 		float angle = 0.0f, bool fixedRotation = false, bool bullet = false,
 		float angularDamping = 10, float linearDamping = 10
 	);
-	/* Moves this body into another one deleting the replaced body.
-	(rhs) The body to move into.
-	[t3chma] */
-	void replace(Body& rhs);
+	Body(Body& rhs);
 	/* Destructor
 	[t3chma] */
 	virtual ~Body();

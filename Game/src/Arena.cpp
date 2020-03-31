@@ -2,7 +2,7 @@
 #include <string>
 #include "in/IOManager.h"
 
-Arena::Arena(std::string& levelPath, fk::TTFont& f, fk::Texture& t, fk::SpriteBatch& sb, fk::World& w, Player::Def pd) {
+Arena::Arena(std::string& levelPath, fk::TTFont& f, fk::Texture& t, fk::SpriteBatch& sb, fk::World& world, Player::Def pd) {
 	fk::IOManager iom;
 	std::vector<std::string> buffer;
 	iom.readTextFileToStringVector(levelPath, buffer);
@@ -131,10 +131,11 @@ Arena::Arena(std::string& levelPath, fk::TTFont& f, fk::Texture& t, fk::SpriteBa
 					case '^':
 					case 'p':
 					case 'q':
+					case '.':
 						Body::Def bd;
 						bd.position.y = -(float)lineIndex / 2.0;
 						bd.position.x = (float)charIndex / 2.0;
-						map.back().emplace_back(c, f, sb, w, bd, t);
+						map.back().emplace_back(c, f, sb, world, bd, t);
 					break;
 					}
 				}
@@ -144,6 +145,8 @@ Arena::Arena(std::string& levelPath, fk::TTFont& f, fk::Texture& t, fk::SpriteBa
 		}
 		++lineIndex;
 	}
+	ctime = choreography[c].t;
+	wtime = weather[w].t;
 }
 
 Arena::~Arena() {

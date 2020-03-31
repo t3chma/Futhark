@@ -68,8 +68,6 @@ void GameWorld::update(fk::Tools& tools) {
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//AI
-	int h = font.getHeight();
-	printf("%i", h);
 	arenaPtr->update(tools.ui);
 	for (auto&& actorPtr : actorPtrs) { actorPtr->update(tools.ui); }
 	

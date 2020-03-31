@@ -18,26 +18,22 @@ namespace fk {
 		bodyDef.angle = angle;
 		bodyDef.angularDamping = angularDamping;
 		bodyDef.linearDamping = linearDamping;
-
 		b2Ptr = world.b2Ptr->CreateBody(&bodyDef);
 		b2Ptr->SetUserData(this);
 	}
 
-	/* Moves this body into another one deleting the replaced body.
-	[t3chma] */
-
-	void Body::replace(Body & rhs) {
-		rhs.world.b2Ptr->DestroyBody(rhs.b2Ptr);
-		rhs.b2Ptr = b2Ptr;
-		rhs.limbs = limbs;
-		rhs.world = world;
-		rhs.team = team;
-		rhs.squad = squad;
-		rhs.type = type;
-		rhs.teir = teir;
-		rhs.species = species;
-		b2Ptr = nullptr;
-		limbs.clear();
+	Body::Body(Body& rhs) : world(rhs.world) {
+		b2BodyDef bodyDef;
+		bodyDef.type = rhs.b2Ptr->GetType();
+		bodyDef.fixedRotation = rhs.b2Ptr->IsFixedRotation();
+		bodyDef.bullet = rhs.b2Ptr->IsBullet();
+		bodyDef.position = rhs.b2Ptr->GetPosition();
+		bodyDef.angle = rhs.b2Ptr->GetAngle();
+		bodyDef.angularDamping = rhs.b2Ptr->GetAngularDamping();
+		bodyDef.linearDamping = rhs.b2Ptr->GetLinearDamping();
+		bodyDef.gravityScale = rhs.b2Ptr->GetGravityScale();
+		b2Ptr = world.b2Ptr->CreateBody(&bodyDef);
+		b2Ptr->SetUserData(this);
 	}
 	Body::~Body() {
 		b2Ptr->GetWorld()->DestroyBody(b2Ptr);

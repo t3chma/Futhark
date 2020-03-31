@@ -172,6 +172,7 @@
     <Image Include="Textures\Thrown.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Arenas\test.area" />
     <None Include="Fonts\desktop.ini" />
     <None Include="Shaders\Sprite.frag" />
     <None Include="Shaders\Sprite.geom" />
