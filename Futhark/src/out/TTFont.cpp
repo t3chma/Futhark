@@ -300,13 +300,23 @@ void TextSprite::clearText() {
 }
 
 void TextSprite::setText(std::string text, glm::vec2 scale, Justification justification) {
-	glm::vec2 pos;
-	int depth = m_spriteBatch[m_spriteIds[0]].canvas.position.z;
-	if (m_spriteIds.size()) { pos = m_spriteBatch[m_spriteIds[0]].getPosition(); }
-	for (auto&& id : m_spriteIds) { m_spriteBatch.destroySprite(id); }
-	*this = m_font.generateCharSprites(text, m_spriteBatch, scale, justification);
-	setDepth(depth);
-	setPosition(pos);
+	if (m_spriteIds.size()) {
+		auto c = m_spriteBatch[m_spriteIds[0]].canvas.color;
+		auto d = m_spriteBatch[m_spriteIds[0]].canvas.dimensions;
+		auto p = m_spriteBatch[m_spriteIds[0]].canvas.position;
+		auto r = m_spriteBatch[m_spriteIds[0]].canvas.rotationAngle;
+		auto x = m_spriteBatch[m_spriteIds[0]].canvas.rotationAxis;
+		for (auto&& id : m_spriteIds) { m_spriteBatch.destroySprite(id); }
+		*this = m_font.generateCharSprites(text, m_spriteBatch, scale, justification);
+		m_spriteBatch[m_spriteIds[0]].canvas.color = c;
+		m_spriteBatch[m_spriteIds[0]].canvas.dimensions = d;
+		m_spriteBatch[m_spriteIds[0]].canvas.position = p;
+		m_spriteBatch[m_spriteIds[0]].canvas.rotationAngle = r;
+		m_spriteBatch[m_spriteIds[0]].canvas.rotationAxis = x;
+	} else {
+		for (auto&& id : m_spriteIds) { m_spriteBatch.destroySprite(id); }
+		*this = m_font.generateCharSprites(text, m_spriteBatch, scale, justification);
+	}
 }
 
 void TextSprite::setText(std::string text) {

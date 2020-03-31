@@ -10,6 +10,7 @@ class Gun : public Intellect {
   private:
 	class M_bullet : public Image, public Body, public Intellect {
 	  public:
+		char upgrade{ '`' };
 		int bounces{ 0 };
 		glm::vec2 oldPos{ 0,0 };
 		M_bullet(Body* ownerPtr, fk::SpriteBatch& sb, fk::World& w, Body::Def& bulDef, fk::Texture& t, int level = 0);
@@ -32,6 +33,8 @@ class Gun : public Intellect {
 	fk::World& w;
 	fk::Texture bulTex;
 	std::list<M_bullet> bullets;
-	int charge{ 0 };
+	long charge{ 0 };
+	char upgrade{ '`' };
+	long oldFire{ 0 };
 };
 

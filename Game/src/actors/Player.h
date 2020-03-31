@@ -26,7 +26,6 @@ class Player : public Body, public Image, public Intellect {
 	} joys;
 	long prevHealth{ 0 };
 	Gun* gunPtr{ nullptr };
-	bool t{ false };
+	bool oldTrigger{ false };
 	bool freeze{ false };
-	bool crank{ false };
 };

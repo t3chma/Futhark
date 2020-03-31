@@ -92,46 +92,9 @@ Arena::Arena(std::string& levelPath, fk::TTFont& f, fk::Texture& t, fk::SpriteBa
 				if (c > 32 && c < 127) {
 					switch (c) {
 					case '@': spawns.emplace_back((float)charIndex / 2.0, -(float)lineIndex / 2.0); break;
-					default:
 					case 'a': cam.y = -((float)lineIndex - 1) / 2.0; break;
 					case 'b': cam.x = (float)charIndex / 2.0; break;
-					case '1':
-					case '2':
-					case '3':
-					case '4':
-					case '5':
-					case '6':
-					case '7':
-					case '8':
-					case '9':
-					case '0':
-					case 's':
-					case 'z':
-					case 'x':
-					case '+':
-					case '-':
-					case ':':
-					case '=':
-					case '|':
-					case 'c':
-					case 'w':
-					case '{':
-					case '}':
-					case '[':
-					case ']':
-					case '#':
-					case '/':
-					case '*':
-					case '~':
-					case 'o':
-					case 'O':
-					case '<':
-					case '>':
-					case 'v':
-					case '^':
-					case 'p':
-					case 'q':
-					case '.':
+					default:
 						Body::Def bd;
 						bd.position.y = -(float)lineIndex / 2.0;
 						bd.position.x = (float)charIndex / 2.0;
@@ -145,6 +108,8 @@ Arena::Arena(std::string& levelPath, fk::TTFont& f, fk::Texture& t, fk::SpriteBa
 		}
 		++lineIndex;
 	}
+	int i = 0;
+	while (spawns.size() < 2) { spawns.emplace_back(i++, 0); }
 	ctime = choreography[c].t;
 	wtime = weather[w].t;
 }

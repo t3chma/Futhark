@@ -7,6 +7,7 @@
 
 class TextBlock : public Image, public Body, public Intellect {
   public:
+	fk::Random r;
 	std::list<fk::TextSprite> texts;
 	std::list<Body*> reactors;
 	TextBlock(char c, fk::TTFont& f, fk::SpriteBatch& sb, fk::World& w, Body::Def& bd, fk::Texture& t);

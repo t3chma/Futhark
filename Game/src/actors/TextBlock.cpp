@@ -55,6 +55,12 @@ TextBlock::TextBlock(char c, fk::TTFont& f, fk::SpriteBatch& sb, fk::World& w, B
 	case 'p':
 	case 'q':
 	case '+': b2Ptr->SetType(b2_staticBody); break;
+	case '`':
+	case 'm':
+	case 'r':
+	case 'h':
+	case 'l':
+	case 't':
 	case '~': limbs.back().b2Ptr->SetDensity(1); break;
 	case 'x': resistance = 0; limbs.back().b2Ptr->SetRestitution(.8); break;
 	case 'c':
@@ -147,8 +153,9 @@ TextBlock::TextBlock(char c, fk::TTFont& f, fk::SpriteBatch& sb, fk::World& w, B
 			sprites.back().setColor(0, 0, 0, 200);
 			break;
 			// Objects
-		case 'O':
 		case 'o':
+			text[0].setDimensions(0.4, 0.4);
+		case 'O':
 			text[0].setColor(0, 0, 0, 200);
 			sprites.back().setColor(0, 0, 0, 0);
 			break;
@@ -162,6 +169,13 @@ TextBlock::TextBlock(char c, fk::TTFont& f, fk::SpriteBatch& sb, fk::World& w, B
 			text.setDepth(-10);
 			sprites.back().setColor(0, 0, 0, 200);
 			break;
+		case '`':
+		case 'm':
+		case 'r':
+		case 'h':
+		case 'l':
+		case 't':
+			text[0].setDimensions(0.4, 0.4);
 		case '~':
 		case 'c':
 			text[0].setColor(0, 255, 0, 200);
@@ -249,13 +263,7 @@ TextBlock::~TextBlock() { for (auto&& text : texts) { text.clearText(); } }
 void TextBlock::setChar(char c) {
 	std::string s = "";
 	s += c;
-	for (auto&& text : texts) {
-		auto a = text[0].canvas.rotationAngle;
-		auto ax = text[0].canvas.rotationAxis;
-		text.setText(s);
-		text[0].canvas.rotationAngle = a;
-		text[0].canvas.rotationAxis = ax;
-	}
+	for (auto&& text : texts) { text.setText(s); }
 }
 
 void TextBlock::draw() {
@@ -267,6 +275,12 @@ void TextBlock::draw() {
 		int rot = 1;
 		switch (text.getText()[0]) {
 		default: break;
+		case '`':
+		case 'm':
+		case 'r':
+		case 'h':
+		case 'l':
+		case 't': rot = 5; break;
 		case 'p': rot = -64; break;
 		case 'q': rot = 64; break;
 		case 'O':
@@ -310,12 +324,24 @@ void TextBlock::update(fk::UserInput& ui) {
 	case 'O':
 		if (reactors.size() > 1) {
 			for (auto&& r : reactors) { r->health = 0; }
-			setChar('~');
+			if (r.getInt(0, 1)) {
+				setChar('~');
+			} else {
+				switch (r.getInt(0, 5)) {
+				default: break;
+				case 0: setChar('`'); break;
+				case 1: setChar('m'); break;
+				case 2: setChar('r'); break;
+				case 3: setChar('h'); break;
+				case 4: setChar('l'); break;
+				case 5: setChar('t'); break;
+				}
+			}
 			for (auto&& text : texts) { text[0].setColor(0, 255, 0, 255); }
 			sprites.back().setColor(0, 0, 0, 0);
 			b2Ptr->DestroyFixture(limbs.back().b2Ptr);
 			limbs.pop_back();
-			addCircleLimb(0.12);
+			addCircleLimb(0.24);
 			limbs.back().b2Ptr->SetDensity(1);
 		}
 		break;
@@ -455,7 +481,7 @@ void TextBlock::update(fk::UserInput& ui) {
 }
 
 void TextBlock::p_beginCollision(b2Fixture * collisionFixturePtr, b2Fixture * myFixturePtr, b2Contact * contactPtr) {
-	if (health > 0) {
+	if (health > 0 && collisionFixturePtr->GetBody()->GetUserData()) {
 		Body* bod = static_cast<Body*>(collisionFixturePtr->GetBody()->GetUserData());
 		auto f = bod->b2Ptr->GetPosition() - b2Ptr->GetPosition();
 		glm::vec2 u = glm::normalize(glm::vec2(f.x, f.y));
@@ -477,53 +503,67 @@ void TextBlock::p_beginCollision(b2Fixture * collisionFixturePtr, b2Fixture * my
 			auto v = bod->b2Ptr->GetLinearVelocity();
 			// Player
 			if (bod->type == 1) {
+				Player* pod = static_cast<Player*>(collisionFixturePtr->GetBody()->GetUserData());
+				char upgrade = pod->gunPtr->upgrade;
 				switch (texts.front().getText()[0]) {
 				default: break;
-				case '/': bod->torque += fk::TAU / 2; break;
-				case '|': bod->gorque += fk::TAU / 2; break;
+				case '`':
+				case 'm':
+				case 'r':
+				case 'h':
+				case 'l':
+				case 't':
+					pod->gunPtr->upgrade = texts.front().getText()[0];
+					pod->gunPtr->text.setText(texts.front().getText());
+					pod->gunPtr->text[0].setColor(0, 255, 0, 255);
+					pod->gunPtr->text[0].setDimensions(0.3, 0.3);
+					setChar(upgrade);
+					break;
+				case '/': pod->torque += fk::TAU / 2; break;
+				case '|': pod->gorque += fk::TAU / 2; break;
 				case 'w':
 					if (
 						sprites.front().getCanvasRef().color.r == 255
 						&& sprites.front().getCanvasRef().color.g == 0
 						&& sprites.front().getCanvasRef().color.b == 0
 						) {
-						--bod->health;
+						--pod->health;
 					}
 					break;
 				case '-':
 				case '+':
-				case 'x': --bod->health; break;
+				case 'x': --pod->health; break;
 				case '[':
-				case ']': reactors.push_back(bod); break;
+				case ']': reactors.push_back(pod); break;
 				case 'c':
 				case 'o':
-					bod->b2Ptr->ApplyForceToCenter(b2Vec2(u.x * 3, u.y * 3), true);
+					pod->b2Ptr->ApplyForceToCenter(b2Vec2(u.x * 3, u.y * 3), true);
 					b2Ptr->ApplyForceToCenter(b2Vec2(-u.x, -u.y), true);
 					break;
 				case 'O':
 					if (abs(u.x) > abs(u.y)) {
-						bod->b2Ptr->ApplyForceToCenter(b2Vec2(u.x * 6, 0), true);
+						pod->b2Ptr->ApplyForceToCenter(b2Vec2(u.x * 6, 0), true);
 						b2Ptr->ApplyForceToCenter(b2Vec2(-u.x, 0), true);
 					}
 					else {
-						bod->b2Ptr->ApplyForceToCenter(b2Vec2(0, u.y * 6), true);
+						pod->b2Ptr->ApplyForceToCenter(b2Vec2(0, u.y * 6), true);
 						b2Ptr->ApplyForceToCenter(b2Vec2(0, -u.y), true);
 					}
 					break;
 				case '<':
-					bod->gravMod.x -= 10;
+					pod->gravMod.x -= 10;
 					sprites.back().setColor(255, 255, 255, 100);
 					break;
 				case '>':
-					bod->gravMod.x += 10;
+					pod->gravMod.x += 10;
 					sprites.back().setColor(255, 255, 255, 100);
 					break;
 				case '^':
-					bod->gravMod.y += 10;
+					pod->gravMod.y += 10;
 					sprites.back().setColor(255, 255, 255, 100);
 					break;
 				case 'v':
-					bod->gravMod.y -= 10;
+					pod->gravMod.y -= 10;
 					sprites.back().setColor(255, 255, 255, 100);
 					break;
 				}
@@ -588,9 +628,10 @@ void TextBlock::p_beginCollision(b2Fixture * collisionFixturePtr, b2Fixture * my
 			case '-':
 			case 'x':
 			case '+':
-				if (block->texts.front().getText()[0] == '~'
-					|| block->texts.front().getText()[0] == 'c') {
-					health = 0;  bod->health = 0;
+				switch (texts.front().getText()[0]) {
+				default: break;
+				case 'c':
+				case '~': health = 0;  bod->health = 0; break;
 				}
 				break;
 			case 'o':
@@ -605,7 +646,7 @@ void TextBlock::p_beginCollision(b2Fixture * collisionFixturePtr, b2Fixture * my
 }
 
 void TextBlock::p_endCollision(b2Fixture * collisionFixturePtr, b2Fixture * myFixturePtr, b2Contact * contactPtr) {
-	if (health > 0) {
+	if (health > 0 && collisionFixturePtr->GetBody()->GetUserData()) {
 		Body* bod = static_cast<Body*>(collisionFixturePtr->GetBody()->GetUserData());
 		switch (texts.front().getText()[0]) {
 		default: break;

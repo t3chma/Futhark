@@ -4,6 +4,10 @@
 
 Gun::Gun(fk::SpriteBatch& sb, fk::World& w, fk::Texture& bulTex, fk::TextSprite& t)
 : sb(sb), w(w), bulTex(bulTex), text(t) {
+	text.setText("`");
+	text.setDepth(11);
+	text[0].setColor(0, 255, 0, 255);
+	text[0].setDimensions(0.3, 0.3);
 }
 
 void Gun::fire(Body* ownerPtr, fk::Vec2 spawn, fk::Vec2 direction, int level) {
@@ -23,8 +27,7 @@ inline void Gun::update(fk::UserInput& ui) {
 }
 
 
-Gun::~Gun() {
-}
+Gun::~Gun() { text.clearText(); }
 
 Gun::M_bullet::M_bullet(Body* ownerPtr, fk::SpriteBatch& sb, fk::World& w, Body::Def& bulDef, fk::Texture& t, int level)
 	: Image(sb), Body(w, bulDef), oldPos(bulDef.position) {

@@ -44,15 +44,15 @@ void Player::update(fk::UserInput& ui) {
 		glm::vec2 myPosition = glm::vec2(myPos.x, myPos.y);
 		b2Ptr->ApplyForceToCenter(b2Vec2(move.x * speed, move.y * speed), true);
 		auto range = (int)fk::Joy::MAXI - (int)fk::Joy::MINXI;
-		bool nt;
-		if (ui.getAxiInfo(joys.fire, team) != (int)fk::Joy::MINXI) { nt = true; }
-		else { nt = false; };
+		bool trigger;
+		if (ui.getAxiInfo(joys.fire, team) != (int)fk::Joy::MINXI) { trigger = true; }
+		else { trigger = false; };
 		if (gunPtr) {
 			if (aim.x || aim.y) {
 				mouse.setColor(0, 0, 0, 255);
 				mouse.b2Ptr->SetTransform(b2Vec2(myPosition.x + aim.x / 4, myPosition.y + aim.y / 4), 0);
-				if (nt != t) {
-					if (!nt) {
+				if (trigger != oldTrigger) {
+					if (!trigger) {
 						aim.x *= 1000;
 						aim.y *= 1000;
 						int l = 0;
@@ -60,24 +60,25 @@ void Player::update(fk::UserInput& ui) {
 						mouse.setColor(255, 0, 0, 255);
 						gunPtr->fire(this, b2Ptr->GetWorldCenter(), aim, l);
 						gunPtr->charge = 0;
-						crank = false;
-					} else {
-						crank = true;
 					}
 				}
 			} else {
 				mouse.setColor(0, 0, 0, 0);
 			}
-			if (crank) { ++gunPtr->charge; }
+			if (trigger) { ++gunPtr->charge; }
 		}
-		t = nt;
+		oldTrigger = trigger;
 	}
 	if (gunPtr) { gunPtr->update(ui); }
 }
 void Player::draw() {
 	mouse.draw();
 	auto position = b2Ptr->GetPosition();
-	if (gunPtr) { gunPtr->text[0].setPosition(position.x, position.y); }
+	if (gunPtr) {
+		gunPtr->text[0].setPosition(position.x, position.y);
+		gunPtr->text[0].setRotationAxis(position.x, position.y);
+		gunPtr->text[0].canvas.rotationAngle += fk::TAU / 5;
+	}
 	sprites.front().setPosition(position.x, position.y);
 	if (prevHealth && health < 1) { sprites.front().setColor(0, 0, 0, 100); }
 	else {
