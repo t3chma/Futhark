@@ -111,12 +111,12 @@ void GameWorld::update(fk::Tools& tools) {
 	p1 += v;
 	if (player2Ptr->toggleCam) { playerPtr->toggleCam = true; }
 	if (playerPtr->toggleCam) {
-		arenaPtr->freeze = !arenaPtr->freeze;
+		arenaPtr->freezeCam = !arenaPtr->freezeCam;
 		playerPtr->toggleCam = false;
 		player2Ptr->toggleCam = false;
 	}
 	backgroundPtr->setPosition(arenaPtr->cam);
-	if (playerPtr->health == 0 || player2Ptr->health == 0) { arenaPtr->freeze = true; }
+	if (playerPtr->health == 0 || player2Ptr->health == 0) { arenaPtr->freezeCam = true; }
 	cam.setPosition(arenaPtr->cam);
 	cam.update();
 	auto batrix = cam.getBaseMatrix();

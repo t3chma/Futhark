@@ -167,12 +167,17 @@
     <Image Include="Textures\DevGrayCross128.png" />
     <Image Include="Textures\DevGraySlant128.png" />
     <Image Include="Textures\Door128.png" />
+    <Image Include="Textures\Ring.png" />
     <Image Include="Textures\Square.png" />
     <Image Include="Textures\Test.png" />
     <Image Include="Textures\Thrown.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Arenas\Drednaught.area" />
+    <None Include="Arenas\pushnpull.area" />
+    <None Include="Arenas\smallskermish.area" />
     <None Include="Arenas\test.area" />
+    <None Include="Arenas\Trapped.area" />
     <None Include="Fonts\desktop.ini" />
     <None Include="Shaders\Sprite.frag" />
     <None Include="Shaders\Sprite.geom" />

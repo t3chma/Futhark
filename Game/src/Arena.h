@@ -27,6 +27,6 @@ class Arena {
 	int ctime{ 0 };
 	int wtime{ 0 };
 	float width{ 0 };
-	bool freeze{ false };
+	bool freezeCam{ false };
 };
 

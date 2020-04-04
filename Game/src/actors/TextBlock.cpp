@@ -451,7 +451,7 @@ void TextBlock::update(fk::UserInput& ui) {
 			l *= l * l;
 			switch (r->type) {
 			default: break;
-			case 0: r->b2Ptr->ApplyForceToCenter(b2Vec2(50.0 * f.x / l, 50.0 * f.y / l), true); break;
+			case 0: r->b2Ptr->ApplyForceToCenter(b2Vec2(100.0 * f.x / l, 100.0 * f.y / l), true); break;
 			case 1: r->b2Ptr->ApplyForceToCenter(b2Vec2(10.0 * f.x / l, 10.0 * f.y / l), true); break;
 			case 2: r->b2Ptr->ApplyForceToCenter(b2Vec2(100.0 * f.x / l, 100.0 * f.y / l), true); break;
 			}
@@ -503,234 +503,245 @@ void TextBlock::update(fk::UserInput& ui) {
 }
 
 void TextBlock::p_beginCollision(b2Fixture * collisionFixturePtr, b2Fixture * myFixturePtr, b2Contact * contactPtr) {
-	if (health > 0 && collisionFixturePtr->GetBody()->GetUserData()) {
-		Body* bod = static_cast<Body*>(collisionFixturePtr->GetBody()->GetUserData());
-		auto f = bod->b2Ptr->GetPosition() - b2Ptr->GetPosition();
-		glm::vec2 u = glm::normalize(glm::vec2(f.x, f.y));
-		u *= 310.0;
-		switch (texts.front().getText()[0]) {
-		default: break;
-		case '{':
-		case '}':
-			reactors.push_front(bod);
-			break;
-		case 'q':
-		case 'p':
-		case '*':
-			if (myFixturePtr->IsSensor()) { reactors.push_front(bod); }
-			break;
-		}
-		// Player related
-		if (bod->type > 0) {
-			auto v = bod->b2Ptr->GetLinearVelocity();
-			// Player
-			if (bod->type == 1) {
-				Player* pod = static_cast<Player*>(bod);
-				char upgrade = pod->gunPtr->upgrade;
+	do {
+		if (health > 0 && collisionFixturePtr->GetBody()->GetUserData()) {
+			Body* bod = static_cast<Body*>(collisionFixturePtr->GetBody()->GetUserData());
+			auto f = bod->b2Ptr->GetPosition() - b2Ptr->GetPosition();
+			glm::vec2 u = glm::normalize(glm::vec2(f.x, f.y));
+			u *= 310.0;
+			switch (texts.front().getText()[0]) {
+			default: break;
+			case '{':
+			case '}':
+				reactors.push_front(bod);
+				break;
+			case 'q':
+			case 'p':
+			case '*':
+				if (myFixturePtr->IsSensor() && bod->health > 1) { reactors.push_front(bod); }
+				break;
+			}
+			// Player related
+			if (bod->type > 0) {
+				auto v = bod->b2Ptr->GetLinearVelocity();
+				// Player
+				if (bod->type == 1) {
+					Player* pod = static_cast<Player*>(bod);
+					char upgrade = pod->gunPtr->upgrade;
+					switch (texts.front().getText()[0]) {
+					default: break;
+					case '`':
+					case 'm':
+					case 'r':
+					case 'h':
+					case 'l':
+					case 't':
+						pod->gunPtr->upgrade = texts.front().getText()[0];
+						pod->gunPtr->text.setText(texts.front().getText());
+						pod->gunPtr->text[0].setColor(0, 255, 0, 255);
+						pod->gunPtr->text[0].setDimensions(0.3, 0.3);
+						setChar(upgrade);
+						break;
+					case '/': pod->torque += fk::TAU / 2; break;
+					case '|': pod->gorque += fk::TAU / 2; break;
+					case 'w':
+						if (
+							sprites.front().getCanvasRef().color.r == 255
+							&& sprites.front().getCanvasRef().color.g == 0
+							&& sprites.front().getCanvasRef().color.b == 0
+							) {
+							--pod->health;
+						}
+						break;
+					case '-':
+					case '+':
+					case 'x': --pod->health; break;
+					case '[':
+					case ']': reactors.push_back(pod); break;
+					case 'c':
+					case 'o':
+						pod->b2Ptr->ApplyForceToCenter(b2Vec2(u.x * 3, u.y * 3), true);
+						b2Ptr->ApplyForceToCenter(b2Vec2(-u.x, -u.y), true);
+						break;
+					case 'O':
+						if (abs(u.x) > abs(u.y)) {
+							pod->b2Ptr->ApplyForceToCenter(b2Vec2(u.x * 6, 0), true);
+							b2Ptr->ApplyForceToCenter(b2Vec2(-u.x, 0), true);
+						}
+						else {
+							pod->b2Ptr->ApplyForceToCenter(b2Vec2(0, u.y * 6), true);
+							b2Ptr->ApplyForceToCenter(b2Vec2(0, -u.y), true);
+						}
+						break;
+					case '<':
+						pod->gravMod.x -= 10;
+						sprites.back().setColor(255, 255, 255, 100);
+						break;
+					case '>':
+						pod->gravMod.x += 10;
+						sprites.back().setColor(255, 255, 255, 100);
+						break;
+					case '^':
+						pod->gravMod.y += 10;
+						sprites.back().setColor(255, 255, 255, 100);
+						break;
+					case 'v':
+						pod->gravMod.y -= 10;
+						sprites.back().setColor(255, 255, 255, 100);
+						break;
+					}
+					// Player made
+				}
+				else {
+					switch (texts.front().getText()[0]) {
+					default: break;
+					case '-':
+					case ':':
+					case '.':
+						if (bod->health > 1) {
+							--health;
+							if (bod->level == 1) { health = 0; }
+							sprites.front().getCanvasRef().color.a -= 20;
+						}
+						break;
+					case '#':
+						if (bod->health > 1) {
+							bod->ownerPtr->toggleCam = true;
+							if (sprites.back().getCanvasRef().color.r) {
+								sprites.back().setColor(0, 0, 0, 200);
+							}
+							else {
+								sprites.back().setColor(255, 255, 255, 200);
+							}
+						}
+						break;
+					case '*':
+						if (limbs.size() < 2) {
+							limbs.back().b2Ptr->SetSensor(true);
+							sprites.back().setColor(0, 0, 0, 0);
+						}
+						break;
+					case 'q':
+					case 'p':
+						if (!myFixturePtr->IsSensor() && bod->health > 1 && bod->level == 1) {
+							health = 0;
+						}
+						break;
+					}
+				}
+				char c;
 				switch (texts.front().getText()[0]) {
 				default: break;
-				case '`':
-				case 'm':
-				case 'r':
-				case 'h':
-				case 'l':
-				case 't':
-					pod->gunPtr->upgrade = texts.front().getText()[0];
-					pod->gunPtr->text.setText(texts.front().getText());
-					pod->gunPtr->text[0].setColor(0, 255, 0, 255);
-					pod->gunPtr->text[0].setDimensions(0.3, 0.3);
-					setChar(upgrade);
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
+					c = texts.front().getText()[0];
+					setChar(--c);
+					for (auto&& text : texts) { text[0].setColor(255, 0, 0, 128); }
 					break;
-				case '/': pod->torque += fk::TAU / 2; break;
-				case '|': pod->gorque += fk::TAU / 2; break;
-				case 'w':
-					if (
-						sprites.front().getCanvasRef().color.r == 255
-						&& sprites.front().getCanvasRef().color.g == 0
-						&& sprites.front().getCanvasRef().color.b == 0
-						) {
-						--pod->health;
+				case '0':
+					reactors.push_back(nullptr);
+					break;
+				}
+				// Envorinment
+			}
+			else if (bod->type = 0) {
+				auto block = static_cast<TextBlock*>(bod);
+				switch (texts.front().getText()[0]) {
+				default: break;
+				case '-':
+				case 'x':
+				case '+':
+					switch (texts.front().getText()[0]) {
+					default: break;
+					case 'c':
+					case '~': health = 0;  bod->health = 0; break;
 					}
 					break;
-				case '-':
-				case '+':
-				case 'x': --pod->health; break;
-				case '[':
-				case ']': reactors.push_back(pod); break;
-				case 'c':
 				case 'o':
-					pod->b2Ptr->ApplyForceToCenter(b2Vec2(u.x * 3, u.y * 3), true);
-					b2Ptr->ApplyForceToCenter(b2Vec2(-u.x, -u.y), true);
+					if (block->texts.front().getText()[0] == 'o') reactors.push_back(block);
 					break;
 				case 'O':
-					if (abs(u.x) > abs(u.y)) {
-						pod->b2Ptr->ApplyForceToCenter(b2Vec2(u.x * 6, 0), true);
-						b2Ptr->ApplyForceToCenter(b2Vec2(-u.x, 0), true);
-					}
-					else {
-						pod->b2Ptr->ApplyForceToCenter(b2Vec2(0, u.y * 6), true);
-						b2Ptr->ApplyForceToCenter(b2Vec2(0, -u.y), true);
-					}
-					break;
-				case '<':
-					pod->gravMod.x -= 10;
-					sprites.back().setColor(255, 255, 255, 100);
-					break;
-				case '>':
-					pod->gravMod.x += 10;
-					sprites.back().setColor(255, 255, 255, 100);
-					break;
-				case '^':
-					pod->gravMod.y += 10;
-					sprites.back().setColor(255, 255, 255, 100);
-					break;
-				case 'v':
-					pod->gravMod.y -= 10;
-					sprites.back().setColor(255, 255, 255, 100);
+					if (block->texts.front().getText()[0] == 'O') reactors.push_back(block);
 					break;
 				}
-			// Player made
-			} else {
-				switch (texts.front().getText()[0]) {
-				default: break;
-				case '-':
-				case ':':
-				case '.':
-					--health;
-					if (bod->level == 1) { health = 0; }
-					if (bod->health > 120) { health = 0; }
-					sprites.front().getCanvasRef().color.a -= 20;
-					break;
-				case '#':
-					bod->ownerPtr->toggleCam = true;
-					if (sprites.back().getCanvasRef().color.r) {
-						sprites.back().setColor(0, 0, 0, 200);
-					}
-					else {
-						sprites.back().setColor(255, 255, 255, 200);
-					}
-					break;
-				case '*':
-					if (limbs.size() < 2) {
-						limbs.back().b2Ptr->SetSensor(true);
-						sprites.back().setColor(0, 0, 0, 0);
-					}
-					break;
-				case 'q':
-				case 'p':
-					if (!myFixturePtr->IsSensor()) { if (bod->level == 1) { health = 0; } }
-					break;
-				}
-			}
-			char c;
-			switch (texts.front().getText()[0]) {
-			default: break;
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-				c = texts.front().getText()[0];
-				setChar(--c);
-				for (auto&& text : texts) { text[0].setColor(255, 0, 0, 128); }
-				break;
-			case '0':
-				reactors.push_back(nullptr);
-				break;
-			}
-		// Envorinment
-		} else if (bod->type = 0) {
-			auto block = static_cast<TextBlock*>(bod);
-			switch (texts.front().getText()[0]) {
-			default: break;
-			case '-':
-			case 'x':
-			case '+':
-				switch (texts.front().getText()[0]) {
-				default: break;
-				case 'c':
-				case '~': health = 0;  bod->health = 0; break;
-				}
-				break;
-			case 'o':
-				if (block->texts.front().getText()[0] == 'o') reactors.push_back(block);
-				break;
-			case 'O':
-				if (block->texts.front().getText()[0] == 'O') reactors.push_back(block);
-				break;
 			}
 		}
-	}
+	} while (collisionFixturePtr = collisionFixturePtr->GetNext());
 }
 
 void TextBlock::p_endCollision(b2Fixture * collisionFixturePtr, b2Fixture * myFixturePtr, b2Contact * contactPtr) {
-	if (health > 0 && collisionFixturePtr->GetBody()->GetUserData()) {
-		Body* bod = static_cast<Body*>(collisionFixturePtr->GetBody()->GetUserData());
-		switch (texts.front().getText()[0]) {
-		default: break;
-		case '{':
-		case '}':
-			reactors.remove(bod);
-			bod->b2Ptr->SetLinearDamping(bod->resistance);
-			break;
-		case '*':
-		case 'p':
-		case 'q':
-			if (myFixturePtr->IsSensor() && reactors.size()) { reactors.remove(bod); }
-			break;
-		case '[':
-		case ']':
-			reactors.remove(bod);
-			break;
-		}
-		// Player related
-		if (bod->type > 0) {
-			// Player
-			if (bod->type == 1) {
-				switch (texts.front().getText()[0]) {
-				default: break;
-				case 'w':
-					limbs.back().b2Ptr->SetSensor(false);
-					for (auto&& text : texts) { text[0].setColor(0, 0, 255, 200); }
-					sprites.back().setColor(255, 0, 0, 255);
-					break;
-				case '<':
-					bod->gravMod.x += 10;
-					sprites.back().setColor(0, 0, 0, 100);
-					break;
-				case '>':
-					bod->gravMod.x -= 10;
-					sprites.back().setColor(0, 0, 0, 100);
-					break;
-				case '^':
-					bod->gravMod.y -= 10;
-					sprites.back().setColor(0, 0, 0, 100);
-					break;
-				case 'v':
-					bod->gravMod.y += 10;
-					sprites.back().setColor(0, 0, 0, 100);
-					break;
-				}
-			}
-		} else if (bod->type == 0) {
-			TextBlock* block = static_cast<TextBlock*>(bod);
+	do {
+		if (health > 0 && collisionFixturePtr->GetBody()->GetUserData()) {
+			Body* bod = static_cast<Body*>(collisionFixturePtr->GetBody()->GetUserData());
 			switch (texts.front().getText()[0]) {
 			default: break;
-			case 'o':
-				if (reactors.size() && block->texts.front().getText()[0] == 'o') {
-					reactors.remove(block);
-				}
+			case '{':
+			case '}':
+				reactors.remove(bod);
+				bod->b2Ptr->SetLinearDamping(bod->resistance);
 				break;
-			case 'O':
-				if (reactors.size() && block->texts.front().getText()[0] == 'O') {
-					reactors.remove(block);
-				}
+			case '*':
+			case 'p':
+			case 'q':
+				if (myFixturePtr->IsSensor() && reactors.size()) { reactors.remove(bod); }
+				break;
+			case '[':
+			case ']':
+				reactors.remove(bod);
 				break;
 			}
+			// Player related
+			if (bod->type > 0) {
+				// Player
+				if (bod->type == 1) {
+					switch (texts.front().getText()[0]) {
+					default: break;
+					case 'w':
+						limbs.back().b2Ptr->SetSensor(false);
+						for (auto&& text : texts) { text[0].setColor(0, 0, 255, 200); }
+						sprites.back().setColor(255, 0, 0, 255);
+						break;
+					case '<':
+						bod->gravMod.x += 10;
+						sprites.back().setColor(0, 0, 0, 100);
+						break;
+					case '>':
+						bod->gravMod.x -= 10;
+						sprites.back().setColor(0, 0, 0, 100);
+						break;
+					case '^':
+						bod->gravMod.y -= 10;
+						sprites.back().setColor(0, 0, 0, 100);
+						break;
+					case 'v':
+						bod->gravMod.y += 10;
+						sprites.back().setColor(0, 0, 0, 100);
+						break;
+					}
+				}
+			} else if (bod->type == 0) {
+				TextBlock* block = static_cast<TextBlock*>(bod);
+				switch (texts.front().getText()[0]) {
+				default: break;
+				case 'o':
+					if (reactors.size() && block->texts.front().getText()[0] == 'o') {
+						reactors.remove(block);
+					}
+					break;
+				case 'O':
+					if (reactors.size() && block->texts.front().getText()[0] == 'O') {
+						reactors.remove(block);
+					}
+					break;
+				}
+			}
 		}
-	}
+	} while (collisionFixturePtr = collisionFixturePtr->GetNext());
 }

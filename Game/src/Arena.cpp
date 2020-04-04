@@ -133,7 +133,7 @@ void Arena::update(fk::UserInput& ui) {
 		}
 		line.remove_if([](TextBlock& tb) { return tb.health < 1; });
 	}
-	if (choreography.size() && !freeze) {
+	if (choreography.size() && !freezeCam) {
 		ctime -= 1;
 		cam += choreography[c].step;
 		if (ctime < 0) {

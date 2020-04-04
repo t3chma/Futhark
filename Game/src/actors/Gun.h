@@ -4,12 +4,12 @@
 #include "../Intellect.h"
 #include "../Body.h"
 #include "in/FileCache.h"
-#include "out/TTFont.h"
 
 class Gun : public Intellect {
   private:
 	class M_bullet : public Image, public Body, public Intellect {
 	  public:
+		bool fresh{ true };
 		fk::Random r;
 		char upgrade{ '`' };
 		int bounces{ 0 };
@@ -38,4 +38,3 @@ class Gun : public Intellect {
 	char upgrade{ '`' };
 	long lastFire{ 0 };
 };
-

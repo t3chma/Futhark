@@ -48,6 +48,9 @@
     <Image Include="Textures\Thrown.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Textures\Ring.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Sprite.frag" />
@@ -57,6 +60,10 @@
     <None Include="Shaders\Wire.vert" />
     <None Include="Fonts\desktop.ini" />
     <None Include="Arenas\test.area" />
+    <None Include="Arenas\Trapped.area" />
+    <None Include="Arenas\Drednaught.area" />
+    <None Include="Arenas\pushnpull.area" />
+    <None Include="Arenas\smallskermish.area" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">

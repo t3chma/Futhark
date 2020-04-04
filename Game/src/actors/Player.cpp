@@ -9,6 +9,7 @@ Player::Player(fk::SpriteBatch& sb, fk::SpriteBatch& textBatch, fk::World& world
 	addCircleLimb(0.2);
 	resistance = 10;
 	b2Ptr->SetLinearDamping(10);
+	b2Ptr->SetBullet(true);
 	limbs.back().category = "body";
 	limbs.back().b2Ptr->SetDensity(200);
 	limbs.back().b2Ptr->SetRestitution(0);
@@ -20,6 +21,8 @@ Player::Player(fk::SpriteBatch& sb, fk::SpriteBatch& textBatch, fk::World& world
 	t.setDepth(5);
 	gunPtr = new Gun(sb, world, pd.md.body, t);
 	gunPtr->team = team;
+	addCircleLimb(0.3);
+	limbs.back().b2Ptr->SetSensor(true);
 }
 Player::~Player() {
 	delete gunPtr;
@@ -42,17 +45,20 @@ void Player::update(fk::UserInput& ui) {
 		float speed = 25;
 		b2Vec2 myPos = b2Ptr->GetPosition();
 		glm::vec2 myPosition = glm::vec2(myPos.x, myPos.y);
-		b2Ptr->ApplyForceToCenter(b2Vec2(move.x * speed, move.y * speed), true);
+		if (!immobilized) {
+			b2Ptr->ApplyForceToCenter(b2Vec2(move.x * speed, move.y * speed), true);
+		}
 		auto range = (int)fk::Joy::MAXI - (int)fk::Joy::MINXI;
 		bool trigger;
 		if (ui.getAxiInfo(joys.fire, team) != (int)fk::Joy::MINXI) { trigger = true; }
 		else { trigger = false; };
-		if (gunPtr) {
+		if (gunPtr && !stunned) {
 			if (aim.x || aim.y) {
 				mouse.setColor(0, 0, 0, 255);
 				mouse.b2Ptr->SetTransform(b2Vec2(myPosition.x + aim.x / 4, myPosition.y + aim.y / 4), 0);
 				if (
 					(gunPtr->upgrade == 'r' && trigger && gunPtr->lastFire > 5)
+					|| (gunPtr->upgrade == 'h' && trigger && gunPtr->lastFire > 8)
 					|| (trigger != oldTrigger && !trigger)
 				) {
 					aim.x *= 20;
@@ -72,6 +78,8 @@ void Player::update(fk::UserInput& ui) {
 		oldTrigger = trigger;
 	}
 	if (gunPtr) { gunPtr->update(ui); }
+	if (immobilized > 0) { --immobilized; }
+	if (stunned > 0) { --stunned; }
 }
 void Player::draw() {
 	mouse.draw();

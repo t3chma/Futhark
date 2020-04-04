@@ -27,5 +27,8 @@ class Player : public Body, public Image, public Intellect {
 	long prevHealth{ 0 };
 	Gun* gunPtr{ nullptr };
 	bool oldTrigger{ false };
-	bool freeze{ false };
+	bool freezeCam{ false };
+	long immobilized{ 0 };
+	long stunned{ 0 };
+	long shield{ 0 };
 };
