@@ -5,10 +5,14 @@
 #include "../Body.h"
 #include "in/FileCache.h"
 
+class TextBlock;
+class Player;
+
 class Gun : public Intellect {
   private:
 	class M_bullet : public Image, public Body, public Intellect {
 	  public:
+		std::vector<Player*> reactors;
 		bool fresh{ true };
 		fk::Random r;
 		char upgrade{ '`' };
@@ -22,6 +26,8 @@ class Gun : public Intellect {
 			b2Fixture* myFixturePtr,
 			b2Contact* contactPtr
 		) override;
+		void hitBlock(TextBlock* tod);
+		void hitEnemy(Player* pod, b2Contact* contactPtr, fk::Vec2 &u, b2Fixture* myFixturePtr);
 	};
   public:
 	fk::SpriteBatch& sb;

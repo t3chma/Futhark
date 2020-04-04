@@ -5,6 +5,9 @@
 #include "../Intellect.h"
 #include "in/FileCache.h"
 
+class TextBlock;
+class Player;
+
 class TextBlock : public Image, public Body, public Intellect {
   public:
 	fk::Random r;
@@ -20,6 +23,9 @@ class TextBlock : public Image, public Body, public Intellect {
 		b2Fixture* myFixturePtr,
 		b2Contact* contactPtr
 	) override;
+	void hitBlock(TextBlock* block);
+	void hitBullet(Body* bod, b2Fixture* myFixturePtr);
+	void hitPlayer(Player* pod, glm::vec2 &u);
 	virtual void p_endCollision(
 		b2Fixture* collisionFixturePtr,
 		b2Fixture* myFixturePtr,

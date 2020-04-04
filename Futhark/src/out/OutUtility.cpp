@@ -49,7 +49,10 @@ namespace fk {
 	Vec2::Vec2(const glm::ivec2& const VEC2) : x(VEC2.x), y(VEC2.y) {}
 	Vec2::operator glm::vec2() const { return glm::vec2(x, y); }
 	Vec2::operator b2Vec2() const { return b2Vec2(x, y); }
-	Vec2 Vec2::normalized() const { return glm::normalize(glm::vec2(x, y)); }
+	Vec2 Vec2::normalized() const {
+		if (x || y) { return glm::normalize(glm::vec2(x, y)); }
+		else { return *this; }
+	}
 	float Vec2::length() const { return glm::length(glm::vec2(x, y)); }
 	Vec2 Vec2::operator = (const glm::vec2& VEC2) { x = VEC2.x; y = VEC2.y; return *this; }
 	Vec2 Vec2::operator = (const b2Vec2& VEC2) { x = VEC2.x; y = VEC2.y; return *this; }

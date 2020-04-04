@@ -9,6 +9,7 @@ class Player : public Body, public Image, public Intellect {
 		Body::Def bd;
 		Mouse::Def md;
 		fk::Texture body;
+		fk::Texture shield;
 		fk::TTFont* hudFont;
 	};
 	Player(fk::SpriteBatch& sb, fk::SpriteBatch& textBatch, fk::World& world, Player::Def pd);
@@ -23,7 +24,9 @@ class Player : public Body, public Image, public Intellect {
 		fk::Joy xFire{ fk::Joy::RX };
 		fk::Joy yFire{ fk::Joy::RY };
 		fk::Joy fire{ fk::Joy::RZ };
+		fk::Joy shield{ fk::Joy::LZ };
 	} joys;
+	fk::Vec2 aim;
 	long prevHealth{ 0 };
 	Gun* gunPtr{ nullptr };
 	bool oldTrigger{ false };
@@ -31,4 +34,6 @@ class Player : public Body, public Image, public Intellect {
 	long immobilized{ 0 };
 	long stunned{ 0 };
 	long shield{ 0 };
+	long reflect{ 0 };
+	int reflectime{ 3 };
 };

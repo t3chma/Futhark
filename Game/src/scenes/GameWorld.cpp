@@ -38,20 +38,22 @@ void GameWorld::create(fk::Tools& tools) {
 	// Player
 	Player::Def pd;
 	pd.body = tools.textures.get("Circle.png");
+	pd.shield = tools.textures.get("Ring.png");
 	pd.md.body = tools.textures.get("Circle.png");
 	pd.hudFont = &font;
 	playerPtr = new Player(*spriteBatchPtr, *textBatchPtr, world, pd);
 	player2Ptr = new Player(*spriteBatchPtr, *textBatchPtr, world, pd);
 	player2Ptr->setTeam(2);
-	std::string s = "Arenas/test.area";
-	arenaPtr = new Arena(s, font, t, *spriteBatchPtr, world, pd);
-	playerPtr->b2Ptr->SetTransform(arenaPtr->spawns[0], 0);
-	player2Ptr->b2Ptr->SetTransform(arenaPtr->spawns[1], 0);
-
 	actorPtrs.push_back(playerPtr);
 	imagePtrs.push_back(playerPtr);
 	actorPtrs.push_back(player2Ptr);
 	imagePtrs.push_back(player2Ptr);
+
+	// Arena
+	std::string s = "Arenas/test.area";
+	arenaPtr = new Arena(s, font, t, *spriteBatchPtr, world, pd);
+	playerPtr->b2Ptr->SetTransform(arenaPtr->spawns[0], 0);
+	player2Ptr->b2Ptr->SetTransform(arenaPtr->spawns[1], 0);
 
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 }
@@ -87,21 +89,22 @@ void GameWorld::update(fk::Tools& tools) {
 		// Player
 		Player::Def pd;
 		pd.body = tools.textures.get("Circle.png");
+		pd.shield = tools.textures.get("Ring.png");
 		pd.md.body = tools.textures.get("Circle.png");
 		pd.hudFont = &font;
 		playerPtr = new Player(*spriteBatchPtr, *textBatchPtr, world, pd);
 		player2Ptr = new Player(*spriteBatchPtr, *textBatchPtr, world, pd);
 		player2Ptr->setTeam(2);
+		actorPtrs.push_back(playerPtr);
+		imagePtrs.push_back(playerPtr);
+		actorPtrs.push_back(player2Ptr);
+		imagePtrs.push_back(player2Ptr);
+		// Arena
 		std::string s = "Arenas/test.area";
 		fk::Texture t = tools.textures.get("Square.png");
 		arenaPtr = new Arena(s, font, t, *spriteBatchPtr, world, pd);
 		playerPtr->b2Ptr->SetTransform(arenaPtr->spawns[0], 0);
 		player2Ptr->b2Ptr->SetTransform(arenaPtr->spawns[1], 0);
-
-		actorPtrs.push_back(playerPtr);
-		imagePtrs.push_back(playerPtr);
-		actorPtrs.push_back(player2Ptr);
-		imagePtrs.push_back(player2Ptr);
 	}
 
 	// Update cam and render.
