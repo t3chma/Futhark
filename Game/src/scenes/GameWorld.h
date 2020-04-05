@@ -13,6 +13,11 @@
 
 class GameWorld : public fk::Scene {
   public:
+	int exitCounter{ 0 };
+	std::list<fk::TextSprite> levelSelect;
+	int currentLevel{ 0 };
+	bool paused{ true };
+	std::vector<std::string> levels;
 	Arena* arenaPtr;
 	std::vector<std::vector<TextBlock>> map;
 	fk::World world;
@@ -27,8 +32,8 @@ class GameWorld : public fk::Scene {
 	std::vector<Image*> imagePtrs;
 	Player* playerPtr;
 	Player* player2Ptr;
-	GameWorld() = default;
-	~GameWorld() = default;
+	GameWorld() {};
+	~GameWorld() {};
 	// Inherited via fk::Scene
 	virtual void create(fk::Tools& tools) override;
 	virtual void destroy(fk::Tools& tools) override;

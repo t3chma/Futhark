@@ -276,7 +276,13 @@ void TextSprite::setPosition(glm::vec2 position, Justification justification) {
 	switch (justification) {
 	  case Justification::LEFT: move(position - m_spriteBatch[m_spriteIds.front()].getPosition()); break;
 	  case Justification::RIGHT: move(position - m_spriteBatch[m_spriteIds.back()].getPosition()); break;
-	  default: break;
+	  default:
+		auto width =
+			m_spriteBatch[m_spriteIds.front()].getPosition()
+			- m_spriteBatch[m_spriteIds.back()].getPosition();
+		width /= 2;
+		move(position - m_spriteBatch[m_spriteIds.front()].getPosition() + width);
+		break;
 	}
 }
 void TextSprite::setDepth(int depth) {

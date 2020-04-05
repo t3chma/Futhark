@@ -422,7 +422,7 @@ void TextBlock::update(fk::UserInput& ui) {
 			if (++timer > 60) {
 				timer = 0;
 				--r->damage;
-				static_cast<Player*>(r)->sprites.back().setColor(0, 255, 0, 255);
+				static_cast<Player*>(r)->sprites.front().setColor(0, 255, 0, 255);
 			}
 		}
 		break;
@@ -431,7 +431,7 @@ void TextBlock::update(fk::UserInput& ui) {
 			if (++timer > 60) {
 				timer = 0;
 				++r->damage;
-				static_cast<Player*>(r)->sprites.back().setColor(255, 0, 0, 255);
+				static_cast<Player*>(r)->sprites.front().setColor(255, 0, 0, 255);
 			}
 		}
 		break;
