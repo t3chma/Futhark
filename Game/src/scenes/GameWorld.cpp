@@ -43,7 +43,6 @@ void GameWorld::create(fk::Tools& tools) {
 
 	// Text
 	font = tools.fonts.get("consola.ttf");
-
 }
 void GameWorld::destroy(fk::Tools& tools) {
 
@@ -88,18 +87,24 @@ void GameWorld::open(fk::Tools& tools) {
 	imagePtrs.push_back(player2Ptr);
 
 	// Arena
-	auto t = tools.textures.get("Square.png");
-	auto s = "Arenas/" + levels[currentLevel] + ".area";
+	fk::Texture t = tools.textures.get("Square.png");
+	std::string s = "Arenas/" + levels[currentLevel] + ".area";
 	arenaPtr = new Arena(s, font, t, *spriteBatchPtr, world, pd);
 	playerPtr->b2Ptr->SetTransform(arenaPtr->spawns[0], 0);
 	player2Ptr->b2Ptr->SetTransform(arenaPtr->spawns[1], 0);
+
+	// Editor
+	Mouse::Def md;
+	md.body = tools.textures.get("Ring.png");
+	editorPtr = new Mouse(*spriteBatchPtr, world, md);
+	buildingPtr = new BuildIcon(*spriteBatchPtr, tools.textures.get("Build.png"));
 
 	// Prep
 	arenaPtr->draw();
 	for (auto&& imagePtrs : imagePtrs) { imagePtrs->draw(); }
 }
 void GameWorld::close(fk::Tools& tools) {
-	paused = true;
+	mode = 'p';
 
 	// Text
 	for (auto&& level : levelSelect) { level.clearText(); }
@@ -113,16 +118,28 @@ void GameWorld::close(fk::Tools& tools) {
 
 	// Arena
 	delete arenaPtr;
+
+	// Editor Mouse
+	delete editorPtr;
+	delete buildingPtr;
 }
 void GameWorld::update(fk::Tools& tools) {
 	///glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	if (tools.ui.getJoyInfo(fk::Joy::START, 1).downFrames == 1) { paused = !paused; }
-	if (paused) {
+	if (tools.ui.getJoyInfo(fk::Joy::START, 1).downFrames == 1) {
+		if (mode == 'p') { mode = 'g'; }
+		else if (mode == 'g') { mode = 'p'; }
+	}
+	if (tools.ui.getKeyInfo(fk::Key::SPACE).downFrames == 1) {
+		if (mode != 'e') { mode = 'e'; }
+		else if (mode == 'e') { mode = 'p'; }
+	}
+	if (mode == 'p') {
 		for (auto&& level : levelSelect) {
 			for (int i = 0; i < level.getTextLength(); ++i) {
 				level[i].canvas.color.a = 255;
 			}
 		}
+		buildingPtr->sprites.back().setColor(0, 0, 0, 0);
 		backgroundPtr->getCanvasRef().position.z = 100;
 		cam.setPosition(arenaPtr->cam);
 		cam.update();
@@ -179,24 +196,33 @@ void GameWorld::update(fk::Tools& tools) {
 				break;
 			}
 		}
-	} else {
+	} else if (mode == 'g' || mode == 'e') {
 		for (auto&& level : levelSelect) {
 			for (int i = 0; i < level.getTextLength(); ++i) {
 				level[i].canvas.color.a = 0;
 			}
 		}
-		//AI
-		arenaPtr->update(tools.ui);
+
+		// AI
+		if (mode == 'e') {
+			buildingPtr->sprites.back().setColor(255, 255, 255, 255);
+			if (tools.ui.getKeyInfo(fk::Key::W).downFrames) { cam.move(fk::Vec2(0, 0.1)); }
+			if (tools.ui.getKeyInfo(fk::Key::A).downFrames) { cam.move(fk::Vec2(-0.1, 0)); }
+			if (tools.ui.getKeyInfo(fk::Key::S).downFrames) { cam.move(fk::Vec2(0, -0.1)); }
+			if (tools.ui.getKeyInfo(fk::Key::D).downFrames) { cam.move(fk::Vec2(0.1, 0)); }
+		} else {
+			buildingPtr->sprites.back().setColor(255, 255, 255, 0);
+			arenaPtr->update(tools.ui);
+			cam.setPosition(arenaPtr->cam);
+		}
 		for (auto&& actorPtr : actorPtrs) { actorPtr->update(tools.ui); }
+		editorPtr->update(tools.ui);
 
 		// Draw sprites
 		arenaPtr->draw();
 		for (auto&& imagePtrs : imagePtrs) { imagePtrs->draw(); }
+		editorPtr->draw();
 
-		// Mouse
-		glm::vec2 mousePos = cam.getWorldCoordinates(tools.ui.getMouseInfo(0).windowPosition);
-
-		// Update cam and render.
 		auto p1 = glm::vec2(playerPtr->b2Ptr->GetPosition().x, playerPtr->b2Ptr->GetPosition().y);
 		auto p2 = glm::vec2(player2Ptr->b2Ptr->GetPosition().x, player2Ptr->b2Ptr->GetPosition().y);
 		auto v = p2 - p1; v.x /= 2; v.y /= 2;
@@ -209,30 +235,46 @@ void GameWorld::update(fk::Tools& tools) {
 		}
 		backgroundPtr->getCanvasRef().position.z = -100;
 		backgroundPtr->setPosition(arenaPtr->cam);
-		if (playerPtr->health == 0 || player2Ptr->health == 0) { arenaPtr->freezeCam = true; }
-		cam.setPosition(arenaPtr->cam);
+		if (playerPtr->health == 0 || player2Ptr->health == 0) {
+			arenaPtr->freezeCam = true;
+		}
 		cam.update();
 		auto batrix = cam.getBaseMatrix();
 		auto matrix = cam.getTransScaledMatrix();
-		spriteRenderer.render(*spriteBatchPtr, matrix);
-		spriteRenderer.render(*textBatchPtr, batrix);
-		//wireRenderer.render(world, matrix);
+		buildingPtr->sprites.back().setPosition(fk::Vec2(0.5, -0.5) + cam.getLensTopLeft());
+		buildingPtr->sprites.back().setColor(255, 255, 255, 255);
+
+		// Mouse
+		fk::Vec2 mousePos = cam.getWorldCoordinates(tools.ui.getMouseInfo(0).windowPosition);
+		editorPtr->b2Ptr->SetTransform(mousePos, 0);
 
 		// Physics
 		auto p1p = playerPtr->b2Ptr->GetPosition();
 		auto p2p = player2Ptr->b2Ptr->GetPosition();
-		auto bd = backgroundPtr->getCanvasRef().dimensions / cam.getZoom() / 2;
-		auto bp = backgroundPtr->getPosition();
-		if (p1p.x < bp.x - bd.x || p1p.x > bp.x + bd.x || p1p.y < bp.y - bd.y || p1p.y > bp.y + bd.y) {
-			playerPtr->health = 0;
-		}
-		if (p2p.x < bp.x - bd.x || p2p.x > bp.x + bd.x || p2p.y < bp.y - bd.y || p2p.y > bp.y + bd.y) {
-			player2Ptr->health = 0;
+		fk::Vec2 bd = backgroundPtr->getCanvasRef().dimensions / cam.getZoom() / 2;
+		fk::Vec2 bp = backgroundPtr->getPosition();
+		if (mode == 'e') {
+
+		} else {
+			if (p1p.x < bp.x - bd.x || p1p.x > bp.x + bd.x || p1p.y < bp.y - bd.y || p1p.y > bp.y + bd.y) {
+				playerPtr->health = 0;
+			}
+			if (p2p.x < bp.x - bd.x || p2p.x > bp.x + bd.x || p2p.y < bp.y - bd.y || p2p.y > bp.y + bd.y) {
+				player2Ptr->health = 0;
+			}
 		}
 		world.setGravity(
 			arenaPtr->gravity.x + playerPtr->gravMod.x + player2Ptr->gravMod.x,
 			arenaPtr->gravity.y + playerPtr->gravMod.y + player2Ptr->gravMod.y
 		);
 		world.update(1.0f / 60.0f, 3, 2);
+
+		spriteRenderer.render(*spriteBatchPtr, matrix);
+		spriteRenderer.render(*textBatchPtr, batrix);
+		//wireRenderer.render(world, matrix);
 	}
+}
+
+BuildIcon::BuildIcon(fk::SpriteBatch & sb, fk::Texture t) : Image(sb) {
+	sprites.emplace_back(sb, t);
 }

@@ -74,7 +74,7 @@ void Player::update(fk::UserInput& ui) {
 					aim.x *= 20;
 					aim.y *= 20;
 					int l = 0;
-					if (gunPtr->charge > 60 && !gunPtr->upgrade == 'e') {
+					if (gunPtr->charge > 60) {
 						aim *= 5;
 						l = 1;
 					}
@@ -86,7 +86,8 @@ void Player::update(fk::UserInput& ui) {
 				mouse.setColor(0, 0, 0, 0);
 			}
 			if (trigger && gunPtr->upgrade != 'h' && gunPtr->upgrade != 'r') {
-				++gunPtr->charge;
+				if (gunPtr->upgrade != 'e') { ++gunPtr->charge; }
+				else { gunPtr->charge = 1; }
 			}
 		}
 	}

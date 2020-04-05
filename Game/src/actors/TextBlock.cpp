@@ -210,7 +210,8 @@ TextBlock::TextBlock(char c, fk::TTFont& f, fk::SpriteBatch& sb, fk::World& w, B
 		case '^':
 		case 'v':
 			text[0].setColor(128, 128, 128, 200);
-			sprites.back().setColor(0, 0, 0, 200);
+			sprites.back().setColor(0, 0, 0, 100
+);
 			sprites.back().getCanvasRef().position.z = -1;
 			break;
 		case 'w':
@@ -669,19 +670,19 @@ void TextBlock::hitPlayer(Player* pod, glm::vec2 &u) {
 		}
 		break;
 	case '<':
-		pod->gravMod.x -= 10;
+		pod->gravMod.x -= 8;
 		sprites.back().setColor(255, 255, 255, 100);
 		break;
 	case '>':
-		pod->gravMod.x += 10;
+		pod->gravMod.x += 8;
 		sprites.back().setColor(255, 255, 255, 100);
 		break;
 	case '^':
-		pod->gravMod.y += 10;
+		pod->gravMod.y += 8;
 		sprites.back().setColor(255, 255, 255, 100);
 		break;
 	case 'v':
-		pod->gravMod.y -= 10;
+		pod->gravMod.y -= 8;
 		sprites.back().setColor(255, 255, 255, 100);
 		break;
 	}
@@ -720,19 +721,19 @@ void TextBlock::p_endCollision(b2Fixture * collisionFixturePtr, b2Fixture * myFi
 						sprites.back().setColor(255, 0, 0, 255);
 						break;
 					case '<':
-						bod->gravMod.x += 10;
+						bod->gravMod.x += 8;
 						sprites.back().setColor(0, 0, 0, 100);
 						break;
 					case '>':
-						bod->gravMod.x -= 10;
+						bod->gravMod.x -= 8;
 						sprites.back().setColor(0, 0, 0, 100);
 						break;
 					case '^':
-						bod->gravMod.y -= 10;
+						bod->gravMod.y -= 8;
 						sprites.back().setColor(0, 0, 0, 100);
 						break;
 					case 'v':
-						bod->gravMod.y += 10;
+						bod->gravMod.y += 8;
 						sprites.back().setColor(0, 0, 0, 100);
 						break;
 					}

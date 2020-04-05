@@ -166,11 +166,13 @@ void Gun::M_bullet::p_beginCollision(b2Fixture* collisionFixturePtr, b2Fixture* 
 				// Environment
 				else { hitBlock(static_cast<TextBlock*>(bod)); }
 			}
-		} else if (!fresh && !myFixturePtr->IsSensor()) { // Team mate
-			contactPtr->SetEnabled(false);
-			for (auto&& limb : limbs) { limb.b2Ptr->SetSensor(true); }
-			health = 1;
-			bod->b2Ptr->SetLinearVelocity(bod->b2Ptr->GetLinearVelocity());
+		} else if (!fresh || bounces > 0) { // Team mate
+			if (!myFixturePtr->IsSensor()) {
+				contactPtr->SetEnabled(false);
+				for (auto&& limb : limbs) { limb.b2Ptr->SetSensor(true); }
+				health = 1;
+				bod->b2Ptr->SetLinearVelocity(bod->b2Ptr->GetLinearVelocity());
+			}
 		}
 		if (fresh && !myFixturePtr->IsSensor()) { fresh = false; }
 	}

@@ -11,12 +11,20 @@
 #include "../Arena.h"
 #include <iostream>
 
+class BuildIcon : public Image {
+  public:
+	BuildIcon(fk::SpriteBatch& sb, fk::Texture t);
+	virtual void draw() {};
+};
+
 class GameWorld : public fk::Scene {
   public:
+	BuildIcon* buildingPtr{ nullptr };
+	Mouse* editorPtr{ nullptr };
 	int exitCounter{ 0 };
 	std::list<fk::TextSprite> levelSelect;
 	int currentLevel{ 0 };
-	bool paused{ true };
+	char mode{ 'p' };
 	std::vector<std::string> levels;
 	Arena* arenaPtr;
 	std::vector<std::vector<TextBlock>> map;
