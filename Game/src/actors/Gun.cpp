@@ -59,7 +59,7 @@ void Gun::fire(Body* ownerPtr, fk::Vec2 spawn, fk::Vec2 direction, int level) {
 		break;
 	case 'e':
 		bullets.front().sprites.back().setColor(255, 255, 0, 255);
-		direction /= 10;
+		direction /= 2;
 		break;
 	}
 	bullets.front().b2Ptr->SetLinearVelocity(direction);
@@ -107,6 +107,11 @@ void Gun::M_bullet::draw() {
 	switch (upgrade) {
 	default: sprites.front().makeLine(p, oldPos, 0.0375); break;
 	case 'e':
+		if (sprites.front().getCanvasRef().color.g) {
+			sprites.front().makeLine(p, oldPos, 0.0375);
+		}
+		else { sprites.front().setPosition(p); }
+		break;
 	case 'l': sprites.front().setPosition(p); break;
 	}
 	oldPos = p;
@@ -118,20 +123,10 @@ void Gun::M_bullet::update(fk::UserInput & ui) {
 	case 'h':
 		b2Ptr->ApplyForceToCenter(b2Vec2(r.getFloat(-200, 200), r.getFloat(-200, 200)), true);
 		break;
-	case 'e':;
+	case 'e':
 		if (limbs.size() < 2 && limbs.back().b2Ptr->IsSensor()) {
 			addCircleLimb(1);
 			limbs.back().b2Ptr->SetSensor(true);
-		}
-		if (limbs.size() > 1) {
-			b2Ptr->SetLinearVelocity(b2Vec2(0, 0));
-			for (auto&& reactor : reactors) {
-				if (++damage > 10) {
-					reactor->sprites.front().setColor(255, 0, 0, 255);
-					++reactor->damage;
-					damage = 0;
-				}
-			}
 		}
 		break;
 	}
@@ -141,8 +136,8 @@ void Gun::M_bullet::update(fk::UserInput & ui) {
 		&& (upgrade != 'e' || limbs.size() < 2)
 	) { health = -1; }
 	if (
-		level == 1 && b2Ptr->GetLinearVelocity().Length() < 1 && health > 0
-		&& (upgrade != 'e' || limbs.size() < 2)
+		level == 1 && b2Ptr->GetLinearVelocity().Length() < 1
+		&& health > 0 && limbs.size() < 2
 	) { health = 0; }
 }
 
@@ -156,9 +151,11 @@ void Gun::M_bullet::p_beginCollision(b2Fixture* collisionFixturePtr, b2Fixture* 
 			if (upgrade == 'e' && !myFixturePtr->IsSensor()) {
 				limbs.back().b2Ptr->SetSensor(true);
 				b2Ptr->SetLinearVelocity(b2Vec2(0,0));
+				b2Ptr->SetType(b2_staticBody);
 				sprites.back().setDimensions(2, 2);
 				sprites.back().setColor(255, 0, 0, 100);
 				b2Ptr->SetLinearDamping(1000);
+				health = 3;
 			} else {
 				++bounces;
 				fk::Vec2 f = bod->b2Ptr->GetPosition() - b2Ptr->GetPosition();
@@ -185,7 +182,7 @@ void Gun::M_bullet::hitBlock(TextBlock* tod) {
 	case 0: break;
 	case 1:
 		switch (tod->texts.front().getText()[0]) {
-		default: if (upgrade != 'h' && upgrade != 'e') { b2Ptr->SetLinearVelocity(b2Vec2(0, 0)); }
+		default: if (upgrade != 'h') { b2Ptr->SetLinearVelocity(b2Vec2(0, 0)); }
 		case '`':
 		case 'm':
 		case 'r':
@@ -197,7 +194,7 @@ void Gun::M_bullet::hitBlock(TextBlock* tod) {
 		case 's':
 		case 't':
 		case 'h':
-		case '~': if (upgrade != 'h' && upgrade != 'e') { health = 1; } break;
+		case '~': if (upgrade != 'h') { health = 1; } break;
 
 		}
 		break;
@@ -206,13 +203,21 @@ void Gun::M_bullet::hitBlock(TextBlock* tod) {
 
 void Gun::M_bullet::hitEnemy(Player* pod, b2Contact* contactPtr, fk::Vec2 &u, b2Fixture* myFixturePtr) {
 	if (upgrade == 'e') {
-		reactors.push_back(pod);
+		pod->sprites.front().setColor(255, 0, 0, 255);
+		++pod->damage;
 	} else {
-		if (pod->reflect < pod->reflectime) { b2Ptr->SetLinearVelocity(u + pod->aim); }
+		if (pod->reflect < pod->reflectime) {
+			--pod->damage;
+			pod->sprites.front().setColor(0, 255, 0, 255);
+		}
 		else {
 			if (!pod->shield) {
 				++pod->damage;
+				if (level == 1) { pod->damage += 9; }
 				pod->sprites.front().setColor(255, 0, 0, 255);
+			} else {
+				--pod->shealth;
+				pod->sprites.front().getCanvasRef().color.a -= 25;
 			}
 			contactPtr->SetEnabled(false);
 			for (auto&& limb : limbs) { limb.b2Ptr->SetSensor(true); }
@@ -224,6 +229,9 @@ void Gun::M_bullet::hitEnemy(Player* pod, b2Contact* contactPtr, fk::Vec2 &u, b2
 					default: break;
 					case 't': pod->stunned = 60; pod->immobilized = 60; break;
 					}
+				} else {
+					pod->shealth = 0;
+					pod->sprites.front().getCanvasRef().color.a = 0;
 				}
 
 			}

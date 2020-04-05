@@ -15,7 +15,7 @@ Player::Player(fk::SpriteBatch& sb, fk::SpriteBatch& textBatch, fk::World& world
 	limbs.back().b2Ptr->SetRestitution(0);
 	sprites.emplace_back(p_spriteBatch, pd.body);
 	sprites.front().setColor(0, 0, 0, 255);
-	sprites.front().setDimensions(0.3, 0.3);
+	sprites.front().setDimensions(0.4, 0.4);
 	sprites.front().getCanvasRef().position.z = 10;
 	sprites.emplace_back(p_spriteBatch, pd.shield);
 	sprites.back().setColor(255, 255, 255, 0);
@@ -25,7 +25,7 @@ Player::Player(fk::SpriteBatch& sb, fk::SpriteBatch& textBatch, fk::World& world
 	t.setDepth(5);
 	gunPtr = new Gun(sb, world, pd.md.body, t);
 	gunPtr->team = team;
-	addCircleLimb(0.25);
+	addCircleLimb(0.24);
 	limbs.back().b2Ptr->SetSensor(true);
 }
 Player::~Player() {
@@ -44,6 +44,7 @@ void Player::update(fk::UserInput& ui) {
 		move = fk::rotatePoint(move, torque);
 		aim = fk::rotatePoint(aim.normalized(), gorque);
 		float speed = 25;
+		if (shield) { speed = 10; }
 		b2Vec2 myPos = b2Ptr->GetPosition();
 		glm::vec2 myPosition = glm::vec2(myPos.x, myPos.y);
 		if (!immobilized) {
@@ -53,24 +54,30 @@ void Player::update(fk::UserInput& ui) {
 		bool trigger;
 		if (ui.getAxiInfo(joys.fire, team) != (int)fk::Joy::MINXI) { trigger = true; }
 		else { trigger = false; };
-		if (ui.getAxiInfo(joys.shield, team) != (int)fk::Joy::MINXI) { shield += 1; }
+		if (ui.getAxiInfo(joys.shield, team) != (int)fk::Joy::MINXI) {
+			if (shealth) {
+				if (shield) { shield += 1; }
+				else if (reflect > 15) { shield += 1; shealth = 10; }
+			} else { if (reflect > 60) { shield += 1; shealth = 10; } }
+		}
 		else { shield = 0; }
 		if (!shield) { ++reflect; }
-		else { reflect = 0; }
+		else { reflect = 0; aim.x = 0; aim.y = 0; charge = 0; }
 		if (gunPtr && !stunned) {
 			if (aim.x || aim.y) {
 				mouse.b2Ptr->SetTransform(b2Vec2(myPosition.x + aim.x / 4, myPosition.y + aim.y / 4), 0);
 				if (
-					!shield && (
 					(gunPtr->upgrade == 'r' && trigger && gunPtr->lastFire > 5)
 					|| (gunPtr->upgrade == 'h' && trigger && gunPtr->lastFire > 8)
-					|| (gunPtr->upgrade == 'e' && trigger && gunPtr->charge > 60)
-					|| (trigger != oldTrigger && !trigger)
-				)) {
+					|| (gunPtr->charge && !trigger)
+				) {
 					aim.x *= 20;
 					aim.y *= 20;
 					int l = 0;
-					if (gunPtr->charge > 60) { aim *= 5; l = 1; }
+					if (gunPtr->charge > 60 && !gunPtr->upgrade == 'e') {
+						aim *= 5;
+						l = 1;
+					}
 					gunPtr->fire(this, b2Ptr->GetWorldCenter(), aim, l);
 					gunPtr->charge = 0;
 					gunPtr->lastFire = 0;
@@ -82,7 +89,6 @@ void Player::update(fk::UserInput& ui) {
 				++gunPtr->charge;
 			}
 		}
-		oldTrigger = trigger;
 	}
 	if (gunPtr) { gunPtr->update(ui); }
 	if (immobilized > 0) { --immobilized; }

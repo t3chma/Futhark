@@ -7,7 +7,7 @@ void GameWorld::create(fk::Tools& tools) {
 	///tools.ui.setShowCursor(false);
 	fk::Texture t = tools.textures.get("Square.png");
 	
-	// Set up srite batch
+	// Set up sprite batch
 	spriteBatchPtr = new fk::SpriteBatch(true);
 	backgroundPtr = new fk::Sprite(*spriteBatchPtr, t);
 	backgroundPtr->getCanvasRef().position.z = -10;

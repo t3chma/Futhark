@@ -29,11 +29,11 @@ class Player : public Body, public Image, public Intellect {
 	fk::Vec2 aim;
 	long prevHealth{ 0 };
 	Gun* gunPtr{ nullptr };
-	bool oldTrigger{ false };
 	bool freezeCam{ false };
 	long immobilized{ 0 };
 	long stunned{ 0 };
 	long shield{ 0 };
 	long reflect{ 0 };
 	int reflectime{ 3 };
+	long shealth{ 10 };
 };

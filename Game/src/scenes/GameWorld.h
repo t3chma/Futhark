@@ -9,6 +9,7 @@
 #include "../Body.h"
 #include "../actors/Player.h"
 #include "../Arena.h"
+#include <iostream>
 
 class GameWorld : public fk::Scene {
   public:
