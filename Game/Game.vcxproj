@@ -161,8 +161,19 @@
   <ItemGroup>
     <Image Include="Textures\Arrow.png" />
     <Image Include="Textures\Build.png" />
+    <Image Include="Textures\button64.bmp" />
     <Image Include="Textures\Circle.png" />
     <Image Include="Textures\Constructor.png" />
+    <Image Include="Textures\dev128.bmp" />
+    <Image Include="Textures\dev128x256.bmp" />
+    <Image Include="Textures\dev128x64.bmp" />
+    <Image Include="Textures\dev256.bmp" />
+    <Image Include="Textures\dev256x128.bmp" />
+    <Image Include="Textures\dev256x512.bmp" />
+    <Image Include="Textures\dev512.bmp" />
+    <Image Include="Textures\dev512x256.bmp" />
+    <Image Include="Textures\dev64.bmp" />
+    <Image Include="Textures\dev64x128.bmp" />
     <Image Include="Textures\DevFluid128.png" />
     <Image Include="Textures\DevGray128.png" />
     <Image Include="Textures\DevGrayCircleCross128.png" />
@@ -171,6 +182,7 @@
     <Image Include="Textures\Door128.png" />
     <Image Include="Textures\HexFuze.png" />
     <Image Include="Textures\HexTile.png" />
+    <Image Include="Textures\question64.bmp" />
     <Image Include="Textures\Ring.png" />
     <Image Include="Textures\save.png" />
     <Image Include="Textures\Square.png" />

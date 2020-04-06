@@ -26,4 +26,5 @@ class Body : public fk::Body {
 	float resistance{ 10 };
 	int level{ 0 };
 	int timer{ 0 };
+	int timers{ 0 };
 };

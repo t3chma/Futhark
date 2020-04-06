@@ -66,6 +66,42 @@
     <Image Include="Textures\save.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Textures\button64.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\dev64.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\dev64x128.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\dev128.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\dev128x64.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\dev128x256.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\dev256.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\dev256x128.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\dev256x512.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\dev512.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\dev512x256.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\question64.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Sprite.frag" />

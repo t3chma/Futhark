@@ -25,6 +25,7 @@ class Player : public Body, public Image, public Intellect {
 		fk::Joy yFire{ fk::Joy::RY };
 		fk::Joy fire{ fk::Joy::RZ };
 		fk::Joy shield{ fk::Joy::LZ };
+		fk::Joy interact{ fk::Joy::A };
 	} joys;
 	fk::Vec2 aim;
 	long prevHealth{ 0 };
@@ -33,7 +34,9 @@ class Player : public Body, public Image, public Intellect {
 	long immobilized{ 0 };
 	long stunned{ 0 };
 	long shield{ 0 };
-	long reflect{ 0 };
-	int reflectime{ 3 };
+	int reflectime{ 5 };
+	int recharge{ 20 };
+	long reflect{ recharge };
 	long shealth{ 10 };
+	bool interact{ false };
 };

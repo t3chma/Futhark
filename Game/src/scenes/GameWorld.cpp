@@ -298,7 +298,7 @@ void GameWorld::update(fk::Tools& tools) {
 					if (selectionInfoPtr->getText()[5] != '_') {
 						*cp = selectionInfoPtr->getText()[5];
 					}
-					selectionInfoPtr->clearText();
+					selectionInfoPtr->setText("");
 					fk::IOManager io;
 					std::string newBuffer = "";
 					for (auto&& line : arenaPtr->buffer) { newBuffer += line; }
@@ -310,7 +310,7 @@ void GameWorld::update(fk::Tools& tools) {
 					mode = 'e';
 					cam.setPosition(cpos);
 				} else if (tools.ui.getKeyInfo(fk::Key::BACK_SPC).downFrames == 1) {
-					selectionInfoPtr->clearText();
+					selectionInfoPtr->setText("");
 					edited = false;
 				} else {
 					newBlock = '\n';
@@ -456,7 +456,7 @@ void GameWorld::update(fk::Tools& tools) {
 			arenaPtr->gravity.x + playerPtr->gravMod.x + player2Ptr->gravMod.x,
 			arenaPtr->gravity.y + playerPtr->gravMod.y + player2Ptr->gravMod.y
 		);
-		world.update(1.0f / 60.0f, 3, 2);
+		world.update(1.0f / 60.0f, 2, 4);
 
 		spriteRenderer.render(*spriteBatchPtr, matrix);
 		spriteRenderer.render(*textBatchPtr, batrix);

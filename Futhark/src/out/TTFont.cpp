@@ -302,7 +302,10 @@ SpriteBatch::Sprite& TextSprite::operator [](int charIndex) {
 std::string TextSprite::getText() { return m_string;  }
 int TextSprite::getTextLength() { return m_string.length(); }
 
-void TextSprite::clearText() { setText(""); }
+void TextSprite::clearText() {
+	m_string = "";
+	for (auto&& id : m_spriteIds) { m_spriteBatch.destroySprite(id); }
+}
 
 void TextSprite::setText(std::string text, glm::vec2 scale, Justification justification) {
 	if (m_spriteIds.size()) {

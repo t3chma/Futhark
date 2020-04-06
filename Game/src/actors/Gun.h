@@ -12,6 +12,7 @@ class Gun : public Intellect {
   private:
 	class M_bullet : public Image, public Body, public Intellect {
 	  public:
+		bool rebound{ false };
 		std::vector<Player*> reactors;
 		bool fresh{ true };
 		fk::Random r;
@@ -26,7 +27,7 @@ class Gun : public Intellect {
 			b2Fixture* myFixturePtr,
 			b2Contact* contactPtr
 		) override;
-		void hitBlock(TextBlock* tod);
+		void hitBlock(TextBlock* tod, fk::Vec2 &u);
 		void hitEnemy(Player* pod, b2Contact* contactPtr, fk::Vec2 &u, b2Fixture* myFixturePtr);
 	};
   public:
