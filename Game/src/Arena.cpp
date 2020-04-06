@@ -2,17 +2,25 @@
 #include <string>
 #include "in/IOManager.h"
 
-Arena::Arena(std::string& levelPath, fk::TTFont& f, fk::Texture& t, fk::SpriteBatch& sb, fk::World& world, Player::Def pd) {
+Arena::Arena(std::string& levelPath, fk::TTFont& f, fk::Texture& t, fk::SpriteBatch& sb, fk::World& w, Player::Def pd) {
 	fk::IOManager iom;
-	std::vector<std::string> buffer;
 	iom.readTextFileToStringVector(levelPath, buffer);
+	init(f, sb, w, t);
+}
+
+Arena::Arena(std::vector<std::string>& buffer, fk::TTFont& f, fk::Texture& t, fk::SpriteBatch& sb, fk::World& w, Player::Def pd)
+	: buffer(buffer) {
+	init(f, sb, w, t);
+}
+
+void Arena::init(fk::TTFont& f, fk::SpriteBatch& sb, fk::World& world, fk::Texture& t) {
 	int lineIndex = 0;
 	char mode = 'o';
 	float nt = 0;
 	float nx = 0;
 	float ny = 0;
 	float nr = 0;
-	for (auto&& line: buffer) {
+	for (auto&& line : buffer) {
 		map.emplace_back();
 		int charIndex = 0;
 		std::string number = "";
@@ -50,15 +58,16 @@ Arena::Arena(std::string& levelPath, fk::TTFont& f, fk::Texture& t, fk::SpriteBa
 						weather.push_back(Wind());
 						weather.back().t = nt;
 						weather.back().d = glm::vec2(ranGen.getFloat(-nr, nr), ranGen.getFloat(-nr, nr));
-					} else {
+					}
+					else {
 						weather.push_back(Wind());
 						weather.back().t = nt;
 						weather.back().d = glm::vec2(nx, ny);
 					}
 					nt = 0; nx = 0; ny = 0; nr = 0; sign = 1;
-				break;
+					break;
 				}
-			break;
+				break;
 			case 'C':
 				switch (c) {
 				default: mode = 'o'; break;
@@ -87,7 +96,7 @@ Arena::Arena(std::string& levelPath, fk::TTFont& f, fk::Texture& t, fk::SpriteBa
 					choreography.back().step = glm::vec2(nx / nt, -ny / nt);
 					break;
 				}
-			break;
+				break;
 			default:
 				if (c > 32 && c < 127) {
 					switch (c) {
@@ -99,11 +108,11 @@ Arena::Arena(std::string& levelPath, fk::TTFont& f, fk::Texture& t, fk::SpriteBa
 						bd.position.y = -(float)lineIndex / 2.0;
 						bd.position.x = (float)charIndex / 2.0;
 						map.back().emplace_back(c, f, sb, world, bd, t);
-					break;
+						break;
 					}
 				}
 				width = (++charIndex > width) ? charIndex : width;
-			break;
+				break;
 			}
 		}
 		++lineIndex;
@@ -112,6 +121,12 @@ Arena::Arena(std::string& levelPath, fk::TTFont& f, fk::Texture& t, fk::SpriteBa
 	while (spawns.size() < 2) { spawns.emplace_back(i++, 0); }
 	ctime = choreography[c].t;
 	wtime = weather[w].t;
+	while (buffer.size() < maxSize) { buffer.emplace_back("\n"); }
+	for (auto&& line : buffer) {
+		line.pop_back();
+		while (line.size() < maxSize) { line += " "; }
+		line += "\n";
+	}
 }
 
 Arena::~Arena() {
@@ -153,4 +168,12 @@ void Arena::update(fk::UserInput& ui) {
 			wtime = weather[w].t;
 		};
 	}
+}
+
+char* Arena::getCharAt(glm::ivec2 levelIndex) {
+	if (
+		levelIndex.x < 0 || levelIndex.y < 2
+		|| levelIndex.x > maxSize || levelIndex.y > maxSize - 2
+	) { return nullptr; }
+	else { return &buffer[levelIndex.y][levelIndex.x]; }
 }

@@ -33,10 +33,11 @@ enum class Key {
 	Q = SDLK_q, R = SDLK_r, S = SDLK_s, T = SDLK_t, U = SDLK_u, V = SDLK_v, W = SDLK_w, X = SDLK_x,
 	Y = SDLK_y, Z = SDLK_z,
 	// Misc Keys
-	SPACE = SDLK_SPACE, APOSTROPHE = SDLK_BACKQUOTE, COMMA = SDLK_COMMA, PERIOD = SDLK_PERIOD,
+	SPACE = SDLK_SPACE, ACCENT = SDLK_BACKQUOTE, COMMA = SDLK_COMMA, PERIOD = SDLK_PERIOD,
 	SEMICOLON = SDLK_SEMICOLON, QUOTE = SDLK_QUOTE, BRACKET_L = SDLK_LEFTBRACKET, BRACKET_R = SDLK_RIGHTBRACKET,
 	SLASH_F = SDLK_SLASH, SLASH_B = SDLK_BACKSLASH, MINUS = SDLK_MINUS, EQUAL = SDLK_EQUALS, ENTER = SDLK_RETURN,
-	RETURN = SDLK_RETURN, TAB = SDLK_TAB, BACK_SPC = SDLK_BACKSPACE,
+	RETURN = SDLK_RETURN, TAB = SDLK_TAB, BACK_SPC = SDLK_BACKSPACE, ESC = SDLK_ESCAPE,
+	LEFT = SDLK_LEFT, RIGHT = SDLK_RIGHT, UP = SDLK_UP, DOWN = SDLK_DOWN,
 	// Mod Keys
 	SHIFT_L = SDLK_LSHIFT, SHIFT_R = SDLK_RSHIFT,
 	ALT_L = SDLK_LALT, ALT_R = SDLK_RALT,
@@ -113,7 +114,7 @@ class UserInput {
 	/* Get the key info for a keyboard.
 	(key) The key you want info for.
 	[t3chma] */
-	KeyInfo getKeyInfo(Key key);
+	const KeyInfo getKeyInfo(Key key);
 	/* Get the joy info for a joypad.
 	(key) The joy you want info for.
 	[t3chma] */

@@ -44,7 +44,7 @@ class TextSprite {
 	// Base justification.
 	Justification m_justification;
 	// Base scale.
-	glm::vec2 m_scale{ 0 };
+	glm::vec2 m_scale{ 1 };
 };
 
 /* Allows fonts to be displayed on screen.

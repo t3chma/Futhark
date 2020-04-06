@@ -4,11 +4,15 @@
 
 class Arena {
   public:
+	std::vector<std::string> buffer;
 	std::list<std::list<TextBlock>> map;
 	Arena(std::string& levelPath, fk::TTFont& f, fk::Texture& t, fk::SpriteBatch& sb, fk::World& w, Player::Def pd);
+	Arena(std::vector<std::string>& buffer, fk::TTFont& f, fk::Texture& t, fk::SpriteBatch& sb, fk::World& w, Player::Def pd);
 	~Arena();
+	void init(fk::TTFont & f, fk::SpriteBatch & sb, fk::World & world, fk::Texture & t);
 	void draw();
 	void update(fk::UserInput & ui);
+	char* getCharAt(glm::ivec2 levelIndex);
 	std::vector<b2Vec2> spawns;
 	struct Move {
 		int t{ 0 };
@@ -28,5 +32,6 @@ class Arena {
 	int wtime{ 0 };
 	float width{ 0 };
 	bool freezeCam{ false };
+	int maxSize{ 1024 };
 };
 

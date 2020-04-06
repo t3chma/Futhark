@@ -51,6 +51,21 @@
     <Image Include="Textures\Ring.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Textures\Build.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\Constructor.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\HexFuze.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\HexTile.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Textures\save.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Sprite.frag" />
@@ -64,6 +79,7 @@
     <None Include="Arenas\Drednaught.area" />
     <None Include="Arenas\pushnpull.area" />
     <None Include="Arenas\smallskermish.area" />
+    <None Include="Arenas\snakeshot.area" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">

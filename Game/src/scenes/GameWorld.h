@@ -11,17 +11,21 @@
 #include "../Arena.h"
 #include <iostream>
 
-class BuildIcon : public Image {
+class Icon : public Image {
   public:
-	BuildIcon(fk::SpriteBatch& sb, fk::Texture t);
+	Icon(fk::SpriteBatch& sb, fk::Texture t);
 	virtual void draw() {};
 };
 
 class GameWorld : public fk::Scene {
   public:
-	BuildIcon* buildingPtr{ nullptr };
-	Mouse* editorPtr{ nullptr };
-	int exitCounter{ 0 };
+	char newBlock;
+	char* cp;
+	fk::TextSprite* selectionInfoPtr{ nullptr };
+	bool edited{ false };
+	Icon* editIconPtr{ nullptr };
+	Icon* editorIconPtr{ nullptr };
+	Mouse* editorMousePtr{ nullptr };
 	std::list<fk::TextSprite> levelSelect;
 	int currentLevel{ 0 };
 	char mode{ 'p' };

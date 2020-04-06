@@ -58,7 +58,7 @@ void UserInput::setShowCursor(bool show) {
 	if (show) { SDL_ShowCursor(SDL_ENABLE); }
 	else { SDL_ShowCursor(SDL_DISABLE); }
 }
-UserInput::KeyInfo UserInput::getKeyInfo(Key key) {
+const UserInput::KeyInfo UserInput::getKeyInfo(Key key) {
 	return m_keyStates[key];
 }
 UserInput::JoyInfo UserInput::getJoyInfo(Joy joy, int player) {

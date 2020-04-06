@@ -273,16 +273,18 @@ TextSprite TextSprite::operator=(const TextSprite& rhs) {
 }
 void TextSprite::setPosition(glm::vec2 position, Justification justification) {
 	m_justification = justification;
-	switch (justification) {
-	  case Justification::LEFT: move(position - m_spriteBatch[m_spriteIds.front()].getPosition()); break;
-	  case Justification::RIGHT: move(position - m_spriteBatch[m_spriteIds.back()].getPosition()); break;
-	  default:
-		auto width =
-			m_spriteBatch[m_spriteIds.front()].getPosition()
-			- m_spriteBatch[m_spriteIds.back()].getPosition();
-		width /= 2;
-		move(position - m_spriteBatch[m_spriteIds.front()].getPosition() + width);
-		break;
+	if (m_spriteIds.size()) {
+		switch (justification) {
+		case Justification::LEFT: move(position - m_spriteBatch[m_spriteIds.front()].getPosition()); break;
+		case Justification::RIGHT: move(position - m_spriteBatch[m_spriteIds.back()].getPosition()); break;
+		default:
+			auto width =
+				m_spriteBatch[m_spriteIds.front()].getPosition()
+				- m_spriteBatch[m_spriteIds.back()].getPosition();
+			width /= 2;
+			move(position - m_spriteBatch[m_spriteIds.front()].getPosition() + width);
+			break;
+		}
 	}
 }
 void TextSprite::setDepth(int depth) {
@@ -300,10 +302,7 @@ SpriteBatch::Sprite& TextSprite::operator [](int charIndex) {
 std::string TextSprite::getText() { return m_string;  }
 int TextSprite::getTextLength() { return m_string.length(); }
 
-void TextSprite::clearText() {
-	m_string = "";
-	for (auto&& id : m_spriteIds) { m_spriteBatch.destroySprite(id); }
-}
+void TextSprite::clearText() { setText(""); }
 
 void TextSprite::setText(std::string text, glm::vec2 scale, Justification justification) {
 	if (m_spriteIds.size()) {
@@ -314,11 +313,16 @@ void TextSprite::setText(std::string text, glm::vec2 scale, Justification justif
 		auto x = m_spriteBatch[m_spriteIds[0]].canvas.rotationAxis;
 		for (auto&& id : m_spriteIds) { m_spriteBatch.destroySprite(id); }
 		*this = m_font.generateCharSprites(text, m_spriteBatch, scale, justification);
-		m_spriteBatch[m_spriteIds[0]].canvas.color = c;
-		m_spriteBatch[m_spriteIds[0]].canvas.dimensions = d;
-		m_spriteBatch[m_spriteIds[0]].canvas.position = p;
-		m_spriteBatch[m_spriteIds[0]].canvas.rotationAngle = r;
-		m_spriteBatch[m_spriteIds[0]].canvas.rotationAxis = x;
+		float offset = 0;
+		for (auto&& id : m_spriteIds) {
+			m_spriteBatch[id].canvas.color = c;
+			m_spriteBatch[id].canvas.dimensions = d;
+			m_spriteBatch[id].canvas.position = p;
+			m_spriteBatch[id].canvas.position.x += offset;
+			m_spriteBatch[id].canvas.rotationAngle = r;
+			m_spriteBatch[id].canvas.rotationAxis = x;
+			offset += d.x;
+		}
 	} else {
 		for (auto&& id : m_spriteIds) { m_spriteBatch.destroySprite(id); }
 		*this = m_font.generateCharSprites(text, m_spriteBatch, scale, justification);
