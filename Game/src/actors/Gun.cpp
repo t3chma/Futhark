@@ -11,86 +11,163 @@ Gun::Gun(fk::SpriteBatch& sb, fk::World& w, fk::Texture& bulTex, fk::TextSprite&
 }
 
 void Gun::fire(Body* ownerPtr, fk::Vec2 spawn, fk::Vec2 direction, int level) {
-	auto directwo = direction;
-	auto blowback = direction * 6;
-	blowback.x = -blowback.x;
-	blowback.y = -blowback.y;
-	if (level == 1) { blowback *= 2; }
-	float spread = 0.2;
-	if (level == 1) { spread = 0.01; }
-	Body::Def bd;
-	bd.position = direction.normalized();
-	bd.position /= 4;
-	bd.position += spawn;
-	bullets.emplace_front(ownerPtr, sb, w, bd, bulTex, level);
-	int health = 0;
+	bool fire = false;
 	switch (upgrade) {
 	default:
-		if (level == 1) { direction *= 5; }
-		break;
-	case 'm':
-		health = 6;
-		if (level == 1) { health = 8; blowback *= 2; }
-		bullets.front().health = health;
-		for (int i = 0; i < 2; ++i) {
-			directwo.rotate(spread);
-			bullets.emplace_back(ownerPtr, sb, w, bd, bulTex, level);
-			bullets.back().b2Ptr->SetLinearVelocity(directwo);
-			bullets.back().health = health;
-			bullets.back().team = team;
-			bullets.back().upgrade = upgrade;
-		}
-		for (int i = 0; i < 2; ++i) {
-			bullets.emplace_back(ownerPtr, sb, w, bd, bulTex, level);
-			bullets.back().b2Ptr->SetLinearVelocity(direction);
-			bullets.back().health = health;
-			bullets.back().team = team;
-			bullets.back().upgrade = upgrade;
-			direction.rotate(-spread);
-		}
-		if (level == 1) { direction *= 1; }
-		break;
-	case 'r':
-		bullets.front().health = 30;
-		break;
-	case 'h':
-		bullets.front().limbs.back().b2Ptr->SetSensor(true);
-		break;
-	case 'l':
-		bullets.front().health = 150;
-		bullets.front().sprites.back().setDimensions(1, 1);
-		bullets.front().addCircleLimb(0.5);
-		bullets.front().limbs.back().b2Ptr->SetSensor(true);
-		direction /= 2;
-		break;
-	case 't':
-		if (level == 1) {
-			bullets.front().sprites.back().setColor(0, 255, 255, 255);
-		} else {
-			bullets.front().sprites.back().setColor(0, 0, 255, 255);
-		}
-		direction /= 2;
+		if (charge && !trigger && lastFire > 8) { fire = true; }
 		break;
 	case 'e':
-		if (level == 1) {
-			bullets.front().sprites.back().setColor(255, 255, 0, 255);
-		} else {
-			bullets.front().sprites.back().setColor(255, 200, 0, 255);
-		}
-		direction /= 2;
+		if (charge && !trigger && lastFire > 12) { fire = true; }
+		break;
+	case 't':
+		if ((charge && !trigger && lastFire > 20) || (ammo < clipSize && lastFire > 3)) { fire = true; }
+		break;
+	case 'r':
+		if (trigger && lastFire > 4) { fire = true; }
+		break;
+	case 'h':
+		if (trigger && lastFire > 6) { fire = true; }
 		break;
 	}
-	ownerPtr->b2Ptr->ApplyForceToCenter(blowback, true);
-	bullets.front().b2Ptr->SetLinearVelocity(direction);
-	bullets.front().team = team;
-	bullets.front().upgrade = upgrade;
+	if (fire) {
+		auto directwo = direction;
+		auto directhree = direction;
+		auto blowback = direction * 6;
+		blowback.x = -blowback.x;
+		blowback.y = -blowback.y;
+		if (level == 1) { blowback *= 2; }
+		float spread = 0.2;
+		if (level == 1) { spread = 0.01; }
+		Body::Def bd;
+		bd.position = direction.normalized();
+		bd.position /= 4;
+		bd.position += spawn;
+		bullets.emplace_front(ownerPtr, sb, w, bd, bulTex, level);
+		int health = 0;
+		switch (upgrade) {
+		default:
+			direction.rotate(rangen.getFloat(-fk::TAU / 1024, fk::TAU / 1024));
+			if (level == 1) { direction *= 5; }
+			break;
+		case 'm':
+			direction /= 2;
+			directwo /= 2;
+			directhree /= 2;
+			health = 10;
+			if (level == 1) { health = 20; blowback *= 2; }
+			bullets.front().health = health;
+			for (int i = 0; i < 2; ++i) {
+				directwo.rotate(spread + rangen.getFloat(-fk::TAU / 64, fk::TAU / 64));
+				bullets.emplace_back(ownerPtr, sb, w, bd, bulTex, level);
+				bullets.back().b2Ptr->SetLinearVelocity(directwo);
+				bullets.back().health = health;
+				bullets.back().team = team;
+				bullets.back().upgrade = upgrade;
+			}
+			for (int i = 0; i < 2; ++i) {
+				directhree.rotate(-spread + rangen.getFloat(-fk::TAU / 64, fk::TAU / 64));
+				bullets.emplace_back(ownerPtr, sb, w, bd, bulTex, level);
+				bullets.back().b2Ptr->SetLinearVelocity(directhree);
+				bullets.back().health = health;
+				bullets.back().team = team;
+				bullets.back().upgrade = upgrade;
+			}
+			direction.rotate(rangen.getFloat(-fk::TAU / 64, fk::TAU / 64));
+			if (level == 1) { direction *= 1; }
+			break;
+		case 'r':
+			direction /= 2;
+			direction.rotate(rangen.getFloat(-fk::TAU / 64, fk::TAU / 64));
+			bullets.front().health = 35;
+			break;
+		case 'h':
+			direction /= 2;
+			bullets.front().limbs.back().b2Ptr->SetSensor(true);
+			break;
+		case 'l':
+			direction.rotate(rangen.getFloat(-fk::TAU / 64, fk::TAU / 64));
+			bullets.front().health = 150;
+			bullets.front().sprites.back().setDimensions(1, 1);
+			bullets.front().addCircleLimb(0.5);
+			bullets.front().limbs.back().b2Ptr->SetSensor(true);
+			direction /= 3;
+			break;
+		case 't':
+			direction.rotate(rangen.getFloat(-fk::TAU / 128, fk::TAU / 128));
+			if (level == 1) {
+				bullets.front().sprites.back().setColor(0, 255, 255, 255);
+			}
+			else {
+				bullets.front().sprites.back().setColor(0, 0, 255, 255);
+			}
+			direction /= 2;
+			break;
+		case 'e':
+			direction.rotate(rangen.getFloat(-fk::TAU / 128, fk::TAU / 128));
+			bullets.front().health = 120;
+			if (level == 1) {
+				bullets.front().sprites.back().setColor(255, 255, 0, 255);
+			}
+			else {
+				bullets.front().sprites.back().setColor(255, 200, 0, 255);
+			}
+			direction /= 2;
+			break;
+		}
+		ownerPtr->b2Ptr->ApplyForceToCenter(blowback, true);
+		bullets.front().b2Ptr->SetLinearVelocity(direction);
+		bullets.front().team = team;
+		bullets.front().upgrade = upgrade;
+		--ammo;
+		charge = 0;
+		lastFire = 0;
+	}
 }
 
-inline void Gun::update(fk::UserInput& ui) {
+void Gun::setUpgrade(char u) {
+	upgrade = u;
+	switch (u) {
+	default:
+		reloadTime = 60;
+		clipSize = 7;
+		break;
+	case 'r':
+		reloadTime = 60;
+		clipSize = 30;
+		break;
+	case 'm':
+		reloadTime = 40;
+		clipSize = 2;
+		break;
+	case 't':
+		reloadTime = 30;
+		clipSize = 3;
+		break;
+	case 'l':
+		reloadTime = 60;
+		clipSize = 12;
+		break;
+	case 'h':
+		reloadTime = 1;
+		clipSize = 1;
+		break;
+	case 'e':
+		reloadTime = 8;
+		clipSize = 1;
+		break;
+	}
+	ammo = clipSize;
+	reload = 0;
+}
+
+void Gun::update(fk::UserInput& ui) {
 	for (auto&& b : bullets) { b.draw(); }
 	for (auto&& b : bullets) { b.update(ui); }
 	bullets.remove_if([](M_bullet& b) { return b.health < 0; });
 	++lastFire;
+	if (reload >= 0) { --reload; }
+	if (reload == 0) { ammo = clipSize; --reload; }
+	if (ammo == 0) { reload = reloadTime; --ammo; }
 }
 
 
@@ -140,12 +217,12 @@ void Gun::M_bullet::update(fk::UserInput & ui) {
 	switch (upgrade) {
 	default: break;
 	case 'h':
-		b2Ptr->ApplyForceToCenter(b2Vec2(r.getFloat(-100, 100), r.getFloat(-100, 100)), true);
+		b2Ptr->ApplyForceToCenter(b2Vec2(r.getFloat(-200, 200), r.getFloat(-200, 200)), true);
 		break;
 	case 'e':
 		if (limbs.size() < 2 && limbs.back().b2Ptr->IsSensor()) {
 			if (level) { addCircleLimb(2); }
-			else { addCircleLimb(1); }
+			else { addCircleLimb(1.1); }
 			limbs.back().b2Ptr->SetSensor(true);
 		}
 		break;
@@ -176,7 +253,7 @@ void Gun::M_bullet::p_beginCollision(b2Fixture* collisionFixturePtr, b2Fixture* 
 				b2Ptr->SetLinearVelocity(b2Vec2(0,0));
 				b2Ptr->SetType(b2_staticBody);
 				if (level) { sprites.back().setDimensions(4, 4); }
-				else { sprites.back().setDimensions(2, 2); }
+				else { sprites.back().setDimensions(2.5, 2.5); }
 				sprites.back().setColor(255, 0, 0, 100);
 				b2Ptr->SetLinearDamping(1000);
 				health = 3;
@@ -185,7 +262,7 @@ void Gun::M_bullet::p_beginCollision(b2Fixture* collisionFixturePtr, b2Fixture* 
 				// Enemy
 				if (bod->type == 1) { hitEnemy(static_cast<Player*>(bod), contactPtr, u, myFixturePtr); }
 				// Environment
-				else { hitBlock(static_cast<TextBlock*>(bod), u); }
+				else if (bod->type == 0) { hitBlock(static_cast<TextBlock*>(bod), u); }
 			}
 		} else if (!fresh || bounces > 0) { // Team mate
 			if (!myFixturePtr->IsSensor()) {
@@ -209,41 +286,37 @@ void Gun::M_bullet::p_beginCollision(b2Fixture* collisionFixturePtr, b2Fixture* 
 }
 
 void Gun::M_bullet::hitBlock(TextBlock* tod, fk::Vec2 &u) {
-	switch (level) {
-	default: break;
-	case 0: break;
-	case 1:
-		switch (tod->texts.front().getText()[0]) {
-		default: if (upgrade != 'h') { b2Ptr->SetLinearVelocity(b2Vec2(0, 0)); }
-		case '`':
-		case 'm':
-		case 'r':
-		case 'l':
-		case 'c':
-		case 'O':
-		case 'o':
-		case 'z':
-		case 's':
-		case 't':
-		case 'h':
-		case '~': if (upgrade != 'h') { health = 1; } break;
-		}
-		break;
-	}
-	if (upgrade == 'e') {
-		switch (tod->texts.front().getText()[0]) {
+	if (tod->texts.size()) {
+		switch (level) {
 		default: break;
-		case ':':
-		case '.':
-		case '-':
-			tod->health -= 1;
-			tod->sprites.front().getCanvasRef().color.a -= 20;
+		case 0: break;
+		case 1:
+			switch (tod->texts.front().getText()[0]) {
+			default: if (upgrade != 'h') { b2Ptr->SetLinearVelocity(b2Vec2(0, 0)); }
+			case 'c':
+			case 'O':
+			case 'o':
+			case 'z':
+			case 's':
+			case '~': if (upgrade != 'h') { health = 1; } break;
+			}
 			break;
 		}
-		auto l = u.length();
-		l *= l;
-		l /= 1000;
-		tod->b2Ptr->SetLinearVelocity(b2Vec2(u.x / l, u.y / l));
+		if (upgrade == 'e') {
+			switch (tod->texts.front().getText()[0]) {
+			default: break;
+			case ':':
+			case '.':
+			case '-':
+				tod->health -= 1;
+				tod->sprites.front().getCanvasRef().color.a -= 20;
+				break;
+			}
+			auto l = u.length();
+			l *= l;
+			l /= 1000;
+			tod->b2Ptr->SetLinearVelocity(b2Vec2(u.x / l, u.y / l));
+		}
 	}
 }
 
@@ -279,7 +352,7 @@ void Gun::M_bullet::hitEnemy(Player* pod, b2Contact* contactPtr, fk::Vec2 &u, b2
 				if (rebound) { pod->damage += 2; }
 				switch (upgrade) {
 				default: break;
-				case 't': pod->stunned = 30; pod->immobilized = 30; break;
+				case 't': pod->stunned += 30; pod->immobilized += 30; break;
 				}
 			} else {
 				if (rebound) { ++pod->damage; }
@@ -287,7 +360,7 @@ void Gun::M_bullet::hitEnemy(Player* pod, b2Contact* contactPtr, fk::Vec2 &u, b2
 				switch (upgrade) {
 				default: break;
 				case '`': div /= 2; break;
-				case 't': pod->stunned = 30; break;
+				case 't': pod->stunned += 30; break;
 				}
 				pod->b2Ptr->SetLinearVelocity(b2Vec2(
 					pod->damage * pod->damage * u.x / div,

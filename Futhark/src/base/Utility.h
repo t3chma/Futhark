@@ -51,7 +51,7 @@ class Random {
 	}
   private:
 	// The random number generator.
-	std::mt19937 m_generator{ time(nullptr) };
+	std::mt19937 m_generator{ std::random_device()() };
 };
 
 

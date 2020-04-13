@@ -31,11 +31,13 @@ class Gun : public Intellect {
 		void hitEnemy(Player* pod, b2Contact* contactPtr, fk::Vec2 &u, b2Fixture* myFixturePtr);
 	};
   public:
+	fk::Random rangen;
 	fk::SpriteBatch& sb;
 	fk::TextSprite text;
 	int team{ 0 };
 	Gun(fk::SpriteBatch& sb, fk::World& w, fk::Texture& bulTex, fk::TextSprite& f);
 	void fire(Body* ownerPtr, fk::Vec2 spawn, fk::Vec2 direction, int level);
+	void setUpgrade(char u);
 	virtual void update(fk::UserInput& ui) override;
 	~Gun();
 	fk::World& w;
@@ -44,4 +46,9 @@ class Gun : public Intellect {
 	long charge{ 0 };
 	char upgrade{ '`' };
 	long lastFire{ 0 };
+	long clipSize{ 7 };
+	long ammo{ clipSize };
+	long reloadTime{ 60 };
+	long reload{ 0 };
+	bool trigger{ false };
 };

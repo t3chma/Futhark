@@ -9,11 +9,9 @@
 #include <queue>
 #include <GLM/vec2.hpp>
 #include <unordered_set>
+#include <WS2tcpip.h>
+#pragma comment (lib, "ws2_32.lib")
 namespace fk {
-
-
-// Types of action triggers for keys
-enum class Trigger { PRESS, UNPRESS, HOLD };
 
 
 // Keybard enums
@@ -117,9 +115,16 @@ class UserInput {
 	const KeyInfo getKeyInfo(Key key);
 	/* Get the joy info for a joypad.
 	(key) The joy you want info for.
+	(player) The device you want info for.
 	[t3chma] */
 	JoyInfo getJoyInfo(Joy joy, int player = 1);
+	/* Get the axis info for a joypad.
+	(key) The axis you want info for.
+	(player) The device you want info for.
+	[t3chma] */
 	int getAxiInfo(Joy joy, int player = 1);
+
+
   private:
 	struct PairHashFunctor { template <class T1, class T2>
 	std::size_t operator () (const std::pair<T1, T2>& p) const {
@@ -145,6 +150,16 @@ class UserInput {
 	std::unordered_map<std::pair<Joy, int>, int, PairHashFunctor> m_axiStates;
 	// Polls SDL for key/button info.
 	GameState m_pollSDL();
+
+
+	class Host {
+	  public:
+		Host(std::string ip, int port);
+		void send(std::string message, int client);
+	  private:
+		std::string m_ipAddress;
+		int m_port;
+	};
 };
 
 }

@@ -23,6 +23,7 @@ class GameWorld : public fk::Scene {
 	char* cp;
 	fk::TextSprite* selectionInfoPtr{ nullptr };
 	bool edited{ false };
+	bool cEdited{ false };
 	Icon* editIconPtr{ nullptr };
 	Icon* editorIconPtr{ nullptr };
 	Mouse* editorMousePtr{ nullptr };

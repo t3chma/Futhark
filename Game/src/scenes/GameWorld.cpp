@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <experimental/filesystem>
+#include <boost/lexical_cast.hpp>
 
 void GameWorld::create(fk::Tools& tools) {
 	///tools.ui.setShowCursor(false);
@@ -128,6 +129,7 @@ void GameWorld::close(fk::Tools& tools) {
 	selectionInfoPtr->clearText();
 	delete selectionInfoPtr;
 	edited = false;
+	cEdited = false;
 	cp = nullptr;
 }
 void GameWorld::update(fk::Tools& tools) {
@@ -138,8 +140,33 @@ void GameWorld::update(fk::Tools& tools) {
 		|| tools.ui.getKeyInfo(fk::Key::CTRL_R).downFrames == 1
 		|| tools.ui.getKeyInfo(fk::Key::CTRL_L).downFrames == 1
 	) {
-		if (mode == 'p') { mode = 'g'; }
-		else if (mode != 'p') { mode = 'p'; }
+		if (mode == 'p') {
+			mode = 'g';
+			for (auto&& line : arenaPtr->map) {
+				for (auto&& block : line) {
+					if (block.texts.size()) {
+						switch (block.texts.front().getText()[0]) {
+						default: break;
+						case')':
+						case'(': block.texts.front()[0].setColor(0, 0, 0, 0); break;
+						}
+					}
+				}
+			}
+		} else if (mode != 'p') {
+			mode = 'p';
+			for (auto&& line : arenaPtr->map) {
+				for (auto&& block : line) {
+					if (block.texts.size()) {
+						switch (block.texts.front().getText()[0]) {
+						default: break;
+						case')':
+						case'(': block.texts.front()[0].setColor(0, 0, 0, 255); break;
+						}
+					}
+				}
+			}
+		}
 	}
 	if (
 		tools.ui.getJoyInfo(fk::Joy::BACK, 1).downFrames == 180
@@ -175,8 +202,7 @@ void GameWorld::update(fk::Tools& tools) {
 			|| tools.ui.getKeyInfo(fk::Key::ENTER).downFrames == 60
 			|| tools.ui.getKeyInfo(fk::Key::ENTER).downFrames == 60
 		) {
-			if (mode == 'p') { mode = 'e'; }
-			else if (mode == 'e') { mode = 'p'; }
+			mode = 'e';
 		}
 		if (
 			tools.ui.getJoyInfo(fk::Joy::R, 1).downFrames == 1
@@ -235,11 +261,10 @@ void GameWorld::update(fk::Tools& tools) {
 
 		if (mode == 'e') {
 			editorMousePtr->update(tools.ui);
-			if (edited) {
+			if (edited || cEdited) {
 				editorIconPtr->sprites.back().setColor(255, 0, 0, 255);
 				editIconPtr->sprites.back().setColor(255, 0, 0, 255);
-			}
-			else {
+			} else {
 				editorIconPtr->sprites.back().setColor(255, 255, 255, 255);
 				editIconPtr->sprites.back().setColor(255, 255, 255, 255);
 				if (tools.ui.getKeyInfo(fk::Key::W).downFrames) { cam.move(fk::Vec2(0, 0.1)); }
@@ -293,9 +318,42 @@ void GameWorld::update(fk::Tools& tools) {
 		fk::Vec2 bp = backgroundPtr->getPosition();
 		if (mode == 'e') {
 			std::string s = "";
-			if (edited) {
+			if (cEdited) {
 				if (tools.ui.getKeyInfo(fk::Key::ENTER).downFrames == 1) {
-					if (selectionInfoPtr->getText()[5] != '_') {
+					auto camPos = editIconPtr->sprites.back().getPosition();
+					camPos.x = camPos.x * 2;
+					camPos.y = (camPos.y * -2) + 1;
+					arenaPtr->buffer[2] = "X:" + boost::lexical_cast<std::string>(camPos.x) + "\n";
+					arenaPtr->buffer[3] = "Y:" + boost::lexical_cast<std::string>(camPos.y) + "\n";
+					selectionInfoPtr->setText("");
+					fk::IOManager io;
+					std::string newBuffer = "";
+					for (auto&& line : arenaPtr->buffer) { newBuffer += line; }
+					s = "Arenas/" + levels[currentLevel] + ".area";
+					io.overwriteStringToFile(s, newBuffer);
+					auto cpos = cam.getPosition();
+					close(tools);
+					open(tools);
+					mode = 'e';
+					for (auto&& line : arenaPtr->map) {
+						for (auto&& block : line) {
+							if (block.texts.size()) {
+								switch (block.texts.front().getText()[0]) {
+								default: break;
+								case')':
+								case'(': block.texts.front()[0].setColor(0, 0, 0, 255); break;
+								}
+							}
+						}
+					}
+					cam.setPosition(cpos);
+				} else if (tools.ui.getKeyInfo(fk::Key::BACK_SPC).downFrames == 1) {
+					selectionInfoPtr->setText("");
+					cEdited = false;
+				}
+			} else if (edited) {
+				if (tools.ui.getKeyInfo(fk::Key::ENTER).downFrames == 1) {
+					if (cp && selectionInfoPtr->getText()[5] != '_') {
 						*cp = selectionInfoPtr->getText()[5];
 					}
 					selectionInfoPtr->setText("");
@@ -436,20 +494,71 @@ void GameWorld::update(fk::Tools& tools) {
 					selectionInfoPtr->setText(s);
 				}
 				if (selectionInfoPtr->getTextLength()) {
-					if (tools.ui.getKeyInfo(fk::Key::ENTER).downFrames == 1) {
+					if (tools.ui.getKeyInfo(fk::Key::R).downFrames == 1) {
 						s += selectionInfoPtr->getText();
 						s += " to _";
 						selectionInfoPtr->setText(s);
 						edited = true;
+					} else if (tools.ui.getKeyInfo(fk::Key::C).downFrames == 1) {
+						s += "Set as new start position for cam?";
+						selectionInfoPtr->setText(s);
+						cEdited = true;
 					}
 				}
 			}
 		} else {
-			if (p1p.x < bp.x - bd.x || p1p.x > bp.x + bd.x || p1p.y < bp.y - bd.y || p1p.y > bp.y + bd.y) {
-				playerPtr->health = 0;
+			auto p1v = playerPtr->b2Ptr->GetLinearVelocity();
+			auto p2v = player2Ptr->b2Ptr->GetLinearVelocity();
+			if (p1p.x < bp.x - bd.x) {
+				playerPtr->b2Ptr->SetLinearVelocity(b2Vec2(10, p1v.y));
+				playerPtr->damage += 100;
+				playerPtr->sprites.front().getCanvasRef().color.r = 255;
+			} else if (p1p.x > bp.x + bd.x) {
+				playerPtr->b2Ptr->SetLinearVelocity(b2Vec2(-10, p1v.y));
+				playerPtr->damage += 100;
+				playerPtr->sprites.front().getCanvasRef().color.r = 255;
+			} else if (p1p.y < bp.y - bd.y) {
+				playerPtr->b2Ptr->SetLinearVelocity(b2Vec2(p1v.x, 10));
+				playerPtr->damage += 100;
+				playerPtr->sprites.front().getCanvasRef().color.r = 255;
+			} else if (p1p.y > bp.y + bd.y) {
+				playerPtr->b2Ptr->SetLinearVelocity(b2Vec2(p1v.x, -10));
+				playerPtr->damage += 100;
+				playerPtr->sprites.front().getCanvasRef().color.r = 255;
 			}
-			if (p2p.x < bp.x - bd.x || p2p.x > bp.x + bd.x || p2p.y < bp.y - bd.y || p2p.y > bp.y + bd.y) {
-				player2Ptr->health = 0;
+			if (p2p.x < bp.x - bd.x) {
+				player2Ptr->b2Ptr->SetLinearVelocity(b2Vec2(10, p2v.y));
+				player2Ptr->damage += 100;
+				player2Ptr->sprites.front().getCanvasRef().color.r = 255;
+			} else if (p2p.x > bp.x + bd.x) {
+				player2Ptr->b2Ptr->SetLinearVelocity(b2Vec2(-10, p2v.y));
+				player2Ptr->damage += 100;
+				player2Ptr->sprites.front().getCanvasRef().color.r = 255;
+			} else if (p2p.y < bp.y - bd.y) {
+				player2Ptr->b2Ptr->SetLinearVelocity(b2Vec2(p2v.x, 10));
+				player2Ptr->damage += 100;
+				player2Ptr->sprites.front().getCanvasRef().color.r = 255;
+			} else if (p2p.y > bp.y + bd.y) {
+				player2Ptr->b2Ptr->SetLinearVelocity(b2Vec2(p2v.x, -10));
+				player2Ptr->damage += 100;
+				player2Ptr->sprites.front().getCanvasRef().color.r = 255;
+			}
+			for (auto&& bot : arenaPtr->bots) {
+				if (bot.players.size() == 0) { continue; }
+				auto bop = bot.b2Ptr->GetPosition();
+				if (bop.x < bp.x - bd.x) {
+					bot.b2Ptr->SetLinearVelocity(b2Vec2(1, bop.y));
+					bot.sprites.front().getCanvasRef().color.r = 255;
+				} else if (bop.x > bp.x + bd.x) {
+					bot.b2Ptr->SetLinearVelocity(b2Vec2(-1, bop.y));
+					bot.sprites.front().getCanvasRef().color.r = 255;
+				} else if (bop.y < bp.y - bd.y) {
+					bot.b2Ptr->SetLinearVelocity(b2Vec2(bop.x, 1));
+					bot.sprites.front().getCanvasRef().color.r = 255;
+				} else if (bop.y > bp.y + bd.y) {
+					bot.b2Ptr->SetLinearVelocity(b2Vec2(bop.x, -1));
+					bot.sprites.front().getCanvasRef().color.r = 255;
+				}
 			}
 		}
 		world.setGravity(

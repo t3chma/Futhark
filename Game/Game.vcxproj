@@ -191,6 +191,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Arenas\Drednaught.area" />
+    <None Include="Arenas\Grudge.area" />
+    <None Include="Arenas\Midtown-Rush.area" />
     <None Include="Arenas\pushnpull.area" />
     <None Include="Arenas\smallskermish.area" />
     <None Include="Arenas\snakeshot.area" />
