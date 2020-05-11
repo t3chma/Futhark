@@ -3,6 +3,8 @@
 #include "Constants.h"
 #include "out/OutUtility.h"
 
+class Player;
+
 class Body : public fk::Body {
   public:
 	struct Def {
@@ -19,7 +21,7 @@ class Body : public fk::Body {
 	int damage{ 0 };
 	bool toggleCam{ false };
 	glm::vec2 gravMod{ 0 };
-	Body* ownerPtr{ nullptr };
+	Player* ownerPtr{ nullptr };
 	double torque{ 0 };
 	double gorque{ 0 };
 	int charge{ 0 };

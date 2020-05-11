@@ -48,7 +48,7 @@ void Player::update(fk::UserInput& ui) {
 		if (dodge == dodgeFrames) { speed *= 32; }
 		else if (immobilized || (dodge < dodgeFrames && dodge > 0)) { speed = 0; }
 		b2Vec2 myPos = b2Ptr->GetPosition();
-		glm::vec2 myPosition = glm::vec2(myPos.x, myPos.y);
+		auto myPosition = fk::Vec2(myPos.x, myPos.y);
 		auto range = (int)fk::Joy::MAXI - (int)fk::Joy::MINXI;
 		if (!shield) { ++reflect; }
 		else { reflect = 0; aim.x = 0; aim.y = 0; charge = 0; }
@@ -64,7 +64,7 @@ void Player::update(fk::UserInput& ui) {
 			} else {
 				mouse.b2Ptr->SetTransform(b2Vec2(myPosition.x, myPosition.y), 0);
 			}
-			if (gunPtr->trigger && gunPtr->reload < 1 && gunPtr->upgrade != 'h' && gunPtr->upgrade != 'r') {
+			if (gunPtr->trigger && gunPtr->reloadEdit < 1 && gunPtr->upgrade != 'h' && gunPtr->upgrade != 'r') {
 				++gunPtr->charge;
 			}
 		} else {
@@ -87,15 +87,14 @@ void Player::update(fk::UserInput& ui) {
 
 void Player::GetAIInput() {
 	bool p = false;
-	for (auto&& player : players) { if (player->health > 0) { p = true; } }
-	if (players.size() && p) {
-		Player* pPtr{ nullptr };
-		float distance = 0;
-		for (auto&& player : players) {
-			auto v = player->b2Ptr->GetPosition() - b2Ptr->GetPosition();
-			auto d = v.Length();
-			if (!pPtr || d < distance) { pPtr = player; distance = d; }
-		}
+	Player* pPtr{ nullptr };
+	float distance = 0;
+	for (auto&& player : players) {
+		fk::Vec2 v = player->b2Ptr->GetPosition() - b2Ptr->GetPosition();
+		float d = v.length();
+		if (pPtr == nullptr || (d < distance && pPtr->health > 0)) { pPtr = player; distance = d; }
+	}
+	if (pPtr) {
 		if (gunPtr) {
 			fk::Vec2 d = pPtr->b2Ptr->GetPosition() - b2Ptr->GetPosition();
 			aim = d;
@@ -149,7 +148,7 @@ void Player::GetAIInput() {
 		if (gunPtr) {
 			if (gunPtr->ammo < gunPtr->clipSize) {
 				gunPtr->ammo = 0;
-				gunPtr->reload = gunPtr->reloadTime;
+				gunPtr->reloadEdit = gunPtr->reloadTime;
 			}
 			switch (gunPtr->upgrade) {
 			default: break;
@@ -183,7 +182,7 @@ void Player::GetAIInput() {
 		case 'w': if (block->sprites.front().getCanvasRef().color.r == 0) { maxL = 0; break; }
 		case '-':
 		case '+':
-		case 'x': maxL = 2; l *= 0.999; break;
+		case 'x': maxL = 2; l *= 0.999 * l / 2; break;
 		case '(': l *= 1; maxL = 3; break;
 		case ')': l *= -1; maxL = 3; break;
 		}
@@ -220,15 +219,15 @@ void Player::getPlayerInput(fk::UserInput & ui) {
 	if (move.length() < 10000) { move.x = 0; move.y = 0; }
 	aim.x = ui.getAxiInfo(joys.xFire, team);
 	aim.y = -ui.getAxiInfo(joys.yFire, team);
-	if (aim.length() < 10000) { aim.x = 0; aim.y = 0; }
+	//if (aim.length() < 10000) { aim.x = 0; aim.y = 0; }
 	if (ui.getKeyInfo(fk::Key::PAD8).downFrames && team == 2) { move.y += 1; }
 	if (ui.getKeyInfo(fk::Key::PAD4).downFrames && team == 2) { move.x -= 1; }
 	if (ui.getKeyInfo(fk::Key::PAD6).downFrames && team == 2) { move.x += 1; }
 	if (ui.getKeyInfo(fk::Key::PAD2).downFrames && team == 2) { move.y -= 1; }
 	interact = ui.getJoyInfo(joys.interact, team).downFrames == 1;
-	if (ui.getJoyInfo(joys.reload, team).downFrames == 1) {
+	if (ui.getJoyInfo(joys.reloadEdit, team).downFrames == 1) {
 		gunPtr->ammo = 0;
-		gunPtr->reload = gunPtr->reloadTime;
+		gunPtr->reloadEdit = gunPtr->reloadTime;
 	}
 	if (
 		ui.getJoyInfo(joys.dodge, team).downFrames == 1
@@ -259,12 +258,15 @@ void Player::draw() {
 	if (gunPtr) {
 		gunPtr->text[0].setPosition(position.x, position.y);
 		gunPtr->text[0].setRotationAxis(position.x, position.y);
-		gunPtr->text[0].canvas.rotationAngle += fk::TAU / 4;
+		gunPtr->text[0].canvas.rotationAngle += fk::TAU / 2;
 	}
 	sprites.front().setPosition(position.x, position.y);
 	sprites.back().setPosition(position.x, position.y);
-	if (prevHealth && health < 1) {
+	if (health < 1) {
 		sprites.front().setColor(0, 0, 0, 100);
+		sprites.back().setColor(0, 0, 0, 0);
+		mouse.setColor(0, 0, 0, 0);
+		gunPtr->text[0].setColor(0, 0, 0, 0);
 	} else {
 		if (shield == 1) { sprites.back().setColor(255, 255, 255, 255); }
 		else if (shield) {  }

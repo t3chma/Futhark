@@ -176,7 +176,7 @@ void SpriteBatch::m_render() {
 	TRY_GL(glBindVertexArray(0));
 }
 
-void SpriteBatch::Sprite::move(const glm::vec2& translation) {
+void SpriteBatch::Sprite::move(const Vec2 translation) {
 	canvas.position.x += translation.x;
 	canvas.position.y += translation.y;
 }
@@ -184,8 +184,8 @@ void SpriteBatch::Sprite::move(const float x, const float y) {
 	canvas.position.x += x;
 	canvas.position.y += y;
 }
-glm::vec2 SpriteBatch::Sprite::getPosition() const {
-	return glm::vec2(canvas.position.x, canvas.position.y);
+Vec2 SpriteBatch::Sprite::getPosition() const {
+	return Vec2(canvas.position.x, canvas.position.y);
 }
 void SpriteBatch::Sprite::setPosition(const float x, const float y) {
 	canvas.position.x = x;
@@ -219,8 +219,8 @@ void SpriteBatch::Sprite::setFrame(const int frame) {
 void SpriteBatch::Sprite::setTexture(const Texture& texture) {
 	this->texture = texture;
 }
-void SpriteBatch::Sprite::makeLine(glm::vec2& b, glm::vec2& a, float thickness) {
-	canvas.dimensions.y = glm::distance(b, a);
+void SpriteBatch::Sprite::makeLine(Vec2 b, Vec2 a, float thickness) {
+	canvas.dimensions.y = (b - a).length();
 	canvas.dimensions.x = thickness;
 	glm::vec2 difVec{ a - b };
 	canvas.position.x = b.x + difVec.x / 2;
@@ -232,7 +232,7 @@ void SpriteBatch::Sprite::makeLine(glm::vec2& b, glm::vec2& a, float thickness) 
 	);
 }
 
-void Sprite::move(const glm::vec2& translation) {
+void Sprite::move(const Vec2 translation) {
 	(*m_spriteBatchPtr)[m_id].move(translation.x, translation.y);
 }
 void Sprite::move(const float x, const float y) {
@@ -244,19 +244,19 @@ glm::vec2 Sprite::getPosition() const {
 int Sprite::getID() const {
 	return m_id;
 }
-void Sprite::setPosition(const glm::vec2& position) {
+void Sprite::setPosition(const Vec2 position) {
 	(*m_spriteBatchPtr)[m_id].setPosition(position.x, position.y);
 }
 void Sprite::setPosition(const float x, const float y) {
 	(*m_spriteBatchPtr)[m_id].setPosition(x, y);
 }
-void Sprite::setDimensions(const glm::vec2& position) {
+void Sprite::setDimensions(const Vec2 position) {
 	(*m_spriteBatchPtr)[m_id].setDimensions(position.x, position.y);
 }
 void Sprite::setDimensions(const float width, const float height) {
 	(*m_spriteBatchPtr)[m_id].setDimensions(width, height);
 }
-void Sprite::setRotationAxis(const glm::vec2& position) {
+void Sprite::setRotationAxis(const Vec2 position) {
 	(*m_spriteBatchPtr)[m_id].setRotationAxis(position.x, position.y);
 }
 void Sprite::setRotationAxis(const float x, const float y) {
@@ -268,13 +268,13 @@ void Sprite::setRotationAngle(const float r) {
 void Sprite::setColor(const char r, const char g, const char b, const char a) {
 	(*m_spriteBatchPtr)[m_id].setColor(r, g, b, a);
 }
-void Sprite::setTexturePosition(const glm::vec2& position) {
+void Sprite::setTexturePosition(const Vec2 position) {
 	(*m_spriteBatchPtr)[m_id].setTexturePosition(position.x, position.y);
 }
 void Sprite::setTexturePosition(const float x, const float y) {
 	(*m_spriteBatchPtr)[m_id].setTexturePosition(x, y);
 }
-void Sprite::setTextureDimensions(const glm::vec2& position) {
+void Sprite::setTextureDimensions(const Vec2 position) {
 	(*m_spriteBatchPtr)[m_id].setTextureDimensions(position.x, position.y);
 }
 void Sprite::setTextureDimensions(const float width, const float height) {
@@ -286,7 +286,7 @@ void Sprite::setFrame(const int frame) {
 void Sprite::setTexture(const Texture& texture) {
 	(*m_spriteBatchPtr)[m_id].setTexture(texture);
 }
-void Sprite::makeLine(glm::vec2& b, glm::vec2& a, float thickness) {
+void Sprite::makeLine(Vec2 b, Vec2 a, float thickness) {
 	(*m_spriteBatchPtr)[m_id].makeLine(b, a, thickness);
 }
 Sprite::Sprite(SpriteBatch& spriteBatch, const Texture& texture) : m_spriteBatchPtr(&spriteBatch) {

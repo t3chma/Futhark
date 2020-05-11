@@ -19,7 +19,7 @@ class Player : public Body, public Image, public Intellect, public b2RayCastCall
 	virtual float ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, float fraction);
 	virtual void update(fk::UserInput& ui) override;
 	void GetAIInput();
-	void getPlayerInput(fk::UserInput & ui);
+	void getPlayerInput(fk::UserInput& ui);
 	virtual void draw() override;
 	void setTeam(int t);
 	void p_beginCollision(b2Fixture* collisionFixturePtr, b2Fixture* myFixturePtr, b2Contact* contactPtr);
@@ -33,7 +33,7 @@ class Player : public Body, public Image, public Intellect, public b2RayCastCall
 		fk::Joy xFire{ fk::Joy::RX };
 		fk::Joy yFire{ fk::Joy::RY };
 		fk::Joy fire{ fk::Joy::RZ };
-		fk::Joy reload{ fk::Joy::R };
+		fk::Joy reloadEdit{ fk::Joy::R };
 		fk::Joy shield{ fk::Joy::LZ };
 		fk::Joy dodge{ fk::Joy::L };
 		fk::Joy interact{ fk::Joy::A };

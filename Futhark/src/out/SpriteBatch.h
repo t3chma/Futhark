@@ -35,9 +35,9 @@ class SpriteBatch {
 		Canvas canvas;
 		// Texture. 68
 		Texture texture;
-		void move(const glm::vec2& translation);
+		void move(const Vec2 translation);
 		void move(const float x, const float y);
-		glm::vec2 getPosition() const;
+		Vec2 getPosition() const;
 		void setPosition(const float x, const float y);
 		void setDimensions(const float width, const float height);
 		void setRotationAxis(const float x, const float y);
@@ -56,7 +56,7 @@ class SpriteBatch {
 		(a) The position of the A end.
 		(thickness) The thickness of the line.
 		[t3chma] */
-		void makeLine(glm::vec2& b, glm::vec2& a, float thickness);
+		void makeLine(Vec2 b, Vec2 a, float thickness);
 	};
 	// Used to store the sorting info for the vertex buffer.
 	struct SpriteTray {
@@ -130,22 +130,22 @@ class Sprite {
 	SpriteBatch::Canvas& getCanvasRef();
 	SpriteBatch& getSpriteBatchRef();
 	int getID() const;
-	void move(const glm::vec2& translation);
+	void move(const Vec2 translation);
 	void move(const float x, const float y);
 	glm::vec2 getPosition() const;
-	void setPosition(const glm::vec2& position);
+	void setPosition(const Vec2 position);
 	void setPosition(const float x, const float y);
-	void setDimensions(const glm::vec2& position);
+	void setDimensions(const Vec2 position);
 	void setDimensions(const float width, const float height);
-	void setRotationAxis(const glm::vec2& position);
+	void setRotationAxis(const Vec2 position);
 	void setRotationAxis(const float x, const float y);
 	void setRotationAngle(const float r);
-	void setColor(const char r, const char g, const char b, const char a);
-	void setTexturePosition(const glm::vec2& position);
+	void setTexturePosition(const Vec2 position);
 	void setTexturePosition(const float x, const float y);
-	void setTextureDimensions(const glm::vec2& position);
+	void setTextureDimensions(const Vec2 position);
 	void setTextureDimensions(const float width, const float height);
 	void setFrame(const int frame);
+	void setColor(const char r, const char g, const char b, const char a);
 	/* Swaps the texture for this sprite.
 	(texture) The texture to associate to the sprite.
 	(frames) How many animation frames this sprite's texture has.
@@ -157,7 +157,7 @@ class Sprite {
 	(a) The position of the A end.
 	(thickness) The thickness of the line.
 	[t3chma] */
-	void makeLine(glm::vec2& b, glm::vec2& a, float thickness);
+	void makeLine(Vec2 b, Vec2 a, float thickness);
 };
 
 }

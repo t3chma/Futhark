@@ -10,6 +10,7 @@
 #include "../actors/Player.h"
 #include "../Arena.h"
 #include <iostream>
+#include <map>
 
 class Icon : public Image {
   public:
@@ -19,13 +20,21 @@ class Icon : public Image {
 
 class GameWorld : public fk::Scene {
   public:
+	Arena::Move* currentCamFramePtr{ nullptr };
+	int currentFrame{ 0 };
 	char newBlock;
-	char* cp;
+	std::vector<char*> charPtrs;
 	fk::TextSprite* selectionInfoPtr{ nullptr };
-	bool edited{ false };
-	bool cEdited{ false };
-	Icon* editIconPtr{ nullptr };
-	Icon* editorIconPtr{ nullptr };
+	bool rEdit{ false };
+	bool cEdit{ false };
+	bool tEdit{ false };
+	bool xEdit{ false };
+	bool yEdit{ false };
+	bool wEdit{ false };
+	std::string input;
+	Icon* editSelectionIconPtr{ nullptr };
+	Icon* editSelection2IconPtr{ nullptr };
+	Icon* editModeIconPtr{ nullptr };
 	Mouse* editorMousePtr{ nullptr };
 	std::list<fk::TextSprite> levelSelect;
 	int currentLevel{ 0 };
@@ -53,5 +62,15 @@ class GameWorld : public fk::Scene {
 	virtual void open(fk::Tools& tools) override;
 	virtual void close(fk::Tools& tools) override;
 	virtual void update(fk::Tools& tools) override;
+
+	void updateEdit(fk::Tools & tools, const glm::ivec2 &blockIndex);
+
+	void writeInput(fk::Tools & tools, int & write);
+
+	void writeChoregraphy();
+
+	void reloadEdit(fk::Tools & tools);
+
+	void updatePause(fk::Tools & tools);
 
 };

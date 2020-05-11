@@ -261,8 +261,8 @@ TextSprite TTFont::generateCharSprites(
 }
 
 
-TextSprite::TextSprite(SpriteBatch& spriteBatch, TTFont& font)
-	: m_spriteBatch(spriteBatch), m_font(font) {
+TextSprite::TextSprite(SpriteBatch& spriteBatch, TTFont& font, float scale)
+	: m_spriteBatch(spriteBatch), m_font(font), m_scale(scale) {
 	
 }
 TextSprite TextSprite::operator=(const TextSprite& rhs) {
@@ -271,7 +271,7 @@ TextSprite TextSprite::operator=(const TextSprite& rhs) {
 	m_spriteBatch = rhs.m_spriteBatch;
 	return *this;
 }
-void TextSprite::setPosition(glm::vec2 position, Justification justification) {
+void TextSprite::setPosition(Vec2 position, Justification justification) {
 	m_justification = justification;
 	if (m_spriteIds.size()) {
 		switch (justification) {
@@ -290,7 +290,7 @@ void TextSprite::setPosition(glm::vec2 position, Justification justification) {
 void TextSprite::setDepth(int depth) {
 	for (auto&& index : m_spriteIds) { m_spriteBatch[index].canvas.position.z = depth; }
 }
-void TextSprite::setPosition(glm::vec2 position) {
+void TextSprite::setPosition(Vec2 position) {
 	setPosition(position, m_justification);
 }
 void TextSprite::move(glm::vec2 translation) {
@@ -315,6 +315,7 @@ void TextSprite::setText(std::string text, glm::vec2 scale, Justification justif
 		auto r = m_spriteBatch[m_spriteIds[0]].canvas.rotationAngle;
 		auto x = m_spriteBatch[m_spriteIds[0]].canvas.rotationAxis;
 		for (auto&& id : m_spriteIds) { m_spriteBatch.destroySprite(id); }
+		m_spriteIds.clear();
 		*this = m_font.generateCharSprites(text, m_spriteBatch, scale, justification);
 		float offset = 0;
 		for (auto&& id : m_spriteIds) {

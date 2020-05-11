@@ -18,8 +18,8 @@ class Gun : public Intellect {
 		fk::Random r;
 		char upgrade{ '`' };
 		int bounces{ 0 };
-		glm::vec2 oldPos{ 0,0 };
-		M_bullet(Body* ownerPtr, fk::SpriteBatch& sb, fk::World& w, Body::Def& bulDef, fk::Texture& t, int level = 0);
+		fk::Vec2 oldPos{ 0,0 };
+		M_bullet(Player* ownerPtr, fk::SpriteBatch& sb, fk::World& w, Body::Def& bulDef, fk::Texture& t, int level = 0);
 		virtual void draw() override;
 		virtual void update(fk::UserInput& ui) override;
 		virtual void p_beginCollision(
@@ -36,7 +36,7 @@ class Gun : public Intellect {
 	fk::TextSprite text;
 	int team{ 0 };
 	Gun(fk::SpriteBatch& sb, fk::World& w, fk::Texture& bulTex, fk::TextSprite& f);
-	void fire(Body* ownerPtr, fk::Vec2 spawn, fk::Vec2 direction, int level);
+	void fire(Player* ownerPtr, fk::Vec2 spawn, fk::Vec2 direction, int level);
 	void setUpgrade(char u);
 	virtual void update(fk::UserInput& ui) override;
 	~Gun();
@@ -46,9 +46,9 @@ class Gun : public Intellect {
 	long charge{ 0 };
 	char upgrade{ '`' };
 	long lastFire{ 0 };
-	long clipSize{ 7 };
+	long clipSize{ 12 };
 	long ammo{ clipSize };
 	long reloadTime{ 60 };
-	long reload{ 0 };
+	long reloadEdit{ 0 };
 	bool trigger{ false };
 };

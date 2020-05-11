@@ -19,11 +19,11 @@ class TTFont;
 class TextSprite {
   public:
 	friend class TTFont;
-	TextSprite(SpriteBatch& spriteBatch, TTFont& font);
+	TextSprite(SpriteBatch& spriteBatch, TTFont& font, float scale = 1);
 	TextSprite(const TextSprite&) = default;
 	TextSprite operator = (const TextSprite& rhs);
-	void setPosition(glm::vec2 position, Justification m_justification);
-	void setPosition(glm::vec2 position);
+	void setPosition(Vec2 position, Justification m_justification);
+	void setPosition(Vec2 position);
 	void setDepth(int depth);
 	void move(glm::vec2 translation);
 	SpriteBatch::Sprite& operator [] (int charIndex);
@@ -42,7 +42,7 @@ class TextSprite {
 	// The spritebatch for the given character sprites.
 	SpriteBatch& m_spriteBatch;
 	// Base justification.
-	Justification m_justification;
+	Justification m_justification{ Justification::LEFT};
 	// Base scale.
 	glm::vec2 m_scale{ 1 };
 };

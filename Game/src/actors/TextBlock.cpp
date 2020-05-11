@@ -14,13 +14,13 @@ TextBlock::TextBlock(char c, fk::TTFont& f, fk::SpriteBatch& sb, fk::World& w, B
 	case 'Q':
 	case 'q':
 	case 'p': addCircleLimb(2);
+	default:
+		addRectangleLimb(0.25, 0.25);
+		break;
 	case '.':
 	case 's':
 	case 'z':
 		addRectangleLimb(0.24, 0.24);
-		break;
-	default:
-		addRectangleLimb(0.25, 0.25);
 		break;
 	case 'x':
 	case '~':
@@ -43,12 +43,12 @@ TextBlock::TextBlock(char c, fk::TTFont& f, fk::SpriteBatch& sb, fk::World& w, B
 
 	switch (c) {
 	default: break;
-	case '(':
-	case ')':
 	case '}':
 	case '{':
 	case ']':
-	case '[':
+	case '[': b2Ptr->SetSleepingAllowed(false); b2Ptr->SetBullet(true);
+	case '(':
+	case ')':
 	case '<':
 	case '>':
 	case '^':
@@ -64,7 +64,7 @@ TextBlock::TextBlock(char c, fk::TTFont& f, fk::SpriteBatch& sb, fk::World& w, B
 	case 'Q':
 	case 'p':
 	case 'q':
-	case 'w': limbs.back().b2Ptr->SetSensor(true); b2Ptr->SetType(b2_staticBody);
+	case 'w': limbs.front().b2Ptr->SetSensor(true); b2Ptr->SetType(b2_staticBody);
 	case '1':
 	case '2':
 	case '3':
@@ -91,7 +91,7 @@ TextBlock::TextBlock(char c, fk::TTFont& f, fk::SpriteBatch& sb, fk::World& w, B
 		limbs.back().b2Ptr->SetRestitution(0); 
 		break;
 	case '~': limbs.back().b2Ptr->SetDensity(1); break;
-	case 'x': resistance = 0; break;
+	case 'x': resistance = 0; b2Ptr->SetSleepingAllowed(false); break;
 	}
 	b2Ptr->SetLinearDamping(resistance);
 
@@ -140,13 +140,6 @@ TextBlock::TextBlock(char c, fk::TTFont& f, fk::SpriteBatch& sb, fk::World& w, B
 	case '-':
 	case '/':
 	case '|':
-	case 'r':
-	case 'm':
-	case '`':
-	case 'l':
-	case 'h':
-	case 't':
-	case 'e':
 		for (size_t i = 0; i < 4; i++) {
 			texts.push_back(f.generateCharSprites(s, sb, glm::vec2(size), fk::Justification::MIDDLE));
 			texts.back().setPosition(bd.position);
@@ -158,6 +151,13 @@ TextBlock::TextBlock(char c, fk::TTFont& f, fk::SpriteBatch& sb, fk::World& w, B
 	case 'x':
 	case 'c':
 	case '.':
+	case 'r':
+	case 'm':
+	case '`':
+	case 'l':
+	case 'h':
+	case 't':
+	case 'e':
 		texts.push_back(f.generateCharSprites(s, sb, glm::vec2(size), fk::Justification::MIDDLE));
 		texts.back().setPosition(bd.position);
 		texts.back()[0].canvas.rotationAxis = bd.position;
