@@ -24,7 +24,7 @@ class Arena {
 			return this == &rhs;
 		}
 		void draw() {};
-		int t{ 0 };
+		int t{ 60 };
 		fk::Vec2 position;
 	};
 	class Wind : public Image {

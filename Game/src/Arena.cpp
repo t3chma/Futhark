@@ -185,7 +185,7 @@ void Arena::init(fk::TTFont& f, fk::SpriteBatch& sb, fk::World& world, fk::Textu
 	while (buffer.size() < maxSize) { buffer.emplace_back("\n"); }
 	i = 0;
 	for (auto&& line : buffer) {
-		if (++i > 4) {
+		if (++i > metadata) {
 			line.pop_back();
 			while (line.size() < maxSize) { line += " "; }
 			line += "\n";
@@ -234,12 +234,14 @@ void Arena::update(fk::UserInput& ui) {
 	if (!freezeCam) {
 		for (auto&& sceen : choreography) {
 			if (i++ == c) {
-				if (--cTime < 0) {
-					if (++c >= choreography.size()) { c = 0; }
+				if (cTime-- == 0) {
+					++c;
+					if (c >= choreography.size()) { c = 0; }
+				} else if (cTime < 0) {
 					cTime = sceen.t;
 					step = (sceen.position - old) / sceen.t;
 					old = sceen.position;
-				};
+				}
 				cam += step;
 				break;
 			}
@@ -247,11 +249,13 @@ void Arena::update(fk::UserInput& ui) {
 	}
 	i = 0;
 	for (auto&& forcast : weather) {
-		if (i++ == c) {
-			if (--wTime < 0) {
-				if (++w >= weather.size()) { w = 0; }
+		if (i++ == w) {
+			if (wTime-- == 0) {
+				++w;
+				if (w >= weather.size()) { w = 0; }
+			} else if (wTime < 0) {
 				wTime = forcast.t;
-			};
+			}
 			gravity = forcast.d;
 			break;
 		} 

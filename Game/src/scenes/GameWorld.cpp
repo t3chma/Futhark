@@ -318,9 +318,14 @@ void GameWorld::updateEdit(fk::Tools& tools, const glm::ivec2& blockIndex) {
 			int& write = currentCamFramePtr->t;
 			selectionInfoPtr->setText("enter: set time to " + input + ", esc: cancel");
 			writeInput(tools, write);
+			if (tools.ui.getKeyInfo(fk::Key::ENTER).downFrames == 1) { tEdit = false; }
 		} else if (tools.ui.getKeyInfo(fk::Key::ENTER).downFrames == 1) {
 			if (currentCamFramePtr) { currentCamFramePtr->position = cam.getPosition(); }
-			else { arenaPtr->start = cam.getPosition(); }
+			else {
+				arenaPtr->start = cam.getPosition();
+				arenaPtr->start.x = floor(arenaPtr->start.x * 4 + 0.5) / 4;
+				arenaPtr->start.y = floor(arenaPtr->start.y * 4 + 0.5) / 4;
+			}
 			writeChoregraphy();
 			reloadEdit(tools);
 		} else if (tools.ui.getKeyInfo(fk::Key::BACK_SPC).downFrames == 1) {
@@ -332,7 +337,9 @@ void GameWorld::updateEdit(fk::Tools& tools, const glm::ivec2& blockIndex) {
 			if (currentCamFramePtr) { tEdit = true; input = boost::lexical_cast<std::string>(currentCamFramePtr->t); }
 		} else if (tools.ui.getKeyInfo(fk::Key::INSERT).downFrames == 1) {
 			arenaPtr->choreography.emplace_back(*spriteBatchPtr);
-			arenaPtr->choreography.back().position = arenaPtr->mapToFile(cam.getPosition());
+			arenaPtr->choreography.back().position = cam.getPosition();
+			arenaPtr->choreography.back().position.x = floor(arenaPtr->start.x) + 0.5;
+			arenaPtr->choreography.back().position.y = floor(arenaPtr->start.y) + 0.5;
 			writeChoregraphy();
 			reloadEdit(tools);
 		} else if (tools.ui.getKeyInfo(fk::Key::DEL).downFrames == 1) {
